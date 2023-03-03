@@ -364,8 +364,10 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, length=length)
                     
+                    ll = pred_I.shape[1]//3
+                    loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
                     # if loss<5e-06:
-                    if loss<4e-05:
+                    if loss_end<4e-05:
                         flag = True
                         break
                     try:
@@ -389,7 +391,7 @@ if __name__ == '__main__':
             
 
         
-        torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt') 
+        torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         
         # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
