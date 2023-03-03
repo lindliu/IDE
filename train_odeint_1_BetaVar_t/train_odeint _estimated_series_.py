@@ -114,7 +114,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     
     fig, ax = plt.subplots(2,3,figsize=(10,8))
     ax = ax.flatten()
-    ax[0].plot(T, pred_y[0,:,0], label='S predict')
+    ax[0].plot(T.cpu(), pred_y[0,:,0], label='S predict')
     ax[0].legend()
     ax[0].set_title('S')
     
@@ -280,7 +280,7 @@ if __name__ == '__main__':
             file_name = f'real_{c}_{start}_{end}'
             
 
-        func = ODEFunc().to(device)        
+        func = ODEFunc().to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         

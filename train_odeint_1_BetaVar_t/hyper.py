@@ -61,9 +61,9 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
         ll = pred_I.shape[1]//5
         loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
         loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-        loss = loss1 + loss2
+        loss = .2*loss1 + loss2
         
-        return .2*loss.item()
+        return loss.item()
     
     # define a search space
     from hyperopt import hp
