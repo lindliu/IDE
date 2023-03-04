@@ -221,9 +221,9 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 2
+    dis = 10
     # for num in range(184,250,dis):
-    for num in range(220,250,dis):
+    for num in range(80,120,dis):
         writer = SummaryWriter()
 
         ##### data preparation ######
@@ -326,7 +326,7 @@ if __name__ == '__main__':
             
             loss_fn = nn.MSELoss()##nn.L1Loss()
     
-            epoch_sub = 3000
+            epoch_sub = 300
             for itr in range(epoch_sub):
                 # idx = np.array([0])
                 # batch_y = torch.tensor(train_data[idx, ...], dtype=torch.float32).to(device)
@@ -355,6 +355,19 @@ if __name__ == '__main__':
                     batch_I = batch_y[:,:,1]
                     loss = loss_fn(pred_I, batch_I)
                 
+                
+                # ll = pred_I.shape[1]//3
+                # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
+                # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
+                # loss = .5*loss1 + loss2
+                
+                
+                lll = pred_I.shape[1]
+                weight = torch.exp(torch.linspace(0,2,lll)).to(device)
+                loss_weighted = weight * torch.square(pred_I-batch_I)
+                loss = loss_weighted.mean()
+        
+        
                 loss.backward()
                 optimizer.step()
                 
@@ -367,11 +380,11 @@ if __name__ == '__main__':
                     ll = pred_I.shape[1]//3
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
                     # if loss<5e-06:
-                    if loss_end<4e-05:
+                    if loss_end<6e-05 or loss<2e-4:
                         flag = True
                         break
                     try:
-                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}')
+                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, loss_end:{loss_end:.2e}')
                     except:
                         continue
                 

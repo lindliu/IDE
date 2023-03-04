@@ -58,10 +58,17 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
             batch_I = batch_y[:,:,1]
             loss = loss_fn(pred_I, batch_I)
         
-        ll = pred_I.shape[1]//5
-        loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
-        loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-        loss = .2*loss1 + loss2
+        # ll = pred_I.shape[1]//3
+        # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
+        # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
+        # loss = .3*loss1 + loss2
+        
+        
+        
+        lll = pred_I.shape[1]
+        weight = torch.exp(torch.linspace(0,2,lll)).to(device)
+        loss_weighted = weight * torch.square(pred_I-batch_I)
+        loss = torch.sum(loss_weighted)
         
         return loss.item()
     
@@ -128,10 +135,16 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
             batch_I = batch_y[:,:,1]
             loss = loss_fn(pred_I, batch_I)
         
-        ll = pred_I.shape[1]//5
-        loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
-        loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-        loss = .2*loss1 + loss2
+        # ll = pred_I.shape[1]//3
+        # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
+        # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
+        # loss = .3*loss1 + loss2
+        
+        
+        lll = pred_I.shape[1]
+        weight = torch.exp(torch.linspace(0,2,lll)).to(device)
+        loss_weighted = weight * torch.square(pred_I-batch_I)
+        loss = torch.sum(loss_weighted)
         
         return loss.item()
     
