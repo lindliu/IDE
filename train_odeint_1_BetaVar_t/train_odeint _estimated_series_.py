@@ -151,7 +151,8 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     ax[4].set_title('beta')
         
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
-    np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, beta=beta)
+    np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
+             sigma=func_m.sigma.item(), mu=func_m.mu.item(), beta=beta)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -205,7 +206,7 @@ if __name__ == '__main__':
                  'simulation']
     
     country = countries[-1]
-    # country = countries[-1]
+    # country = countries[4]
     
     ### set false if using real cases to train
     estimate = True
@@ -221,9 +222,9 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 10
-    # for num in range(184,250,dis):
-    for num in range(80,120,dis):
+    dis = 5
+    for num in range(10,250,dis):
+    # for num in range(130,250,dis):
         writer = SummaryWriter()
 
         ##### data preparation ######
@@ -363,7 +364,7 @@ if __name__ == '__main__':
                 
                 
                 lll = pred_I.shape[1]
-                weight = torch.exp(torch.linspace(0,2,lll)).to(device)
+                weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
                 loss_weighted = weight * torch.square(pred_I-batch_I)
                 loss = loss_weighted.mean()
         
@@ -379,8 +380,8 @@ if __name__ == '__main__':
                     
                     ll = pred_I.shape[1]//3
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
-                    # if loss<5e-06:
-                    if loss_end<6e-05 or loss<2e-4:
+                    # if loss<2e-04:
+                    if loss_end<4e-05 or loss<6e-4:
                         flag = True
                         break
                     try:
