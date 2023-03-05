@@ -14,10 +14,11 @@ import pandas as pd
 
 
 i = -1
+estimate = True
 
 start_list = [750, 655, 750, 630, 710, 0]
-countries = ['estimated_United Kingdom', 'estimated_Mexico', 'estimated_Belgium', \
-             'estimated_South Africa', 'estimated_Republic of Korea',\
+countries = ['United Kingdom', 'Mexico', 'Belgium', \
+             'South Africa', 'Republic of Korea',\
              'simulation']
 country = countries[i]
 
@@ -41,14 +42,18 @@ elif country=='simulation':
 # data_train_['date'] = pd.to_datetime(data_train_['date'])
 
 
-path_ = glob.glob(f'./figures/{country}_{start}_*')
+if country == 'simulation':
+    file_name = f'{country}'
+elif estimate:
+    file_name = f'estimate_{country}'
+else:
+    file_name = f'real_{country}'
+            
+    
+path_u = glob.glob(f'./figures/{file_name}_{start}_*')
 
-idx_sorted = np.argsort([int(os.path.split(path_[i])[-1].split('_')[-1]) for i in range(len(path_))])
-path_ = np.array(path_)[idx_sorted]
-
-if country=='estimated_Mexico':
-    path_ = np.concatenate([path_[1:163][::2], path_[163:]])
-
+idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
+path_ = np.array(path_u)[idx_sorted]
 
 path = []
 for p in path_:
@@ -64,12 +69,9 @@ print(list(data.keys()))
 
 
 
-
 fig, ax = plt.subplots(1,4,figsize=(16,4))
-# ax.plot(np.arange(400), data_train, label='estimated infectious')
 
 time_day = data_train_['date'][start:start+length]
-ax[1].plot(time_day, data_train, label='estimated infectious')
 
 pred_length = 7
 pred_idx, prediction_I = [], []
@@ -85,7 +87,8 @@ for pp in path:
     data = np.load(pp)
     pred = data['pred']
     
-    mu_list.append(T[np.argmax(data['K'])])
+    mu_list.append(data['mu'].item())
+    sigma_list.append(data['sigma'].item())
     # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
     # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
     
@@ -98,50 +101,46 @@ for pp in path:
     # ax[1].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
     #             pred[0,idx_end-start:idx_end-start+pred_length,1], s=1)
 
+mu_list = np.array(mu_list)
+sigma_list = np.array(sigma_list)
 
 # ax[0].scatter(time_day.iloc[pred_idx], prediction_S, s=1, c='r', label='estimated suseptible')
 ax[0].plot(time_day, pred[0,:,0], label='predicted suseptible')
 ax[0].legend()
 plt.setp(ax[0].get_xticklabels(), rotation=45)
-# if country!='simulation':
-#     ax[0].set_title(f"{country.split('_')[1]}")
-# else:
-#     ax[0].set_title(f"{country}")
-    
+# ax[0].set_title(f"{country}")
 
+    
+ax[1].plot(time_day, data_train, label='estimated infectious')
 ax[1].scatter(time_day.iloc[pred_idx], prediction_I, s=1, c='r', label=f'{pred_length} days prediction')
 ax[1].legend()
 plt.setp(ax[1].get_xticklabels(), rotation=45)
-# if country!='simulation':
-#     ax[1].set_title(f"{country.split('_')[1]}")
-# else:
-#     ax[1].set_title(f"{country}")
-    
+# ax[1].set_title(f"{country}")
 
 # ax[2].scatter(time_day.iloc[pred_idx], prediction_R, s=1, c='r', label='estimated recovered')
 ax[2].plot(time_day, pred[0,:,2], label='predicted recovered')
 ax[2].legend()
 plt.setp(ax[2].get_xticklabels(), rotation=45)
-# if country!='simulation':
-#     ax[2].set_title(f"{country.split('_')[1]}")
-# else:
-#     ax[2].set_title(f"{country}")
-    
+# ax[2].set_title(f"{country}")
+
 
 scale = 400/t_end
 # ax[3].scatter(time_day.iloc[pred_idx], np.array(mu_list)*scale, s=1, c='r', label='$\mu$')
-ax[3].plot(time_day.iloc[pred_idx], np.array(mu_list)*scale, linestyle='dashed', marker='o', label='$\mu$')
+ax[3].plot(time_day.iloc[pred_idx], mu_list*scale, linestyle='dashed', marker='o', label='$\mu$')
 ax[3].legend()
+# ax[3].set_title(f"{country}")
 
+n = 3 ## how many sigmas
+ax[3].fill_between(time_day.iloc[pred_idx], (mu_list-sigma_list*n)*scale, (mu_list+sigma_list*n)*scale,
+    alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
+    linestyle='dashdot', antialiased=True)
 
-if country!='simulation':
-    fig.suptitle(f"{country.split('_')[1]} datasets")
-else:
-    fig.suptitle(f"{country} datasets")
+plt.setp(ax[3].get_xticklabels(), rotation=45)
+
+fig.suptitle(f"{country} datasets")
     
-    
-os.makedirs(f'./figures/{country}_prediction', exist_ok=True)
-fig.savefig(f'./figures/{country}_prediction/{country}_{pred_length}days_prediction.png', bbox_inches='tight', dpi=600)
+os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
+fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', bbox_inches='tight', dpi=600)
 
 
 

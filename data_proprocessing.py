@@ -76,7 +76,7 @@ for i in idx:
     data_.insert(2, "proportion", proportion, True)
 
     plt.plot(data_['inf_mean'])
-    data_.to_csv(f'./data/covid_estimated_{countries[i]}.csv', sep='\t', index=False)
+    data_.to_csv(f'./data/covid_{countries[i]}.csv', sep='\t', index=False)
 
 
 

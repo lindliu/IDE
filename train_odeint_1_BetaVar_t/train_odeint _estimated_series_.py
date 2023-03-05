@@ -201,15 +201,15 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
 
 if __name__ == '__main__':
 
-    countries = ['estimated_United Kingdom', 'estimated_Mexico', 'estimated_Belgium', 
-                 'estimated_South Africa', 'estimated_Republic of Korea',\
+    countries = ['United Kingdom', 'Mexico', 'Belgium', 
+                 'South Africa', 'Republic of Korea',\
                  'simulation']
     
     country = countries[-1]
-    # country = countries[4]
+    # country = countries[1]
     
     ### set false if using real cases to train
-    estimate = True
+    estimate = False
     need_inter = False
 
     ### load data
@@ -231,19 +231,19 @@ if __name__ == '__main__':
         length = 400
         recovery_time = 10
 
-        if country == 'estimated_South Africa':
+        if country == 'South Africa':
             start = 630
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'estimated_Belgium':
+        elif country == 'Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'estimated_Mexico':
+        elif country == 'Mexico':
             start = 655
             data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
-        elif country == 'estimated_United Kingdom':
+        elif country == 'United Kingdom':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'estimated_Republic of Korea':
+        elif country == 'Republic of Korea':
             start = 710
             data_ = get_train_data(data, start, length, recovery_time, estimate)
             
@@ -275,10 +275,9 @@ if __name__ == '__main__':
         if country == 'simulation':
             file_name = f'{country}_{start}_{end}'
         elif estimate:
-            file_name = f'{country}_{start}_{end}'
+            file_name = f'estimate_{country}_{start}_{end}'
         else:
-            c = country.split('_')[1]
-            file_name = f'real_{c}_{start}_{end}'
+            file_name = f'real_{country}_{start}_{end}'
             
 
         func = ODEFunc().to(device)
@@ -381,7 +380,9 @@ if __name__ == '__main__':
                     ll = pred_I.shape[1]//3
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
                     # if loss<2e-04:
-                    if loss_end<4e-05 or loss<6e-4:
+                    # if loss_end<4e-05 or loss<6e-4:
+                    # if loss<6e-4: ## simulation
+                    if loss<6e-5: ## estimated mexico 
                         flag = True
                         break
                     try:
