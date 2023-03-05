@@ -188,7 +188,7 @@ for tt in range(length):
         else:
             env = 'S'
             
-        p_update(p, h, env)
+        p_update(p, h, env, prob=2.3/14, t1=14, mean=mean, var=var)
         
         if i%1000==0:
             print(i)
