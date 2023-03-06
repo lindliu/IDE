@@ -201,8 +201,7 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
 
 if __name__ == '__main__':
 
-    countries = ['United Kingdom', 'Mexico', 'Belgium', 
-                 'South Africa', 'Republic of Korea',\
+    countries = ['United Kingdom', 'Mexico', 'Belgium', 'South Africa', 'Republic of Korea',\
                  'simulation']
     
     country = countries[-1]
@@ -222,7 +221,7 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 5
+    dis = 2
     for num in range(10,250,dis):
     # for num in range(130,250,dis):
         writer = SummaryWriter()
@@ -305,7 +304,8 @@ if __name__ == '__main__':
 
         ##### find a proper initial value of beta #####
         c_func = ODEFunc1().to(device)
-        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, range_=range_, max_evals=100, need_inter=need_inter)
+        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
+                           range_=range_, max_evals=100, need_inter=need_inter)
         beta_init = best['beta']
         ###############################################
 
@@ -313,11 +313,12 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(10):
+        for kk in range(20):
             flag = False
 
             ### initialize mu, sigma and S0 
-            func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_evals=100, need_inter=need_inter)
+            func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, \
+                                               method, max_evals=100, need_inter=need_inter)
             
             optimizer = optim.Adam([
                             {'params': func.parameters()},
@@ -371,7 +372,9 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
                 
-                writer.add_scalar('Loss/train', loss, epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
@@ -381,8 +384,8 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
                     # if loss<2e-04:
                     # if loss_end<4e-05 or loss<6e-4:
-                    # if loss<6e-4: ## simulation
-                    if loss<6e-5: ## estimated mexico 
+                    if loss<6e-4: ## simulation
+                    # if loss<6e-5: ## estimated mexico 
                         flag = True
                         break
                     try:
@@ -395,14 +398,14 @@ if __name__ == '__main__':
                 break
             
             
-            diff = torch.abs(pred_I-batch_I)
-            cop_idx = diff.shape[1]//10  ## first 90% data
-            if diff[:,-cop_idx:].sum()/diff.sum()>.3:
-                print("retrain beta!!!")
-                pred = func.NN_beta(T.reshape([-1,1]))
-                target = torch.ones(length,1).to(device) * beta_init
-                target[:cop_idx] = pred[:cop_idx].detach()
-                func = train_beta(func, T, target)
+            # diff = torch.abs(pred_I-batch_I)
+            # cop_idx = diff.shape[1]//10  ## first 90% data
+            # if diff[:,-cop_idx:].sum()/diff.sum()>.3:
+            #     print("retrain beta!!!")
+            #     pred = func.NN_beta(T.reshape([-1,1]))
+            #     target = torch.ones(length,1).to(device) * beta_init
+            #     target[:cop_idx] = pred[:cop_idx].detach()
+            #     func = train_beta(func, T, target)
             
 
         
