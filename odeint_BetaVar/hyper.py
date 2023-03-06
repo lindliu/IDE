@@ -68,7 +68,7 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
         lll = pred_I.shape[1]
         weight = torch.exp(torch.linspace(0,3,lll)).to(device)
         loss_weighted = weight * torch.square(pred_I-batch_I)
-        loss = torch.sum(loss_weighted)
+        loss = loss_weighted.mean()
         
         return loss.item()
     
@@ -144,7 +144,7 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
         lll = pred_I.shape[1]
         weight = torch.exp(torch.linspace(0,3,lll)).to(device)
         loss_weighted = weight * torch.square(pred_I-batch_I)
-        loss = torch.sum(loss_weighted)
+        loss = loss_weighted.mean()
         
         return loss.item()
     

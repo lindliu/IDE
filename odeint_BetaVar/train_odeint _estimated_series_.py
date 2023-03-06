@@ -39,7 +39,7 @@ class Memory(nn.Module):
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self):
+    def __init__(self, tau=1.):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -47,7 +47,9 @@ class ODEFunc1(nn.Module):
         self.gamma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         
         self.S0 = nn.Parameter(torch.tensor(.9).to(device), requires_grad=True)
-                
+        
+        self.tau = tau
+        
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
@@ -56,11 +58,15 @@ class ODEFunc1(nn.Module):
         dIdt = self.beta * S * I - I
         dRdt = I - integro
         
-        return torch.cat((dSdt,dIdt,dRdt),1)
+        # dSdt = (-self.beta * S * I)*self.tau + integro    
+        # dIdt = (self.beta * S * I - I)*self.tau
+        # dRdt = I*self.tau - integro
+        
+        return torch.cat((dSdt,dIdt,dRdt),1) # * self.tau
 
 class ODEFunc(nn.Module):
 
-    def __init__(self):
+    def __init__(self, tau=1.):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -81,7 +87,10 @@ class ODEFunc(nn.Module):
                 nn.init.constant_(m.bias, val=0)
                 
         self.S0 = nn.Parameter(torch.tensor(.9).to(device), requires_grad=True)
-                
+        
+        ### characteristic time step
+        self.tau = tau
+
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
@@ -92,7 +101,11 @@ class ODEFunc(nn.Module):
         dIdt = self.NN_beta(t) * S * I - I
         dRdt = I - integro
         
-        return torch.cat((dSdt,dIdt,dRdt),1)
+        # dSdt = (-self.NN_beta(t) * S * I)*self.tau + integro    
+        # dIdt = (self.NN_beta(t) * S * I - I)*self.tau
+        # dRdt = I*self.tau - integro
+        
+        return torch.cat((dSdt,dIdt,dRdt),1)# * self.tau
 
 def save_fig(func, func_m, file_name, iteration, loss, length=300):
     T = torch.linspace(0., t_end, length*mul).to(device)
@@ -208,7 +221,7 @@ if __name__ == '__main__':
     # country = countries[1]
     
     ### set false if using real cases to train
-    estimate = False
+    estimate = True
     need_inter = False
 
     ### load data
@@ -221,11 +234,10 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 2
+    dis = 3
     for num in range(10,250,dis):
     # for num in range(130,250,dis):
-        writer = SummaryWriter()
-
+        
         ##### data preparation ######
         length = 400
         recovery_time = 10
@@ -277,15 +289,18 @@ if __name__ == '__main__':
             file_name = f'estimate_{country}_{start}_{end}'
         else:
             file_name = f'real_{country}_{start}_{end}'
-            
+       
+        writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
-        func = ODEFunc().to(device)
+        
+        tau = 1. ##  1.7 ###
+        func = ODEFunc(tau).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
         # T = torch.linspace(0., 250, length).to(device)
         # method = 'euler'#'dopri5' ##
-        # func = ODEFunc1().to(device)
+        # func = ODEFunc1(tau).to(device)
         # func.beta = nn.Parameter(torch.tensor(2.48).to(device), requires_grad=True)
         # func_m = Memory().to(device)
         # func_m.mu = nn.Parameter(torch.tensor(15.).to(device), requires_grad=True)
@@ -303,7 +318,7 @@ if __name__ == '__main__':
         from hyper import hyper_min_2, hyper_min_3
 
         ##### find a proper initial value of beta #####
-        c_func = ODEFunc1().to(device)
+        c_func = ODEFunc1(tau).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
                            range_=range_, max_evals=100, need_inter=need_inter)
         beta_init = best['beta']
@@ -382,9 +397,8 @@ if __name__ == '__main__':
                     
                     ll = pred_I.shape[1]//3
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
-                    # if loss<2e-04:
-                    # if loss_end<4e-05 or loss<6e-4:
-                    if loss<6e-4: ## simulation
+
+                    if loss<1e-4: ## simulation
                     # if loss<6e-5: ## estimated mexico 
                         flag = True
                         break

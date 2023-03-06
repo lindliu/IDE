@@ -140,7 +140,8 @@ plt.setp(ax[3].get_xticklabels(), rotation=45)
 fig.suptitle(f"{country} datasets")
     
 os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
-fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', bbox_inches='tight', dpi=600)
+fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
+            bbox_inches='tight', dpi=300)
 
 
 

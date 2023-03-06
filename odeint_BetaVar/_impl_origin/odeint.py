@@ -70,10 +70,20 @@ def odeint(func, func_m, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
         ValueError: if an invalid `method` is provided.
     """
     
-    t_ = torch.arange(0,t[-1].item(),.01).to(device)
+    if func_m.sigma.item()<0.01:
+        dt_ = func_m.sigma.item()/2
+    else:
+        dt_ = 0.01
+    dt_num = int(1/dt_)+1
+    
+    # t_ = torch.arange(0,t[-1].item(),dt_).to(device)
+    t_ = torch.linspace(0,t[-1].item(),dt_num).to(device)
     # K = func_m(t.reshape(-1,1))
     K = func_m(t_.reshape(-1,1))
     K = torch.flip(K, dims=(0,))
+    
+    ##nomalization
+    K = K/(K.sum()*(t_[1]-t_[0])+1e-8)
     # print('KKKKK', K.shape)
     
     shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS)
