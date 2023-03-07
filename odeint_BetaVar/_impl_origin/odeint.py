@@ -70,8 +70,10 @@ def odeint(func, func_m, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
         ValueError: if an invalid `method` is provided.
     """
     
-    if func_m.sigma.item()<0.01:
+    if func_m.sigma.item()<0.01 and func_m.sigma.item()>0.001:
         dt_ = func_m.sigma.item()/2
+    elif func_m.sigma.item()<=0.001:
+        dt_ = 0.005
     else:
         dt_ = 0.01
     dt_num = int(1/dt_)+1

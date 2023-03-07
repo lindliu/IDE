@@ -34,7 +34,7 @@ class Memory(nn.Module):
         self.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         
     def forward(self, t):
-        return 1/(self.sigma*(2*torch.pi)**.5)*torch.exp(-1/2*(t-self.mu)**2/self.sigma**2)
+        return 1/(torch.abs(self.sigma)*(2*torch.pi)**.5)*torch.exp(-1/2*(t-self.mu)**2/torch.abs(self.sigma)**2)
 
 
 class ODEFunc1(nn.Module):
@@ -235,7 +235,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(10,250,dis):
+    for num in range(91,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -250,7 +250,7 @@ if __name__ == '__main__':
             data_ = get_train_data(data, start, length, recovery_time, estimate)
         elif country == 'Mexico':
             start = 655
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
+            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
         elif country == 'United Kingdom':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
