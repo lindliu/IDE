@@ -155,6 +155,8 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
     ax[3].plot(np.linspace(0,length,10000), dist[::-1], label='dist')
     ax[3].plot(K, label='dist pred')
+    ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end):.2f}')
+    ax[3].plot([], label=f'$\sigma$: {func_m.sigma.item():.2f}')
     ax[3].legend()
     ax[3].set_title('K')
 
@@ -235,7 +237,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(91,250,dis):
+    for num in range(121,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -328,7 +330,7 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(20):
+        for kk in range(35):
             flag = False
 
             ### initialize mu, sigma and S0 

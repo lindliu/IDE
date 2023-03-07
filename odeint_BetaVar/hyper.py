@@ -76,7 +76,7 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
     from hyperopt import hp
     
     space = {}
-    space['sigma'] = hp.uniform('sigma', 0.0, range_[0])
+    space['sigma'] = hp.uniform('sigma', 1e-3, range_[0])
     space['mu'] = hp.uniform('mu', 0.0, range_[1])
     space['beta'] = hp.uniform('beta', .5, 15.)
     space['gamma'] = hp.uniform('gamma', .99, 1.)
@@ -152,7 +152,7 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
     from hyperopt import hp
     
     space = {}
-    space['sigma'] = hp.uniform('sigma', 0.0, range_[0])
+    space['sigma'] = hp.uniform('sigma', 1e-3, range_[0])
     space['mu'] = hp.uniform('mu', 0.0, range_[1])
     # space['beta'] = hp.uniform('beta', .5, 10.)
     # space['gamma'] = hp.uniform('gamma', 0.1, 3.5)
