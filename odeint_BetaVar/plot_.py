@@ -103,7 +103,7 @@ print(list(data.keys()))
 
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 200
+pred_length = 1
 idx_list, I_list = [], []
 S_list, R_list = [], []
 mu_list, sigma_list = [], []
@@ -111,7 +111,7 @@ mu_list, sigma_list = [], []
 t_end = 25
 T = np.linspace(0., t_end, length)[::-1]
                    
-for pp in path[45:55]:
+for pp in path[:]:
     
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     # idx_end = 400
@@ -147,42 +147,42 @@ white_viridis = LinearSegmentedColormap.from_list('white_viridis', [
 ], N=256)
 
 
-fig = plt.figure()
+# fig = plt.figure()
 
-ax1 = fig.add_subplot(1, 3, 1, projection='scatter_density')
-ax2 = fig.add_subplot(1, 3, 2, projection='scatter_density')
-ax3 = fig.add_subplot(1, 3, 3, projection='scatter_density')
-ax = [ax1, ax2, ax3]
+# ax1 = fig.add_subplot(1, 3, 1, projection='scatter_density')
+# ax2 = fig.add_subplot(1, 3, 2, projection='scatter_density')
+# ax3 = fig.add_subplot(1, 3, 3, projection='scatter_density')
+# ax = [ax1, ax2, ax3]
 
-# density = ax.scatter_density(x, y, cmap=white_viridis)
+# # density = ax.scatter_density(x, y, cmap=white_viridis)
     
-# fig, ax = plt.subplots(1,4,figsize=(16,4))
+# # fig, ax = plt.subplots(1,4,figsize=(16,4))
 
-# ax[0].plot(time_day[idx_list], pred[0,:,0], label='predicted suseptible')
-ax[0].scatter_density(time_day.iloc[idx_list], S_list, label='estimated suseptible', cmap=white_viridis)
-ax[0].legend()
-plt.setp(ax[0].get_xticklabels(), rotation=45)
-# ax[0].set_title(f"{country}")
+# # ax[0].plot(time_day[idx_list], pred[0,:,0], label='predicted suseptible')
+# ax[0].scatter_density(time_day.iloc[idx_list], S_list, label='estimated suseptible', cmap=white_viridis)
+# ax[0].legend()
+# plt.setp(ax[0].get_xticklabels(), rotation=45)
+# # ax[0].set_title(f"{country}")
 
     
-ax[1].plot(time_day, data_train, label='estimated infectious')
-ax[1].scatter_density(time_day[idx_list], I_list, label=f'{pred_length} days prediction', cmap=white_viridis)
-ax[1].legend()
-plt.setp(ax[1].get_xticklabels(), rotation=45)
-# ax[1].set_title(f"{country}")
+# ax[1].plot(time_day, data_train, label='estimated infectious')
+# ax[1].scatter_density(time_day[idx_list], I_list, label=f'{pred_length} days prediction', cmap=white_viridis)
+# ax[1].legend()
+# plt.setp(ax[1].get_xticklabels(), rotation=45)
+# # ax[1].set_title(f"{country}")
 
-# ax[2].plot(time_day[idx_list], pred[0,:,2], label='predicted recovered')
-ax[2].scatter_density(time_day.iloc[idx_list], R_list, label='estimated recovered', cmap=white_viridis)
-ax[2].legend()
-plt.setp(ax[2].get_xticklabels(), rotation=45)
-# ax[2].set_title(f"{country}")
+# # ax[2].plot(time_day[idx_list], pred[0,:,2], label='predicted recovered')
+# ax[2].scatter_density(time_day.iloc[idx_list], R_list, label='estimated recovered', cmap=white_viridis)
+# ax[2].legend()
+# plt.setp(ax[2].get_xticklabels(), rotation=45)
+# # ax[2].set_title(f"{country}")
 
-fig.suptitle(f"{country} datasets")
-# fig.colorbar(density, label='Number of points per pixel')
+# fig.suptitle(f"{country} datasets")
+# # fig.colorbar(density, label='Number of points per pixel')
 
-os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
-fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
-            bbox_inches='tight', dpi=300)
+# os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
+# fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
+#             bbox_inches='tight', dpi=300)
 
 
     
@@ -214,7 +214,9 @@ fig, ax = plt.subplots()
 
 Z_ = np.rot90(Z)
 # ax.imshow(Z_, cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax])
-ax.imshow(Z_/Z_.sum(axis=0), cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax])
+
+Z_norm = Z_/Z_.sum(axis=0)
+ax.imshow(Z_norm, cmap=plt.cm.gist_earth_r, extent=[xmin, xmax, ymin, ymax])
 
 # ax.plot(m1, m2, 'k.', markersize=2)
 ax.plot(time_day/scale, data_train, label='estimated infectious')
