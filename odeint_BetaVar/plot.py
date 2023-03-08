@@ -73,7 +73,7 @@ fig, ax = plt.subplots(1,4,figsize=(16,4))
 
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 7
+pred_length = 2
 pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
@@ -142,12 +142,3 @@ fig.suptitle(f"{country} datasets")
 os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
 fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
             bbox_inches='tight', dpi=300)
-
-
-
-
-
-
-
-
-

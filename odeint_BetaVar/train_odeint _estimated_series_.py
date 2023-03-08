@@ -237,7 +237,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(121,250,dis):
+    for num in range(187,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -330,7 +330,7 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(35):
+        for kk in range(30):
             flag = False
 
             ### initialize mu, sigma and S0 
