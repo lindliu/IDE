@@ -408,7 +408,7 @@ if __name__ == '__main__':
                         print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, loss_end:{loss_end:.2e}')
                     except:
                         continue
-                
+            
             
             if flag:
                 break

@@ -55,12 +55,12 @@ for j in range(batch):
     SIR_batch[j,...] = SIR_f
 # SIR_batch = np.array(SIR_batch)
 
-plt.figure()
-plt.plot(SIR_batch[0], label=['s','i','r'])
-plt.legend()
+# plt.figure()
+# plt.plot(SIR_batch[0], label=['s','i','r'])
+# plt.legend()
 
-# np.save('./data/train_sir_l.npy', SIR_batch)
-# np.save('./data/dist_l.npy', dist)
+# # np.save('./data/train_sir_l.npy', SIR_batch)
+# # np.save('./data/dist_l.npy', dist)
 
 
 
@@ -70,21 +70,36 @@ plt.legend()
 
 
 ##### with interpolation #####
-
 from scipy.interpolate import interp1d, UnivariateSpline, Rbf
 from functools import partial
 import scipy.stats as stats 
 import numpy as np 
 import matplotlib.pyplot as plt
 
-def integrate_real(pre, t, K):
-    interp_y = interp1d(t, pre, kind='slinear')
+# def integrate_real(pre, t, t_, K):
+#     interp_y = interp1d(t, pre, kind='slinear')
+
+#     new_dt = 0.005
+#     new_t = np.arange(0, t[-1], new_dt)
+#     new_y = interp_y(new_t)
+#     new_gamma = K(new_t)[::-1]
+#     return sum(new_y*new_gamma)*new_dt
+
+def integrate_real(pre, t, t_tau, K):
+    interp_y = interp1d(t_tau, pre, kind='slinear')
 
     new_dt = 0.005
-    new_t = np.arange(0, t[-1], new_dt)
+    num = int(t_tau[-1]//new_dt)
+    new_t = np.linspace(0, t_tau[-1], num)
     new_y = interp_y(new_t)
-    new_gamma = K(new_t)[::-1]
+    # print(new_y.shape)
+    
+    # tt = np.linspace(0,t_tau[-1],num)
+    tt = np.linspace(0,t[-1],num)
+    # K = partial(Norm, loc=5, scale=1)
+    new_gamma = K(tt)[::-1]
     return sum(new_y*new_gamma)*new_dt
+    # return sum(new_y*new_gamma)*(tt[1]-tt[0])
 
 
 def integrate(pre, t, dist):
@@ -97,13 +112,14 @@ def integrate(pre, t, dist):
     return sum(new_y*new_gamma)*new_dt
 
 
+tau = 1
 def f_SIR(y, t, dt, K, beta=1.5, gamma=1):
     pre = y[:,1]
     
     pre = np.r_[pre, pre[-1]]
     t = np.r_[t,t[-1]+dt]
     # integro = integrate(pre, t, dist)
-    integro = integrate_real(pre, t, K)
+    integro = integrate_real(pre, t, t*tau, K)
     # print(integro)
     S, I, R = y[-1]
     
@@ -130,7 +146,7 @@ Erlang = False
 if Erlang==True:
     ##### Erlang distribution #####
     length = 100
-    end = 15
+    end = 25
     t = np.linspace(0., end, length)
     dt = t[1]-t[0]
     K = partial(Gamma, a=2, scale=1.2)
@@ -151,17 +167,17 @@ t_fix = np.linspace(0., end, length)
 dist = K(t_fix)[::-1]
 interp_gamma = interp1d(t_fix, dist, kind='slinear')
 
-plt.figure()
-plt.plot(dist)
-
-
-
-# def normal_dist(x, sigma=1, mu=0):
-#     return 1/(sigma*(2*np.pi)**.5)*np.exp(-1/2*(x-mu)**2/sigma**2)
 # plt.figure()
-# plt.plot(normal_dist(t, sigma=1, mu=5))
+# plt.plot(dist)
 
-tau = 2
+
+
+def normal_dist(x, mu=5, sigma=1):
+    return 1/(sigma*(2*np.pi)**.5)*np.exp(-1/2*(x-mu)**2/sigma**2)
+fig, ax = plt.subplots(1,2)
+ax[0].plot(np.linspace(0,10,100), normal_dist(np.linspace(0,10,100), sigma=1, mu=5))
+ax[1].plot(np.linspace(0,10*tau,100), normal_dist(np.linspace(0,10*tau,100), sigma=1, mu=5*tau))
+
 
 batch = 1
 SIR_batch = np.zeros([batch, length, 3])
