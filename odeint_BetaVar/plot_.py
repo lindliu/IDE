@@ -103,7 +103,7 @@ print(list(data.keys()))
 
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 1
+pred_length = 10
 idx_list, I_list = [], []
 S_list, R_list = [], []
 mu_list, sigma_list = [], []
