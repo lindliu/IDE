@@ -58,10 +58,6 @@ class ODEFunc1(nn.Module):
         dIdt = self.beta * S * I - I
         dRdt = I - integro
         
-        # dSdt = (-self.beta * S * I)*self.tau + integro    
-        # dIdt = (self.beta * S * I - I)*self.tau
-        # dRdt = I*self.tau - integro
-        
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
 class ODEFunc(nn.Module):
@@ -100,10 +96,6 @@ class ODEFunc(nn.Module):
         dSdt = -self.NN_beta(t) * S * I + integro
         dIdt = self.NN_beta(t) * S * I - I
         dRdt = I - integro
-        
-        # dSdt = (-self.NN_beta(t) * S * I)*self.tau + integro    
-        # dIdt = (self.NN_beta(t) * S * I - I)*self.tau
-        # dRdt = I*self.tau - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
@@ -149,13 +141,13 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     ax[2].legend()
     ax[2].set_title('R')
 
-
-    K = func_m(T.reshape(-1,1)).detach().cpu().numpy()[::-1]
+    tau = func_m.tau
+    K = func_m(T.reshape(-1,1) * tau).detach().cpu().numpy()[::-1]
     from scipy.stats import norm
     dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
     ax[3].plot(np.linspace(0,length,10000), dist[::-1], label='dist')
     ax[3].plot(K, label='dist pred')
-    ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end):.2f}')
+    ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end/tau):.2f}')
     ax[3].plot([], label=f'$\sigma$: {func_m.sigma.item():.2f}')
     ax[3].legend()
     ax[3].set_title('K')
@@ -237,7 +229,7 @@ if __name__ == '__main__':
     
     
     dis = 6
-    for num in range(70,250,dis):
+    for num in range(100,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -295,13 +287,13 @@ if __name__ == '__main__':
         writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        tau = 1. ##  1.7 ###
+        tau = 1.5 ##  1.7 ###
         func = ODEFunc(tau).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
         
-        # tau = 2.
+        # tau = 2
         # T = torch.linspace(0., 25, length).to(device)
         # method = 'euler'#'dopri5' ##
         # func = ODEFunc1(tau).to(device)

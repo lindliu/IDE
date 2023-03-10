@@ -78,7 +78,7 @@ def odeint(func, func_m, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
     dt_num = int(1/dt_)+1
     
     # t_ = torch.arange(0,t[-1].item(),dt_).to(device)
-    t_ = torch.linspace(0,t[-1].item(),dt_num).to(device)
+    t_ = torch.linspace(0,t[-1].item(),dt_num).to(device) * func.tau
     # print('asdfasdfasdf ', t_[-1])
     # K = func_m(t.reshape(-1,1))
     K = func_m(t_.reshape(-1,1))

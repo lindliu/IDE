@@ -117,9 +117,10 @@ class FixedGridODESolver(metaclass=abc.ABCMeta):
             dt = t1 - t0
             self.func.callback_step(t0, y0, dt)
             
-            # integro = self.func.integration(solution[:j], self.K[:j])
-            idd = (torch.flip(t_,dims=(0,))<t[j]).sum()
-            integro = self.integration(solution[:j], self.K[-idd:], dt, t, t_, j)
+            tau = t_[-1]/t[-1]
+            idd = (torch.flip(t_,dims=(0,))<t[j]*tau).sum()
+            # print(idd)
+            integro = self.integration(solution[:j], self.K[-idd:], dt, t*tau, t_, j)
             # integro = self.integration(solution[:j], self.K[-j:], dt, t, t_, j)
             
             dy, f0 = self._step_func(self.func, t0, dt, t1, y0, integro)
