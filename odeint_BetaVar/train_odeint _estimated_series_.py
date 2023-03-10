@@ -292,7 +292,7 @@ if __name__ == '__main__':
         else:
             file_name = f'real_{country}_{start}_{end}'
        
-        # writer = SummaryWriter(log_dir=f'./runs/{file_name}')
+        writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
         tau = 1. ##  1.7 ###
@@ -392,9 +392,9 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
                 
-                # writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
-                # writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
-                # writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
+                writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
