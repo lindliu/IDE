@@ -141,7 +141,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     ax[2].legend()
     ax[2].set_title('R')
 
-    tau = func_m.tau
+    tau = func.tau
     K = func_m(T.reshape(-1,1) * tau).detach().cpu().numpy()[::-1]
     from scipy.stats import norm
     dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     
     
     dis = 6
-    for num in range(100,250,dis):
+    for num in range(44,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -284,10 +284,10 @@ if __name__ == '__main__':
         else:
             file_name = f'real_{country}_{start}_{end}'
        
-        writer = SummaryWriter(log_dir=f'./runs/{file_name}')
+        # writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        tau = 1.5 ##  1.7 ###
+        tau = 1. ##  1.7 ###
         func = ODEFunc(tau).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
@@ -384,9 +384,9 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
                 
-                writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
-                writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
-                writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
+                # writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
+                # writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
+                # writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
@@ -426,9 +426,9 @@ if __name__ == '__main__':
         # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
         # func.load_state_dict(torch.load(f'./models/func_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
     
-        writer.close()
+    #     writer.close()
         
-    writer.flush()
+    # writer.flush()
 
     
     # func_m.load_state_dict(torch.load(f'./models/func_m_simulation_0_126_13501_cuda.pt'))
