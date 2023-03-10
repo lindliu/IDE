@@ -34,12 +34,12 @@ class Memory(nn.Module):
         self.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         
     def forward(self, t):
-        return 1/(torch.abs(self.sigma)*(2*torch.pi)**.5)*torch.exp(-1/2*(t-self.mu)**2/torch.abs(self.sigma)**2)
+        return 1/(self.sigma*(2*torch.pi)**.5)*torch.exp(-1/2*(t-self.mu)**2/self.sigma**2)
 
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self, tau=1.):
+    def __init__(self):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -47,9 +47,7 @@ class ODEFunc1(nn.Module):
         self.gamma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         
         self.S0 = nn.Parameter(torch.tensor(.9).to(device), requires_grad=True)
-        
-        self.tau = tau
-        
+                
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
@@ -58,15 +56,11 @@ class ODEFunc1(nn.Module):
         dIdt = self.beta * S * I - I
         dRdt = I - integro
         
-        # dSdt = (-self.beta * S * I)*self.tau + integro    
-        # dIdt = (self.beta * S * I - I)*self.tau
-        # dRdt = I*self.tau - integro
-        
-        return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
+        return torch.cat((dSdt,dIdt,dRdt),1)
 
 class ODEFunc(nn.Module):
 
-    def __init__(self, tau=1.):
+    def __init__(self):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -81,16 +75,27 @@ class ODEFunc(nn.Module):
             ,nn.Softplus()
         )
         
+        
+        self.NN_gamma = nn.Sequential(
+            nn.Linear(1, 20),
+            nn.Tanh(),
+            nn.Linear(20, 20),
+            nn.Tanh(),
+            nn.Linear(20, 20),
+            nn.Tanh(),
+            nn.Linear(20, 1)
+            ,nn.Sigmoid()
+            # ,nn.Softplus()
+        )
+        
+        
         for m in self.NN_beta.modules():
             if isinstance(m, nn.Linear):
                 nn.init.normal_(m.weight, mean=0, std=1.5)
                 nn.init.constant_(m.bias, val=0)
                 
         self.S0 = nn.Parameter(torch.tensor(.9).to(device), requires_grad=True)
-        
-        ### characteristic time step
-        self.tau = tau
-
+                
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
@@ -98,14 +103,12 @@ class ODEFunc(nn.Module):
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
     
         dSdt = -self.NN_beta(t) * S * I + integro
-        dIdt = self.NN_beta(t) * S * I - I
-        dRdt = I - integro
+        # dIdt = self.NN_beta(t) * S * I - I
+        # dRdt = I - integro
+        dIdt = self.NN_beta(t) * S * I - self.NN_gamma(t) * I
+        dRdt = self.NN_gamma(t) * I - integro
         
-        # dSdt = (-self.NN_beta(t) * S * I)*self.tau + integro    
-        # dIdt = (self.NN_beta(t) * S * I - I)*self.tau
-        # dRdt = I*self.tau - integro
-        
-        return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
+        return torch.cat((dSdt,dIdt,dRdt),1)
 
 def save_fig(func, func_m, file_name, iteration, loss, length=300):
     T = torch.linspace(0., t_end, length*mul).to(device)
@@ -127,7 +130,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     
     fig, ax = plt.subplots(2,3,figsize=(10,8))
     ax = ax.flatten()
-    ax[0].plot(T.cpu(), pred_y[0,:,0], label='S predict')
+    ax[0].plot(pred_y[0,:,0], label='S predict')
     ax[0].legend()
     ax[0].set_title('S')
     
@@ -155,8 +158,6 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
     ax[3].plot(np.linspace(0,length,10000), dist[::-1], label='dist')
     ax[3].plot(K, label='dist pred')
-    ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end):.2f}')
-    ax[3].plot([], label=f'$\sigma$: {func_m.sigma.item():.2f}')
     ax[3].legend()
     ax[3].set_title('K')
 
@@ -164,10 +165,14 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     beta = func.NN_beta(T.reshape([-1,1])).detach().cpu().numpy()
     ax[4].plot(beta)
     ax[4].set_title('beta')
-        
+    
+    gamma = func.NN_gamma(T.reshape([-1,1])).detach().cpu().numpy()
+    ax[5].plot(gamma)
+    ax[5].set_title('gamma')
+    
+    
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
-    np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
-             sigma=func_m.sigma.item(), mu=func_m.mu.item(), beta=beta)
+    np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, beta=beta)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -196,13 +201,28 @@ def train_beta(func, T, target):
             print(loss)
     return func
 
+def train_gamma(func, T, target):
+    optimizer = optim.Adam(func.parameters(), lr=1e-3)
+    for itr in range(3000):
+        optimizer.zero_grad()
+        pred = func.NN_gamma(T.reshape([-1,1]))
+        
+        loss = torch.mean(torch.abs(pred - target))
+        
+        loss.backward()
+        optimizer.step()
+        
+        if itr%500==0:
+            print(loss)
+    return func
+
 def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_evals, need_inter):
     print(f'mu: {func_m.mu.item()}, sigma: {func_m.sigma.item()}')
     c_func = copy.deepcopy(func)
     c_func_m = copy.deepcopy(func_m)
     
     init = [func_m.sigma.item(), func_m.mu.item(), func.S0.item()]
-    best = hyper_min_3(c_func, c_func_m, batch_t, inter_t, batch_y, method, init, range_=range_, max_evals=max_evals, need_inter=need_inter)
+    best = hyper_min_3(c_func, c_func_m, batch_t, inter_t, batch_y, method, init, range_=[t_end/10, t_end], max_evals=max_evals, need_inter=need_inter)
     sigma, mu, S0 = best['sigma'], best['mu'], best['S0']
 
     func_m.sigma = nn.Parameter(torch.tensor(sigma).to(device), requires_grad=True)
@@ -216,15 +236,16 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
 
 if __name__ == '__main__':
 
-    countries = ['United Kingdom', 'Mexico', 'Belgium', 'South Africa', 'Republic of Korea',\
+    countries = ['estimated_United Kingdom', 'estimated_Mexico', 'estimated_Belgium', 
+                 'estimated_South Africa', 'estimated_Republic of Korea',\
                  'simulation']
     
+    country = countries[-1]
     # country = countries[-1]
-    country = countries[1]
     
     ### set false if using real cases to train
-    estimate = True
-    need_inter = False
+    estimate = False
+    need_inter=True
 
     ### load data
     if country!='simulation':
@@ -236,27 +257,28 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 6
-    for num in range(70,250,dis):
-    # for num in range(130,250,dis):
-        
+    dis = 2
+    # for num in range(184,250,dis):
+    for num in range(152,250,dis):
+        writer = SummaryWriter()
+
         ##### data preparation ######
         length = 400
         recovery_time = 10
 
-        if country == 'South Africa':
+        if country == 'estimated_South Africa':
             start = 630
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Belgium':
+        elif country == 'estimated_Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Mexico':
+        elif country == 'estimated_Mexico':
             start = 655
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
-        elif country == 'United Kingdom':
+            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
+        elif country == 'estimated_United Kingdom':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Republic of Korea':
+        elif country == 'estimated_Republic of Korea':
             start = 710
             data_ = get_train_data(data, start, length, recovery_time, estimate)
             
@@ -268,11 +290,9 @@ if __name__ == '__main__':
         data_ = np.repeat(data_,3,axis=2)
         
         # t_end, mul = 400, 3
-        t_end, mul = 25, 1
+        t_end, mul = 10, 1
         T = torch.linspace(0., t_end, length*mul).to(device)
         T_ = torch.linspace(0., t_end, length).to(device)
-        
-        range_ = [t_end/10, t_end]
         
         # num = 100
         end = start+num
@@ -288,57 +308,53 @@ if __name__ == '__main__':
         if country == 'simulation':
             file_name = f'{country}_{start}_{end}'
         elif estimate:
-            file_name = f'estimate_{country}_{start}_{end}'
+            file_name = f'{country}_{start}_{end}'
         else:
-            file_name = f'real_{country}_{start}_{end}'
-       
-        # writer = SummaryWriter(log_dir=f'./runs/{file_name}')
+            c = country.split('_')[1]
+            file_name = f'real_{c}_{start}_{end}'
+            
 
-        
-        tau = 1. ##  1.7 ###
-        func = ODEFunc(tau).to(device)
+        func = ODEFunc().to(device)        
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
-        
-        # tau = 2.
-        # T = torch.linspace(0., 25, length).to(device)
+        # T = torch.linspace(0., 250, length).to(device)
         # method = 'euler'#'dopri5' ##
-        # func = ODEFunc1(tau).to(device)
-        # func.beta = nn.Parameter(torch.tensor(2.3).to(device), requires_grad=True)
+        # func = ODEFunc1().to(device)
+        # func.beta = nn.Parameter(torch.tensor(2.48).to(device), requires_grad=True)
         # func_m = Memory().to(device)
-        # func_m.mu = nn.Parameter(torch.tensor(5.).to(device), requires_grad=True)
+        # func_m.mu = nn.Parameter(torch.tensor(15.).to(device), requires_grad=True)
         # func_m.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         # y = torch.tensor(train_data, dtype=torch.float32).to(device)
         # # y0 = y[[0],0,:].to(device)
         # y0 = torch.tensor([[.99,.01,0]], dtype=torch.float).to(device)
         # pred_y = odeint(func, func_m, y0, T, method=method).to(device)
         # plt.plot(pred_y[:,0,:].cpu().detach(), label=['S', 'I', 'R'])
-        # # # plt.plot(train_data[0])
-        # # K = func_m(T.reshape(-1,1)).detach().cpu().numpy()[::-1]
-        # # plt.plot(K)
-        # # plt.legend()
-        
+        # # plt.plot(train_data[0])
+        # K = func_m(T.reshape(-1,1)).detach().cpu().numpy()[::-1]
+        # plt.plot(K)
+        # plt.legend()
         
         from hyper import hyper_min_2, hyper_min_3
 
         ##### find a proper initial value of beta #####
-        c_func = ODEFunc1(tau).to(device)
-        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           range_=range_, max_evals=100, need_inter=need_inter)
+        c_func = ODEFunc1().to(device)
+        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, range_=[t_end/10, t_end], max_evals=100, need_inter=need_inter)
         beta_init = best['beta']
         ###############################################
 
         target = torch.ones(length,1).to(device) * beta_init
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
-
-        for kk in range(30):
+        
+        target = torch.ones(length,1).to(device)
+        func = train_gamma(func, T_, target)
+        
+        for kk in range(10):
             flag = False
 
             ### initialize mu, sigma and S0 
-            func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, \
-                                               method, max_evals=100, need_inter=need_inter)
+            func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_evals=100, need_inter=need_inter)
             
             optimizer = optim.Adam([
                             {'params': func.parameters()},
@@ -347,7 +363,7 @@ if __name__ == '__main__':
             
             loss_fn = nn.MSELoss()##nn.L1Loss()
     
-            epoch_sub = 300
+            epoch_sub = 3000
             for itr in range(epoch_sub):
                 # idx = np.array([0])
                 # batch_y = torch.tensor(train_data[idx, ...], dtype=torch.float32).to(device)
@@ -376,59 +392,41 @@ if __name__ == '__main__':
                     batch_I = batch_y[:,:,1]
                     loss = loss_fn(pred_I, batch_I)
                 
-                
-                # ll = pred_I.shape[1]//3
-                # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
-                # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-                # loss = .5*loss1 + loss2
-                
-                
-                lll = pred_I.shape[1]
-                weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
-                loss_weighted = weight * torch.square(pred_I-batch_I)
-                loss = loss_weighted.mean()
-        
-        
                 loss.backward()
                 optimizer.step()
                 
-                # writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
-                # writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
-                # writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
+                writer.add_scalar('Loss/train', loss, epoch_sub*kk+itr)
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, length=length)
                     
-                    ll = pred_I.shape[1]//3
-                    loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
-
-                    # if loss<1e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico 
+                    # if loss<5e-06:
+                    if loss<4e-05:
                         flag = True
                         break
                     try:
-                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, loss_end:{loss_end:.2e}')
+                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}')
                     except:
                         continue
-            
+                
             
             if flag:
                 break
             
             
-            # diff = torch.abs(pred_I-batch_I)
-            # cop_idx = diff.shape[1]//10  ## first 90% data
-            # if diff[:,-cop_idx:].sum()/diff.sum()>.3:
-            #     print("retrain beta!!!")
-            #     pred = func.NN_beta(T.reshape([-1,1]))
-            #     target = torch.ones(length,1).to(device) * beta_init
-            #     target[:cop_idx] = pred[:cop_idx].detach()
-            #     func = train_beta(func, T, target)
+            diff = torch.abs(pred_I-batch_I)
+            cop_idx = diff.shape[1]//10  ## first 90% data
+            if diff[:,-cop_idx:].sum()/diff.sum()>.3:
+                print("retrain beta!!!")
+                pred = func.NN_beta(T.reshape([-1,1]))
+                target = torch.ones(length,1).to(device) * beta_init
+                target[:cop_idx] = pred[:cop_idx].detach()
+                func = train_beta(func, T, target)
             
 
         
-        torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
+        torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt') 
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         
         # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))

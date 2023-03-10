@@ -85,53 +85,45 @@ import matplotlib.pyplot as plt
 #     new_gamma = K(new_t)[::-1]
 #     return sum(new_y*new_gamma)*new_dt
 
-def integrate_real(pre, t, t_tau, K):
-    interp_y = interp1d(t_tau, pre, kind='slinear')
-
-    new_dt = 0.005
-    num = int(t_tau[-1]//new_dt)
-    new_t = np.linspace(0, t_tau[-1], num)
-    new_y = interp_y(new_t)
-    # print(new_y.shape)
-    
-    # tt = np.linspace(0,t_tau[-1],num)
-    tt = np.linspace(0,t[-1],num)
-    # K = partial(Norm, loc=5, scale=1)
-    new_gamma = K(tt)[::-1]
-    return sum(new_y*new_gamma)*new_dt
-    # return sum(new_y*new_gamma)*(tt[1]-tt[0])
-
-
-def integrate(pre, t, dist):
+def integrate_real(pre, t, K):
     interp_y = interp1d(t, pre, kind='slinear')
 
     new_dt = 0.005
-    new_t = np.arange(0, t[-1], new_dt)
+    num = int(t[-1]/new_dt)+1
+    new_t = np.linspace(0, t[-1], num)
     new_y = interp_y(new_t)
-    new_gamma = interp_gamma(new_t)[::-1]
+
+    new_gamma = K(new_t)[::-1]
+    ## normalize
+    new_gamma = new_gamma/(new_gamma.sum()*new_dt)
+    
     return sum(new_y*new_gamma)*new_dt
 
 
-tau = 1
-def f_SIR(y, t, dt, K, beta=1.5, gamma=1):
+# def integrate(pre, t, dist):
+#     interp_y = interp1d(t, pre, kind='slinear')
+
+#     new_dt = 0.005
+#     new_t = np.arange(0, t[-1], new_dt)
+#     new_y = interp_y(new_t)
+#     new_gamma = interp_gamma(new_t)[::-1]
+#     return sum(new_y*new_gamma)*new_dt
+
+
+def f_SIR(y, t, dt, K, beta=1.5, gamma=1, tau=1):
     pre = y[:,1]
     
     pre = np.r_[pre, pre[-1]]
     t = np.r_[t,t[-1]+dt]
     # integro = integrate(pre, t, dist)
-    integro = integrate_real(pre, t, t*tau, K)
-    # print(integro)
+    integro = integrate_real(pre, t, K) 
     S, I, R = y[-1]
     
-    # dSdt = -beta * S * I + integro
-    # dIdt = beta * S * I - gamma * I
-    # dRdt = gamma * I - integro
+    dSdt = -beta * S * I + integro
+    dIdt = beta * S * I - gamma * I
+    dRdt = gamma * I - integro
     
-    dSdt = (-beta * S * I)*tau + integro
-    dIdt = (beta * S * I - gamma * I)*tau
-    dRdt = (gamma * I)*tau - integro
-    
-    return np.array([[dSdt, dIdt, dRdt]]) 
+    return np.array([[dSdt, dIdt, dRdt]]) * tau
 
 
 
@@ -141,6 +133,9 @@ def Norm(t, loc, scale):
 def Gamma(t, a, scale):
     return stats.gamma.pdf(t, a=a, scale=scale)
 
+
+
+tau = 2
 Erlang = False
 
 if Erlang==True:
@@ -155,7 +150,7 @@ if Erlang==True:
 
 else:
     ##### Gaussian distribution #####
-    length = 100
+    length = 1000
     end = 25
     t = np.linspace(0., end, length)
     dt = t[1]-t[0]
@@ -172,11 +167,11 @@ interp_gamma = interp1d(t_fix, dist, kind='slinear')
 
 
 
-def normal_dist(x, mu=5, sigma=1):
-    return 1/(sigma*(2*np.pi)**.5)*np.exp(-1/2*(x-mu)**2/sigma**2)
-fig, ax = plt.subplots(1,2)
-ax[0].plot(np.linspace(0,10,100), normal_dist(np.linspace(0,10,100), sigma=1, mu=5))
-ax[1].plot(np.linspace(0,10*tau,100), normal_dist(np.linspace(0,10*tau,100), sigma=1, mu=5*tau))
+# def normal_dist(x, mu=5, sigma=1):
+#     return 1/(sigma*(2*np.pi)**.5)*np.exp(-1/2*(x-mu)**2/sigma**2)
+# fig, ax = plt.subplots(1,2)
+# ax[0].plot(np.linspace(0,10,100), normal_dist(np.linspace(0,10,100), sigma=1, mu=5))
+# ax[1].plot(np.linspace(0,10*tau,100), normal_dist(np.linspace(0,10*tau,100), sigma=1, mu=5*tau))
 
 
 batch = 1
@@ -190,12 +185,12 @@ for j in range(batch):
     SIR_f[0,:] = np.array([[S0, I0, R0]])
     
     for i in range(SIR_f.shape[0]-1):
-        SIR_f[[i+1]] = SIR_f[[i]] + f_SIR(SIR_f[:i+1,:], t[:i+1], dt, K, beta, gamma)*dt
+        SIR_f[[i+1]] = SIR_f[[i]] + f_SIR(SIR_f[:i+1,:], t[:i+1]*tau, dt, K, beta, gamma, tau)*dt
     
     SIR_batch[j,...] = SIR_f
 
 plt.figure()
-plt.plot(SIR_batch[0], label=['s','i','r'])
+plt.plot(t, SIR_batch[0], label=['s','i','r'])
 plt.legend()
 
 # if Erlang==True:
