@@ -147,7 +147,9 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
     ax[3].plot(np.linspace(0,length,10000), dist[::-1], label='dist')
     ax[3].plot(K, label='dist pred')
-    ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end/tau):.2f}')
+    
+    mu = func_m.mu.item()*(length/t_end/tau)
+    ax[3].plot([], label=f'$\mu$: {mu:.2f}')
     ax[3].plot([], label=f'$\sigma$: {func_m.sigma.item():.2f}')
     ax[3].legend()
     ax[3].set_title('K')
@@ -159,7 +161,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
         
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
     np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
-             sigma=func_m.sigma.item(), mu=func_m.mu.item(), beta=beta)
+             sigma=func_m.sigma.item(), mu=mu, beta=beta)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
