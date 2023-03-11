@@ -149,6 +149,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
     ax[3].plot(K, label='dist pred')
     ax[3].plot([], label=f'$\mu$: {func_m.mu.item()*(length/t_end/tau):.2f}')
     ax[3].plot([], label=f'$\sigma$: {func_m.sigma.item():.2f}')
+    ax[3].plot([], label=f'$\tau$: {tau:.2f}')
     ax[3].legend()
     ax[3].set_title('K')
 
@@ -193,14 +194,15 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
     c_func = copy.deepcopy(func)
     c_func_m = copy.deepcopy(func_m)
     
-    init = [func_m.sigma.item(), func_m.mu.item(), func.S0.item()]
+    init = [func_m.sigma.item(), func_m.mu.item(), func.S0.item(), func.tau]
     best = hyper_min_3(c_func, c_func_m, batch_t, inter_t, batch_y, method, init, range_=range_, max_evals=max_evals, need_inter=need_inter)
-    sigma, mu, S0 = best['sigma'], best['mu'], best['S0']
+    sigma, mu, S0, tau = best['sigma'], best['mu'], best['S0'], best['tau']
 
     func_m.sigma = nn.Parameter(torch.tensor(sigma).to(device), requires_grad=True)
     func_m.mu = nn.Parameter(torch.tensor(mu).to(device), requires_grad=True)
     
     func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
+    func.tau = tau
     # I0 = batch_y[:,0,1].to(device)
     # batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,1-S0-I0]).reshape(1,3)
     return func, func_m
@@ -228,8 +230,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 3
-    for num in range(10,250,dis):
+    dis = 20
+    for num in range(100,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -287,7 +289,7 @@ if __name__ == '__main__':
         writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        tau = 1.2 ##  3#1.7 ###
+        tau = 1. ##  3#1.7 ###
         func = ODEFunc(tau).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
@@ -318,9 +320,10 @@ if __name__ == '__main__':
         c_func = ODEFunc1(tau).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
                            range_=range_, max_evals=100, need_inter=need_inter)
-        beta_init = best['beta']
+        beta_init, best_tau = best['beta'], best['tau']
         ###############################################
-
+        func.tau = best_tau
+        
         target = torch.ones(length,1).to(device) * beta_init
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
@@ -401,7 +404,7 @@ if __name__ == '__main__':
                         flag = True
                         break
                     try:
-                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, loss_end:{loss_end:.2e}')
+                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, tau: {func.tau}, loss_end:{loss_end:.2e}')
                     except:
                         continue
             
