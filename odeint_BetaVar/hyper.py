@@ -58,12 +58,6 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
             batch_I = batch_y[:,:,1]
             loss = loss_fn(pred_I, batch_I)
         
-        # ll = pred_I.shape[1]//3
-        # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
-        # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-        # loss = .3*loss1 + loss2
-        
-        
         
         lll = pred_I.shape[1]
         weight = torch.exp(torch.linspace(0,3,lll)).to(device)
@@ -76,8 +70,8 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
     from hyperopt import hp
     
     space = {}
-    space['sigma'] = hp.uniform('sigma', 1e-3, range_[0])
-    space['mu'] = hp.uniform('mu', 0.0, range_[1])
+    space['sigma'] = hp.uniform('sigma', range_[0], range_[1])
+    space['mu'] = hp.uniform('mu', range_[2], range_[3])
     space['beta'] = hp.uniform('beta', .5, 15.)
     space['gamma'] = hp.uniform('gamma', .99, 1.)
     space['S0'] = hp.uniform('S0', 0., 1.)
@@ -152,8 +146,8 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
     from hyperopt import hp
     
     space = {}
-    space['sigma'] = hp.uniform('sigma', 1e-3, range_[0])
-    space['mu'] = hp.uniform('mu', 0.0, range_[1])
+    space['sigma'] = hp.uniform('sigma', range_[0], range_[1])
+    space['mu'] = hp.uniform('mu', range_[2], range_[3])
     # space['beta'] = hp.uniform('beta', .5, 10.)
     # space['gamma'] = hp.uniform('gamma', 0.1, 3.5)
     space['S0'] = hp.uniform('S0', 0., 1.)

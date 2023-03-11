@@ -212,7 +212,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[1]
+    country = countries[3]
     
     ### set false if using real cases to train
     estimate = True
@@ -228,8 +228,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 6
-    for num in range(44,250,dis):
+    dis = 3
+    for num in range(10,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -260,11 +260,11 @@ if __name__ == '__main__':
         data_ = np.repeat(data_,3,axis=2)
         
         # t_end, mul = 400, 3
-        t_end, mul = 25, 1
+        t_end, mul = 25, 1 ##10,1
         T = torch.linspace(0., t_end, length*mul).to(device)
         T_ = torch.linspace(0., t_end, length).to(device)
         
-        range_ = [t_end/10, t_end]
+        range_ = [1e-3, t_end/10, recovery_time*3/length*t_end, t_end] ## sigma boundary, mu boundary
         
         # num = 100
         end = start+num
@@ -284,16 +284,16 @@ if __name__ == '__main__':
         else:
             file_name = f'real_{country}_{start}_{end}'
        
-        # writer = SummaryWriter(log_dir=f'./runs/{file_name}')
+        writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        tau = 1. ##  1.7 ###
+        tau = 1.2 ##  3#1.7 ###
         func = ODEFunc(tau).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
         
-        # tau = 2
+        # tau = 1.2
         # T = torch.linspace(0., 25, length).to(device)
         # method = 'euler'#'dopri5' ##
         # func = ODEFunc1(tau).to(device)
@@ -396,7 +396,8 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
                     # if loss<1e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico 
+                    # if loss<1e-5: ## estimated mexico 
+                    if loss<2e-5: ## estimated south africa
                         flag = True
                         break
                     try:
@@ -426,9 +427,9 @@ if __name__ == '__main__':
         # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
         # func.load_state_dict(torch.load(f'./models/func_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
     
-    #     writer.close()
+        writer.close()
         
-    # writer.flush()
+    writer.flush()
 
     
     # func_m.load_state_dict(torch.load(f'./models/func_m_simulation_0_126_13501_cuda.pt'))
