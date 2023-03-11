@@ -160,7 +160,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
         
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
     np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
-             sigma=func_m.sigma.item(), mu=func_m.mu.item(), beta=beta)
+             sigma=func_m.sigma.item(), mu=func_m.mu.item(), beta=beta, tau=tau)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
