@@ -23,6 +23,13 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
+import matplotlib
+font = {'family' : 'normal',
+        # 'weight' : 'normal', #'bold'
+        'size'   : 10}
+matplotlib.rc('font', **font)
+
+
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
@@ -216,7 +223,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[4]
+    country = countries[1]
     
     ### set false if using real cases to train
     estimate = True

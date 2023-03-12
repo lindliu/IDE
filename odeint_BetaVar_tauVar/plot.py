@@ -12,8 +12,13 @@ import glob
 import os
 import pandas as pd
 
+import matplotlib
+font = {'family' : 'normal',
+        # 'weight' : 'normal', #'bold'
+        'size'   : 18}
+matplotlib.rc('font', **font)
 
-i = -1
+i = 4
 estimate = True
 
 start_list = [750, 655, 750, 630, 710, 0]
@@ -69,11 +74,9 @@ print(list(data.keys()))
 
 
 
-fig, ax = plt.subplots(1,4,figsize=(16,4))
-
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 2
+pred_length = 7
 pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
@@ -85,8 +88,12 @@ for pp in path:
     
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     data = np.load(pp)
-    pred = data['pred']
     
+    if length>time_day.shape[0]:
+        pred = data['pred'][:,:time_day.shape[0],:]
+    else:
+        pred = data['pred']
+        
     mu_list.append(data['mu'].item())
     sigma_list.append(data['sigma'].item())
     # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
@@ -104,38 +111,40 @@ for pp in path:
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
-# ax[0].scatter(time_day.iloc[pred_idx], prediction_S, s=1, c='r', label='estimated suseptible')
-ax[0].plot(time_day, pred[0,:,0], label='predicted suseptible')
+fig, ax = plt.subplots(1,5,figsize=(30,5))
+
+ax[0].plot(time_day, data['beta'][:time_day.shape[0],:], linestyle='dashed', marker='o', markersize=1, label='$R_0$')
 ax[0].legend()
-plt.setp(ax[0].get_xticklabels(), rotation=45)
 # ax[0].set_title(f"{country}")
+plt.setp(ax[0].get_xticklabels(), rotation=45)
 
-    
-ax[1].plot(time_day, data_train, label='estimated infectious')
-ax[1].scatter(time_day.iloc[pred_idx], prediction_I, s=1, c='r', label=f'{pred_length} days prediction')
+ax[1].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
 ax[1].legend()
-plt.setp(ax[1].get_xticklabels(), rotation=45)
 # ax[1].set_title(f"{country}")
+n = 3 ## how many sigmas
+ax[1].fill_between(time_day.iloc[pred_idx], mu_list-sigma_list*n, mu_list+sigma_list*n,
+    alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
+    linestyle='dashdot', antialiased=True)
+plt.setp(ax[1].get_xticklabels(), rotation=45)
 
-# ax[2].scatter(time_day.iloc[pred_idx], prediction_R, s=1, c='r', label='estimated recovered')
-ax[2].plot(time_day, pred[0,:,2], label='predicted recovered')
+# ax[2].scatter(time_day.iloc[pred_idx], prediction_S, s=1, c='r', label='estimated suseptible')
+ax[2].plot(time_day, pred[0,:,0], label='predict S')
+ax[2].plot(time_day, pred[0,:,2], label='predict R')
 ax[2].legend()
 plt.setp(ax[2].get_xticklabels(), rotation=45)
 # ax[2].set_title(f"{country}")
 
-
-scale = 400/t_end
-# ax[3].scatter(time_day.iloc[pred_idx], np.array(mu_list)*scale, s=1, c='r', label='$\mu$')
-ax[3].plot(time_day.iloc[pred_idx], mu_list*scale, linestyle='dashed', marker='o', label='$\mu$')
+ax[3].plot(time_day, data_train, label='estimated I')
+ax[3].scatter(time_day.iloc[pred_idx], prediction_I, s=1, c='r', label=f'{pred_length} days predict I')
 ax[3].legend()
+plt.setp(ax[3].get_xticklabels(), rotation=45)
 # ax[3].set_title(f"{country}")
 
-n = 3 ## how many sigmas
-ax[3].fill_between(time_day.iloc[pred_idx], (mu_list-sigma_list*n)*scale, (mu_list+sigma_list*n)*scale,
-    alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
-    linestyle='dashdot', antialiased=True)
-
-plt.setp(ax[3].get_xticklabels(), rotation=45)
+# ax[4].plot(time_day, data['pred'][0,:,1], label='estimated')
+# ax[4].plot(time_day, data_train, label='estimated')
+# ax[4].legend()
+# plt.setp(ax[4].get_xticklabels(), rotation=45)
+# # ax[4].set_title(f"{country}")
 
 fig.suptitle(f"{country} datasets")
     
