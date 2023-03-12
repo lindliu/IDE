@@ -398,8 +398,8 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
                     # if loss<1e-4: ## simulation
-                    # if loss<1e-5: ## estimated mexico 
-                    if loss<2e-5: ## estimated south africa and south korea
+                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<2e-5: ## estimated south africa 
                         flag = True
                         break
                     try:
