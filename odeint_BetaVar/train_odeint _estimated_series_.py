@@ -319,7 +319,7 @@ if __name__ == '__main__':
         ##### find a proper initial value of beta #####
         c_func = ODEFunc1(tau).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           range_=range_, max_evals=100, need_inter=need_inter)
+                           range_=range_, max_evals=300, need_inter=need_inter)
         beta_init = best['beta']
         ###############################################
 

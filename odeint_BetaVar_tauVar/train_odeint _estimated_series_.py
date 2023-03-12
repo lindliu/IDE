@@ -321,7 +321,7 @@ if __name__ == '__main__':
         ##### find a proper initial value of beta #####
         c_func = ODEFunc1(tau).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           range_=range_, max_evals=100, need_inter=need_inter)
+                           range_=range_, max_evals=300, need_inter=need_inter)
         beta_init, best_tau = best['beta'], best['tau']
         ###############################################
         func.tau = best_tau
@@ -401,8 +401,8 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
                     # if loss<1e-4: ## simulation
-                    # if loss<1e-5: ## estimated mexico 
-                    if loss<2e-5: ## estimated south africa and south korea
+                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<2e-5: ## estimated south africa 
                         flag = True
                         break
                     try:
