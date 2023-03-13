@@ -46,7 +46,7 @@ class Memory(nn.Module):
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self, tau=1.):
+    def __init__(self, tau=1., lamb=1.24):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -56,20 +56,21 @@ class ODEFunc1(nn.Module):
         self.S0 = nn.Parameter(torch.tensor(.9).to(device), requires_grad=True)
         
         self.tau = tau
+        self.lamb = lamb
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
     
-        dSdt = -self.beta * S * I + integro    
-        dIdt = self.beta * S * I - I
+        dSdt = - self.lamb * self.beta * S * I + integro    
+        dIdt = self.lamb * self.beta * S * I - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
 class ODEFunc(nn.Module):
 
-    def __init__(self, tau=1.):
+    def __init__(self, tau=1., lamb=1.24):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -93,15 +94,15 @@ class ODEFunc(nn.Module):
         
         ### characteristic time step
         self.tau = tau
-
+        self.lamb = lamb
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
     
-        dSdt = -self.NN_beta(t) * S * I + integro
-        dIdt = self.NN_beta(t) * S * I - I
+        dSdt = - self.lamb * self.NN_beta(t) * S * I + integro
+        dIdt = self.lamb * self.NN_beta(t) * S * I - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
@@ -240,7 +241,7 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 6
+    dis = 3
     for num in range(10,250,dis):
     # for num in range(130,250,dis):
         

@@ -19,7 +19,7 @@ font = {'family' : 'normal',
 matplotlib.rc('font', **font)
 
 
-i = 1
+i = -1
 estimate = True
 
 start_list = [750, 655, 750, 630, 710, 0]
@@ -127,7 +127,7 @@ ax[1].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', lab
 ax[1].legend()
 # ax[1].set_title(f"{country}")
 n = 3 ## how many sigmas
-ax[1].fill_between(time_day.iloc[pred_idx], mu_list-sigma_list*n, mu_list+sigma_list*n,
+ax[1].fill_between(time_day.iloc[pred_idx], np.clip(mu_list-sigma_list*n,0,1000), mu_list+sigma_list*n,
     alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
     linestyle='dashdot', antialiased=True)
 plt.setp(ax[1].get_xticklabels(), rotation=45)
@@ -156,3 +156,9 @@ fig.suptitle(f"{country} datasets")
 os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
 fig.savefig(f'./figures/{file_name}_prediction/{file_name}_{pred_length}days_prediction.png', \
             bbox_inches='tight', dpi=300)
+
+    
+if country=='simulation': 
+    #https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7751056/#:~:text=R0%20of%20COVID%2D19,-R0%20of&text=The%20review%20by%20Liu%20et,an%20interquartile%20range%20of%201.16.
+    lamb = (np.median(data['beta'][:time_day.shape[0],:][:250])/2.79 + data['beta'][:time_day.shape[0],:][:250].mean()/3.28)/2
+    print(f'lambda is {lamb}')
