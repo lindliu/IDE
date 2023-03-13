@@ -24,7 +24,7 @@ import torch.optim as optim
 from torch.utils.tensorboard import SummaryWriter
 
 import matplotlib
-font = {'family' : 'normal',
+font = {#'family' : 'normal',
         # 'weight' : 'normal', #'bold'
         'size'   : 10}
 matplotlib.rc('font', **font)
@@ -225,7 +225,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[1]
+    country = countries[2]
     
     ### set false if using real cases to train
     estimate = True
@@ -242,7 +242,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(10,250,dis):
+    for num in range(106,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -339,12 +339,12 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(30):
+        for kk in range(35):
             flag = False
 
             ### initialize mu, sigma and S0 
             func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, \
-                                               method, max_evals=100, need_inter=need_inter)
+                                               method, max_evals=150, need_inter=need_inter)
             
             optimizer = optim.Adam([
                             {'params': func.parameters()},
@@ -410,12 +410,13 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
                     # if loss<1e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-5: ## estimated south africa 
+                    if loss<2e-6: ### estimated Belgium
                         flag = True
                         break
                     try:
-                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, tau: {func.tau}, loss_end:{loss_end:.2e}')
+                        print(f'mu: {func_m.mu.item():.2f}, sigma: {func_m.sigma.item():.2f}, tau: {func.tau:.2f}, loss_end:{loss_end:.2e}')
                     except:
                         continue
             
