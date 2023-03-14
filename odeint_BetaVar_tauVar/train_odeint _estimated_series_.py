@@ -225,7 +225,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[1]
+    country = countries[4]
     
     ### set false if using real cases to train
     estimate = True
@@ -241,8 +241,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 3
-    for num in range(226,250,dis):
+    dis = 20
+    for num in range(260,320,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
