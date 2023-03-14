@@ -293,7 +293,7 @@ if __name__ == '__main__':
         else:
             file_name = f'real_{country}_{start}_{end}'
        
-        writer = SummaryWriter(log_dir=f'./runs/{file_name}')
+        # writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
         tau = 1.2 ##  3#1.7 ###

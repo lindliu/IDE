@@ -13,7 +13,7 @@ import os
 import pandas as pd
 
 import matplotlib
-font = {'family' : 'normal',
+font = {#'family' : 'normal',
         # 'weight' : 'normal', #'bold'
         'size'   : 18}
 matplotlib.rc('font', **font)
