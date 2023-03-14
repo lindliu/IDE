@@ -262,7 +262,7 @@ if __name__ == '__main__':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
         elif country == 'Republic of Korea':
-            start = 710
+            start = 660
             data_ = get_train_data(data, start, length, recovery_time, estimate)
             
         elif country=='simulation':
