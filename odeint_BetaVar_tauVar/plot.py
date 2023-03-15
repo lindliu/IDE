@@ -80,6 +80,7 @@ pred_length = 7
 pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
+tau_list = []
 
 t_end = 25
 T = np.linspace(0., t_end, length)[::-1]
@@ -96,6 +97,7 @@ for pp in path:
         
     mu_list.append(data['mu'].item())
     sigma_list.append(data['sigma'].item())
+    tau_list.append(data['tau'].item())
     # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
     # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
     
