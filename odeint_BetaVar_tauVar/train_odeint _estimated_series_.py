@@ -225,7 +225,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[1]
+    country = countries[3]
     
     ### set false if using real cases to train
     estimate = True
@@ -242,7 +242,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(229,250,dis):
+    for num in range(28,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -410,8 +410,8 @@ if __name__ == '__main__':
                     loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
                     # if loss<1e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<2e-5: ## estimated south africa 
+                    # if loss<1e-5: ## estimated mexico and south korea
+                    if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                         flag = True
                         break
