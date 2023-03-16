@@ -12,7 +12,9 @@ import matplotlib.pyplot as plt
 
 
 def figsave(data_, country):
-    fig, ax = plt.subplots(1,4,figsize=[25,5])
+    recovery_time = 10
+
+    fig, ax = plt.subplots(1,5,figsize=[25,5])
     
     ax[0].plot(data_['date'], data_['cases_mean'])
     ax[0].set(xlabel="Date",
@@ -20,25 +22,31 @@ def figsave(data_, country):
            title=f"{country}")
     plt.setp(ax[0].get_xticklabels(), rotation=45)
     
-    ax[1].plot(data_['date'], data_['inf_mean'])
+    proportion_cases = np.convolve(recovery_time*[1], data_['cases_mean'], mode='same') / data_['population'].iloc[0]
+    ax[1].plot(data_['date'], proportion_cases)
     ax[1].set(xlabel="Date",
-           ylabel="estimated cases",
+           ylabel="reported cases proportion",
            title=f"{country}")
     plt.setp(ax[1].get_xticklabels(), rotation=45)
     
-    recovery_time = 10
-    proportion = np.convolve(recovery_time*[1], data_['inf_mean'], mode='same') / data_['population'].iloc[0]
-    ax[2].plot(data_['date'], proportion)
+    ax[2].plot(data_['date'], data_['inf_mean'])
     ax[2].set(xlabel="Date",
-           ylabel="proportion",
+           ylabel="estimated cases",
            title=f"{country}")
     plt.setp(ax[2].get_xticklabels(), rotation=45)
     
-    ax[3].plot(data_['date'], data_['reff_mean'])
+    proportion = np.convolve(recovery_time*[1], data_['inf_mean'], mode='same') / data_['population'].iloc[0]
+    ax[3].plot(data_['date'], proportion)
     ax[3].set(xlabel="Date",
+           ylabel="proportion",
+           title=f"{country}")
+    plt.setp(ax[3].get_xticklabels(), rotation=45)
+    
+    ax[4].plot(data_['date'], data_['reff_mean'])
+    ax[4].set(xlabel="Date",
            ylabel="R",
            title="R")
-    plt.setp(ax[3].get_xticklabels(), rotation=45)
+    plt.setp(ax[4].get_xticklabels(), rotation=45)
     
     fig.savefig(f'./data/countries/{country}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
@@ -67,7 +75,7 @@ for i in range(countries.shape[0]):
 
 
 countries = data['location_name'].unique()
-idx = [16, 24, 43, 49, 54, 68, 92, 110, 133, 135, 138, 139, 228]
+idx = [16, 24, 34, 43, 49, 51, 54, 68, 92, 110, 133, 135, 138, 139, 228]
 for i in idx:
     data_ = data[data['location_name']==countries[i]].reset_index(drop=True)
     

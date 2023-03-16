@@ -21,9 +21,10 @@ matplotlib.rc('font', **font)
 i = 1
 estimate = True
 
-start_list = [750, 655, 750, 630, 710, 0]
+start_list = [750, 655, 750, 630, 710, 600, 600, 0]
 countries = ['United Kingdom', 'Mexico', 'Belgium', \
              'South Africa', 'Republic of Korea',\
+             'Slovenia', 'Denmark',\
              'simulation']
 country = countries[i]
 

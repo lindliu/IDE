@@ -222,13 +222,14 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
 if __name__ == '__main__':
 
     countries = ['United Kingdom', 'Mexico', 'Belgium', 'South Africa', 'Republic of Korea',\
+                 'Slovenia', 'Denmark',\
                  'simulation']
     
-    country = countries[-1]
-    # country = countries[3]
+    # country = countries[-1]
+    country = countries[6]
     
     ### set false if using real cases to train
-    estimate = True
+    estimate = True # True
     need_inter = False
 
     ### load data
@@ -241,8 +242,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 3
-    for num in range(10,250,dis):
+    dis = 50
+    for num in range(210,320,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -251,7 +252,7 @@ if __name__ == '__main__':
 
         if country == 'South Africa':
             start = 630
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
+            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
         elif country == 'Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
@@ -264,7 +265,13 @@ if __name__ == '__main__':
         elif country == 'Republic of Korea':
             start = 660
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-            
+        elif country == 'Slovenia':
+            start = 600
+            data_ = get_train_data(data, start, length, recovery_time, estimate)
+        elif country == 'Denmark':
+            start = 600
+            data_ = get_train_data(data, start, length, recovery_time, estimate)
+        
         elif country=='simulation':
             start = 0
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
@@ -409,10 +416,13 @@ if __name__ == '__main__':
                     # ll = pred_I.shape[1]//3
                     # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
-                    if loss<1e-4: ## simulation
+                    # if loss<1e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
+                    # if loss<3e-6: ###real south africa
+                    # if loss<5e-5: ###real denmark
+                    if loss<5e-5: ###estimate denmark
                         flag = True
                         break
                     try:
