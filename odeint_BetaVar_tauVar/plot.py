@@ -18,7 +18,7 @@ font = {#'family' : 'normal',
         'size'   : 18}
 matplotlib.rc('font', **font)
 
-i = -1
+i = 1
 estimate = True
 
 start_list = [750, 655, 750, 630, 710, 600, 600, 0]
@@ -116,7 +116,7 @@ for pp in path:
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
-fig, ax = plt.subplots(1,5,figsize=(33,7))
+fig, ax = plt.subplots(1,5,figsize=(35,6))
 
 
 ax[0].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
@@ -160,19 +160,19 @@ plt.setp(ax[3].get_xticklabels(), rotation=45)
 ax[3].set_title(f"(d)")
 
 
-# ax[4].plot(time_day.iloc[:pos], data['pred'][0,:pos,1], c='tab:green', label='estimated')
 ax[4].plot(time_day, data_train, label='I')
-ax[4].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', label='predict I')
+ax[4].plot(time_day.iloc[:pos], data['pred'][0,:pos,1], c='tab:green', linestyle='dashed', label='trained I')
+ax[4].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
 ax[4].legend()
 ax[4].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[4].get_xticklabels(), rotation=45)
 ax[4].set_title(f"(e)")
 
 if estimate==True:
-    fig.suptitle(f"{country} datasets(estimated)")
+    fig.suptitle(f"{country} datasets(estimated)", fontsize=30)
 else:
     fig.suptitle(f"{country} datasets(average daily cases)")
 
 os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
-fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
+fig.savefig(f'./figures/{file_name}_prediction/{file_name}_{pred_length}days_prediction.png', \
             bbox_inches='tight', dpi=300)
