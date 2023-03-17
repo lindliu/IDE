@@ -81,7 +81,7 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
     space['gamma'] = hp.uniform('gamma', .99, 1.)
     space['S0'] = hp.uniform('S0', 0., 1.*func.N)
 
-    space['tau'] = hp.uniform('tau', .5, 1.3)
+    space['tau'] = hp.uniform('tau', .7, 1.3)
     
     # minimize the objective over the space
     from hyperopt import fmin, tpe
@@ -162,7 +162,7 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
     # space['gamma'] = hp.uniform('gamma', 0.1, 3.5)
     space['S0'] = hp.uniform('S0', 0., 1.*func.N)
     ## .7 means around 180 days for 1 wave, 1.5 means 90 days for 1 wave. 1 wave for south korea is 140 days
-    space['tau'] = hp.uniform('tau', .5, 1.3)  
+    space['tau'] = hp.uniform('tau', .7, 1.3)  
 
     # minimize the objective over the space
     from hyperopt import fmin, tpe
