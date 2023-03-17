@@ -248,8 +248,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 3
-    for num in range(200,250,dis):
+    dis = 18
+    for num in range(46+18*3,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -423,11 +423,11 @@ if __name__ == '__main__':
                     # ll = pred_I.shape[1]//3
                     # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
-                    if loss<3e-4: ## simulation
+                    # if loss<3e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
-                    # if loss<3e-6: ###real south africa
+                    if loss<1e+6: ###real south africa
                     # if loss<5e-5: ###real denmark
                     # if loss<5e-5: ###estimate denmark
                         flag = True
