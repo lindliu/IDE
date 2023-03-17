@@ -249,7 +249,7 @@ if __name__ == '__main__':
     
     
     dis = 18
-    for num in range(46+18*3,250,dis):
+    for num in range(46+18*6,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######

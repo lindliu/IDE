@@ -18,7 +18,7 @@ font = {#'family' : 'normal',
         'size'   : 18}
 matplotlib.rc('font', **font)
 
-i = 1
+i = -1
 estimate = True
 
 start_list = [750, 655, 750, 630, 710, 600, 600, 0]
@@ -77,7 +77,7 @@ print(list(data.keys()))
 
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 7
+pred_length = 2
 pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
@@ -89,6 +89,8 @@ T = np.linspace(0., t_end, length)[::-1]
 for pp in path:
     
     idx_end = int(pp.split('/')[-2].split('_')[-1])
+    pos = idx_end-start
+
     data = np.load(pp)
     
     if length>time_day.shape[0]:
@@ -102,55 +104,75 @@ for pp in path:
     # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
     # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
     
-    pred_idx.append(list(np.arange(idx_end-start, idx_end-start+pred_length))[-1])
-    prediction_I.append(list(pred[0,idx_end-start:idx_end-start+pred_length,1])[-1])
+    pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+    prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
     
-    prediction_S.append(list(pred[0,idx_end-start:idx_end-start+pred_length,0])[-1])
-    prediction_R.append(list(pred[0,idx_end-start:idx_end-start+pred_length,2])[-1])
+    prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+    prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
-    # ax[1].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
+    # ax[3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
     #             pred[0,idx_end-start:idx_end-start+pred_length,1], s=1)
 
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
-fig, ax = plt.subplots(1,5,figsize=(30,5))
+fig, ax = plt.subplots(1,5,figsize=(33,7))
 
-ax[0].plot(time_day, data['beta'][:time_day.shape[0],:], linestyle='dashed', marker='o', markersize=1, label='$R_0$')
+
+ax[0].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
 ax[0].legend()
-# ax[0].set_title(f"{country}")
-plt.setp(ax[0].get_xticklabels(), rotation=45)
-
-ax[1].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
-ax[1].legend()
-# ax[1].set_title(f"{country}")
 n = 3 ## how many sigmas
-ax[1].fill_between(time_day.iloc[pred_idx], np.clip(mu_list-sigma_list*n,0,1000), mu_list+sigma_list*n,
+ax[0].fill_between(time_day.iloc[pred_idx], np.clip(mu_list-sigma_list*n,0,1000), mu_list+sigma_list*n,
     alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
     linestyle='dashdot', antialiased=True)
+plt.setp(ax[0].get_xticklabels(), rotation=45)
+ax[0].set_title(f"(a)")
+
+ax[1].plot(time_day, data_train, label='I')
+ax[1].scatter(time_day.iloc[pred_idx], prediction_I, s=10, c='r', label=f'{pred_length} days predict I')
+ax[1].legend()
 plt.setp(ax[1].get_xticklabels(), rotation=45)
+ax[1].set_title(f"(b)")
+
+
+l = int(len(path) - len(path)//4)
+pp = path[l]
+idx_end = int(pp.split('/')[-2].split('_')[-1])
+pos = idx_end-start
+data = np.load(pp)
+
 
 # ax[2].scatter(time_day.iloc[pred_idx], prediction_S, s=1, c='r', label='estimated suseptible')
-ax[2].plot(time_day, pred[0,:,0], label='predict S')
-ax[2].plot(time_day, pred[0,:,2], label='predict R')
+ax[2].plot(time_day.iloc[0:pos], pred[0,:pos,0], c='tab:green', linestyle='dashdot', label='S')
+ax[2].plot(time_day.iloc[pos:length], pred[0,pos:,0], c='r', linestyle='dashdot', label='predict S')
+ax[2].plot(time_day.iloc[0:pos], pred[0,:pos,2], c='tab:green', label='R')
+ax[2].plot(time_day.iloc[pos:length], pred[0,pos:,2], c='r', label='predict R')
 ax[2].legend()
+ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[2].get_xticklabels(), rotation=45)
-# ax[2].set_title(f"{country}")
+ax[2].set_title(f"(c)")
 
-ax[3].plot(time_day, data_train, label='estimated I')
-ax[3].scatter(time_day.iloc[pred_idx], prediction_I, s=1, c='r', label=f'{pred_length} days predict I')
+ax[3].plot(time_day.iloc[0:pos], data['beta'][:pos,:], c='tab:green', label='$R_0(t)$')
+ax[3].plot(time_day.iloc[pos:length], data['beta'][pos:length,:], c='r', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
 ax[3].legend()
+ax[3].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[3].get_xticklabels(), rotation=45)
-# ax[3].set_title(f"{country}")
+ax[3].set_title(f"(d)")
 
-# ax[4].plot(time_day, data['pred'][0,:,1], label='estimated')
-# ax[4].plot(time_day, data_train, label='estimated')
-# ax[4].legend()
-# plt.setp(ax[4].get_xticklabels(), rotation=45)
-# # ax[4].set_title(f"{country}")
 
-fig.suptitle(f"{country} datasets")
-    
+# ax[4].plot(time_day.iloc[:pos], data['pred'][0,:pos,1], c='tab:green', label='estimated')
+ax[4].plot(time_day, data_train, label='I')
+ax[4].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', label='predict I')
+ax[4].legend()
+ax[4].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
+plt.setp(ax[4].get_xticklabels(), rotation=45)
+ax[4].set_title(f"(e)")
+
+if estimate==True:
+    fig.suptitle(f"{country} datasets(estimated)")
+else:
+    fig.suptitle(f"{country} datasets(average daily cases)")
+
 os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
 fig.savefig(f'./figures/{file_name}_prediction/{country}_{pred_length}days_prediction.png', \
             bbox_inches='tight', dpi=300)
