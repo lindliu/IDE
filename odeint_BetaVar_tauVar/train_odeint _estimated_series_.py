@@ -225,8 +225,8 @@ if __name__ == '__main__':
                  'Slovenia', 'Denmark',\
                  'simulation']
     
-    country = countries[-1]
-    # country = countries[6]
+    # country = countries[-1]
+    country = countries[3]
     
     ### set false if using real cases to train
     estimate = True # True
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(184,250,dis):
+    for num in range(160,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -416,9 +416,9 @@ if __name__ == '__main__':
                     # ll = pred_I.shape[1]//3
                     # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
-                    if loss<3e-4: ## simulation
+                    # if loss<9e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<2e-5: ## estimated south africa 
+                    if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                     # if loss<3e-6: ###real south africa
                     # if loss<5e-5: ###real denmark

@@ -18,8 +18,8 @@ font = {#'family' : 'normal',
         'size'   : 18}
 matplotlib.rc('font', **font)
 
-i = 1
-estimate = True
+i = 3
+estimate = True #False
 
 start_list = [750, 655, 750, 630, 710, 600, 600, 0]
 countries = ['United Kingdom', 'Mexico', 'Belgium', \
@@ -77,8 +77,8 @@ print(list(data.keys()))
 
 time_day = data_train_['date'][start:start+length]
 
-pred_length = 2
-pred_idx, prediction_I = [], []
+pred_length, pred_length_ = 2, 7
+pred_idx, prediction_I, prediction_I_ = [], [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
 tau_list = []
@@ -106,6 +106,7 @@ for pp in path:
     
     pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
     prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
+    prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
     
     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
@@ -123,6 +124,7 @@ if country=='simulation':
 
     ax[0].plot(time_day, data_train, c='r', label='I')
     ax[0].scatter(time_day.iloc[pred_idx], prediction_I, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+    ax[0].scatter(time_day.iloc[pred_idx], prediction_I_, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
     ax[0].legend()
     # plt.setp(ax[0].get_xticklabels(), rotation=45)
     ax[0].set_title(f"(a)")
@@ -138,7 +140,7 @@ if country=='simulation':
     ax[3].set_title(f"(b)")
 
 
-    l = int(len(path) - len(path)//4)
+    l = int(len(path) - len(path)//2.3)
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
@@ -200,12 +202,14 @@ else:
 
     ax[1].plot(time_day, data_train, c='r', label='I')
     ax[1].scatter(time_day.iloc[pred_idx], prediction_I, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+    ax[1].scatter(time_day.iloc[pred_idx], prediction_I_, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
     ax[1].legend()
     plt.setp(ax[1].get_xticklabels(), rotation=45)
     ax[1].set_title(f"(b)")
 
 
-    l = int(len(path) - len(path)//4.8)
+    # l = int(len(path) - len(path)//4.8) ##mexico estimate
+    l = int(len(path) - len(path)//9)
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
