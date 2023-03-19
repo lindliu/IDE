@@ -226,7 +226,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[4]
+    country = countries[3]
     
     ### set false if using real cases to train
     estimate = True # True
@@ -242,9 +242,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 20
-    for num in range(30,250,dis):
-    # for num in range(130,250,dis):
+    dis = 3
+    for num in range(217,250,dis):
         
         ##### data preparation ######
         length = 400
@@ -389,13 +388,6 @@ if __name__ == '__main__':
                     batch_I = batch_y[:,:,1]
                     loss = loss_fn(pred_I, batch_I)
                 
-                
-                # ll = pred_I.shape[1]//3
-                # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
-                # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
-                # loss = .5*loss1 + loss2
-                
-                
                 lll = pred_I.shape[1]
                 weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
                 loss_weighted = weight * torch.square(pred_I-batch_I)
@@ -413,12 +405,9 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, length=length)
                     
-                    # ll = pred_I.shape[1]//3
-                    # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
-
                     # if loss<9e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<2e-5: ## estimated south africa 
+                    # if loss<1e-5: ## estimated mexico and south korea
+                    if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                     # if loss<3e-6: ###real south africa
                     # if loss<5e-5: ###real denmark
@@ -449,9 +438,6 @@ if __name__ == '__main__':
         torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         
-        # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
-        # func.load_state_dict(torch.load(f'./models/func_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
-    
         writer.close()
         
     writer.flush()
