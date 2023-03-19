@@ -107,7 +107,7 @@ class ODEFunc(nn.Module):
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
-def save_fig(func, func_m, file_name, iteration, loss, length=300):
+def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     T = torch.linspace(0., t_end, length*mul).to(device)
     T_ = torch.linspace(0., t_end, length).to(device)
 
@@ -243,7 +243,7 @@ if __name__ == '__main__':
     
     
     dis = 3
-    for num in range(217,250,dis):
+    for num in range(220,250,dis):
         
         ##### data preparation ######
         length = 400
@@ -403,11 +403,11 @@ if __name__ == '__main__':
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
-                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, length=length)
+                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<9e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
-                    if loss<2e-5: ## estimated south africa 
+                    if loss<1e-4: ## 2e-5 ###estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                     # if loss<3e-6: ###real south africa
                     # if loss<5e-5: ###real denmark

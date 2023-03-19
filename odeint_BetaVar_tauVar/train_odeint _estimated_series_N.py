@@ -109,7 +109,7 @@ class ODEFunc(nn.Module):
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
-def save_fig(func, func_m, file_name, iteration, loss, length=300):
+def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     T = torch.linspace(0., t_end, length*mul).to(device)
     T_ = torch.linspace(0., t_end, length).to(device)
 
@@ -174,7 +174,7 @@ def save_fig(func, func_m, file_name, iteration, loss, length=300):
         
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
     np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
-             sigma=func_m.sigma.item()*sc, mu=func_m.mu.item()*sc, beta=beta, tau=tau)
+             sigma=func_m.sigma.item()*sc, mu=func_m.mu.item()*sc, beta=beta, tau=tau, N=func.N)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[3]
+    country = countries[4]
     
     ### set false if using real cases to train
     estimate = False # True
@@ -249,7 +249,7 @@ if __name__ == '__main__':
     
     
     dis = 18
-    for num in range(46+18*9,250,dis):
+    for num in range(20+18*4,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -353,7 +353,7 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(35):
+        for kk in range(25):
             flag = False
 
             ### initialize mu, sigma and S0 
@@ -418,7 +418,7 @@ if __name__ == '__main__':
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
-                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, length=length)
+                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # ll = pred_I.shape[1]//3
                     # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
@@ -427,7 +427,8 @@ if __name__ == '__main__':
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
-                    if loss<1e+6: ###real south africa
+                    # if loss<1e+6: ###real south africa
+                    if loss<5e+7: ###real south korea
                     # if loss<5e-5: ###real denmark
                     # if loss<5e-5: ###estimate denmark
                         flag = True

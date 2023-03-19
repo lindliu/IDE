@@ -18,10 +18,10 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = 1
+i = 4
 estimate = True #False
 
-start_list = [750, 655, 750, 630, 710, 600, 600, 0]
+start_list = [750, 655, 750, 630, 660, 600, 600, 0]
 countries = ['United Kingdom', 'Mexico', 'Belgium', \
              'South Africa', 'Republic of Korea',\
              'Slovenia', 'Denmark',\
@@ -140,7 +140,8 @@ if country=='simulation':
     ax[1].set_title(f"(b)")
 
 
-    l = int(len(path) - len(path)//2.3)
+    # l = int(len(path) - len(path)//2.3)
+    l = 45
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
@@ -215,9 +216,8 @@ else:
     ax[1].set_title(f"(b)")
 
 
-
-    # l = int(len(path) - len(path)//4.8) ##mexico estimate
-    l = int(len(path) - len(path)//9)
+    llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':18}
+    l = llll[country]
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
