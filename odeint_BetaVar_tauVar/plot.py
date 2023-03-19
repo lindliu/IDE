@@ -18,7 +18,7 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = -1
+i = 1
 estimate = True #False
 
 start_list = [750, 655, 750, 630, 710, 600, 600, 0]
