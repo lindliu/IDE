@@ -156,6 +156,8 @@ if country=='simulation':
     # ax[2].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
     ax[2].legend()
     ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
+    extraticks = [time_day[idx_end]]
+    ax[2].set_xticks(list(ax[2].get_xticks())[1:-1] + extraticks)
     # plt.setp(ax[2].get_xticklabels(), rotation=45)
     ax[2].set_title(f"(c)")
     
@@ -165,6 +167,8 @@ if country=='simulation':
     # ax[3].plot(time_day.iloc[pos:length], pred[0,pos:,0], c='r', linestyle='dashdot', label='predict S')
     ax[3].legend()
     ax[3].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
+    extraticks = [time_day[idx_end]]
+    ax[3].set_xticks(list(ax[3].get_xticks())[1:-1] + extraticks)
     # plt.setp(ax[3].get_xticklabels(), rotation=45)
     ax[3].set_title(f"(d)")
     
@@ -174,6 +178,8 @@ if country=='simulation':
     # ax[4].plot(time_day.iloc[pos:length], pred[0,pos:,2], c='r', label='predict R')    
     ax[4].legend()
     ax[4].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
+    extraticks = [time_day[idx_end]]
+    ax[4].set_xticks(list(ax[4].get_xticks())[1:-1] + extraticks)
     # plt.setp(ax[4].get_xticklabels(), rotation=45)
     ax[4].set_title(f"(e)")
     
@@ -182,6 +188,8 @@ if country=='simulation':
     ax[5].plot(time_day, data['beta'], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
     ax[5].legend()
     ax[5].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
+    extraticks = [time_day[idx_end]]
+    ax[5].set_xticks(list(ax[5].get_xticks())[1:-1] + extraticks)
     # plt.setp(ax[5].get_xticklabels(), rotation=45)
     ax[5].set_title(f"(f)")
     

@@ -247,7 +247,7 @@ if __name__ == '__main__':
     func_m = Memory().to(device)
     
     dis = 3
-    for num in range(62,250,dis):
+    for num in range(120,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
@@ -329,21 +329,20 @@ if __name__ == '__main__':
         # # plt.legend()
         
         method = 'euler'##'dopri5' ##
-        # if num==20:
         from hyper import hyper_min_1, hyper_min_3
 
-        ##### find a proper initial value of beta #####
-        c_func = ODEFunc1().to(device)
-        init = [func_m.sigma.item(), func_m.mu.item(), 10., 1., func.S0.item(), func.tau] #sigma, mu, beta, gamma, S0, tau
-        best = hyper_min_1(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           init=init, range_=range_, max_evals=300, need_inter=need_inter)
-        beta_init, best_tau = best['beta'], best['tau']
-        ###############################################
-        func.tau = best_tau
+        # ##### find a proper initial value of beta #####
+        # c_func = ODEFunc1().to(device)
+        # init = [func_m.sigma.item(), func_m.mu.item(), 10., 1., func.S0.item(), func.tau] #sigma, mu, beta, gamma, S0, tau
+        # best = hyper_min_1(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
+        #                    init=init, range_=range_, max_evals=300, need_inter=need_inter)
+        # beta_init, best_tau = best['beta'], best['tau']
+        # ###############################################
+        # func.tau = best_tau
         
-        target = torch.ones(length,1).to(device) * beta_init
-        func = train_beta(func, T, target)
-        # func = train_beta(func, T_, target)
+        # target = torch.ones(length,1).to(device) * beta_init
+        # func = train_beta(func, T, target)
+        # # func = train_beta(func, T_, target)
 
         for kk in range(35):
             flag = False
@@ -415,7 +414,7 @@ if __name__ == '__main__':
                     # ll = pred_I.shape[1]//3
                     # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
 
-                    if loss<2e-4: ## simulation
+                    if loss<9e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
@@ -434,14 +433,10 @@ if __name__ == '__main__':
                 break
             
             
-            # diff = torch.abs(pred_I-batch_I)
-            # cop_idx = diff.shape[1]//10  ## first 90% data
-            # if diff[:,-cop_idx:].sum()/diff.sum()>.3:
-            #     print("retrain beta!!!")
-            #     pred = func.NN_beta(T.reshape([-1,1]))
-            #     target = torch.ones(length,1).to(device) * beta_init
-            #     target[:cop_idx] = pred[:cop_idx].detach()
-            #     func = train_beta(func, T, target)
+            # print("retrain beta!!!")
+            # pred = func.NN_beta(T.reshape([-1,1]))
+            # target = torch.clip(pred.detach(),.5,100)
+            # func = train_beta(func, T, target)
             
 
         
