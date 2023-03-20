@@ -18,7 +18,7 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = -1
+i = 4
 estimate = True #False ##
 
 start_list = [750, 655, 750, 630, 660, 600, 600, 0]
@@ -141,6 +141,9 @@ if country=='simulation':
         alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
         linestyle='dashdot', antialiased=True, label='3$\sigma$')
     ax[1].legend()
+    ax[1].axhline(y=81.1, color='k', linestyle='dashed', label='axvline')
+    extraticks = [81.1]
+    ax[1].set_yticks(list(ax[1].get_yticks())[1:-1] + extraticks)
     # plt.setp(ax[1].get_xticklabels(), rotation=45)
     ax[1].set_title(f"(b)")
 
@@ -202,7 +205,7 @@ if country=='simulation':
     fig.suptitle("Synthetic datasets", fontsize=30)
 
 else:
-    fig, ax = plt.subplots(1,5,figsize=(30,5))
+    fig, ax = plt.subplots(1,5,figsize=(33,5))
 
     ax[0].plot(time_day, data_train, c='r', label='I')
     ax[0].scatter(time_day.iloc[pred_idx], prediction_I, s=20, c='tab:blue', label=f'{pred_length} days predict I')
@@ -211,12 +214,21 @@ else:
     plt.setp(ax[0].get_xticklabels(), rotation=45)
     ax[0].set_title(f"(a)")
     
+    if estimate:
+        me = {'Mexico':102.4, 'South Africa':106.1, 'Republic of Korea':87.4}
+        # me = {'Mexico':107.8, 'South Africa':108.6, 'Republic of Korea':18}
+    else:
+        me = {'Mexico':60, 'South Africa':54, 'Republic of Korea':18}
     ax[1].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
     n = 3 ## how many sigmas
     ax[1].fill_between(time_day.iloc[pred_idx], np.clip(mu_list-sigma_list*n,0,1000), mu_list+sigma_list*n,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
         linestyle='dashdot', antialiased=True, label='3$\sigma$')
     ax[1].legend()
+    ax[1].axhline(y=me[f'{country}'], color='k', linestyle='dashed', label='axvline')
+    extraticks = [me[f'{country}']]
+    # ax[1].set_yticks(list(ax[1].get_yticks())[3:-1] + extraticks)
+    ax[1].set_yticks([200,400,600] + extraticks)
     plt.setp(ax[1].get_xticklabels(), rotation=45)
     ax[1].set_title(f"(b)")
 
@@ -231,9 +243,6 @@ else:
     data = np.load(pp)
     pred = data['pred']/N
     
-    # ax[2].plot(time_day, data_train, label='I')
-    # ax[2].plot(time_day.iloc[:pos], data['pred'][0,:pos,1], c='tab:green', linestyle='dashed', label='trained I')
-    # ax[2].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
     ax[2].plot(time_day.iloc[:pos], data_train[:pos], c='tab:orange', label='train I')
     ax[2].plot(time_day.iloc[pos:], data_train[pos:], c='r', label='test I')
     ax[2].plot(time_day, pred[0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
@@ -241,11 +250,7 @@ else:
     ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
     plt.setp(ax[2].get_xticklabels(), rotation=45)
     ax[2].set_title(f"(c)")
-
-    # ax[3].plot(time_day.iloc[0:pos], pred[0,:pos,0], c='tab:green', linestyle='dashdot', label='S')
-    # ax[3].plot(time_day.iloc[pos:length], pred[0,pos:,0], c='r', linestyle='dashdot', label='predict S')
-    # ax[3].plot(time_day.iloc[0:pos], pred[0,:pos,2], c='tab:green', label='R')
-    # ax[3].plot(time_day.iloc[pos:length], pred[0,pos:,2], c='r', label='predict R')
+    
     ax[3].plot(time_day, pred[0,:,0], c='tab:blue', linestyle='dashdot', label='predict S')
     ax[3].plot(time_day, pred[0,:,2], c='tab:blue', label='predict R')
     ax[3].legend()
@@ -253,8 +258,6 @@ else:
     plt.setp(ax[3].get_xticklabels(), rotation=45)
     ax[3].set_title(f"(d)")
 
-    # ax[4].plot(time_day.iloc[0:pos], data['beta'][:pos,:], c='tab:green', label='$R_0(t)$')
-    # ax[4].plot(time_day.iloc[pos:length], data['beta'][pos:length,:], c='r', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
     ax[4].plot(time_day, data['beta'], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
     ax[4].legend()
     ax[4].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
