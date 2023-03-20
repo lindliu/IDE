@@ -251,7 +251,7 @@ if __name__ == '__main__':
 
         if country == 'South Africa':
             start = 630
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
+            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
         elif country == 'Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)

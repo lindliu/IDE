@@ -18,8 +18,8 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = 4
-estimate = True #False
+i = -1
+estimate = True #False ##
 
 start_list = [750, 655, 750, 630, 660, 600, 600, 0]
 countries = ['United Kingdom', 'Mexico', 'Belgium', \
@@ -35,8 +35,10 @@ if country!='simulation':
     data_train_['date'] = pd.to_datetime(data_train_['date'])
 
     start = start_list[i]
-    data_train = data_train_['proportion'][start:start+length].to_numpy()
-
+    if estimate==True:
+        data_train = data_train_['proportion'][start:start+length].to_numpy()
+    else:
+        data_train = np.convolve([1]*10, data_train_['cases_mean'][start:start+length].to_numpy(), 'same')
 elif country=='simulation': 
     data_train_ = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])        
     # data_train_["date"] = pd.date_range(start='1/1/2021', periods=500)   
@@ -50,11 +52,14 @@ elif country=='simulation':
 
 if country == 'simulation':
     file_name = f'{country}'
+    N = 1
 elif estimate:
     file_name = f'estimate_{country}'
+    N = 1
 else:
     file_name = f'real_{country}'
-            
+    N = int(data_train_.iloc[0]['population'])
+    data_train = data_train/N
     
 path_u = glob.glob(f'./figures/{file_name}_{start}_*')
 
@@ -96,7 +101,7 @@ for pp in path:
     if length>time_day.shape[0]:
         pred = data['pred'][:,:time_day.shape[0],:]
     else:
-        pred = data['pred']
+        pred = data['pred']/N
         
     mu_list.append(data['mu'].item())
     sigma_list.append(data['sigma'].item())
@@ -215,21 +220,23 @@ else:
     plt.setp(ax[1].get_xticklabels(), rotation=45)
     ax[1].set_title(f"(b)")
 
-
-    llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':18}
+    if estimate:
+        llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':18}
+    else:
+        llll = {'Mexico':60, 'South Africa':2, 'Republic of Korea':16}
     l = llll[country]
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
     data = np.load(pp)
-    pred = data['pred']
+    pred = data['pred']/N
     
     # ax[2].plot(time_day, data_train, label='I')
     # ax[2].plot(time_day.iloc[:pos], data['pred'][0,:pos,1], c='tab:green', linestyle='dashed', label='trained I')
     # ax[2].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
     ax[2].plot(time_day.iloc[:pos], data_train[:pos], c='tab:orange', label='train I')
     ax[2].plot(time_day.iloc[pos:], data_train[pos:], c='r', label='test I')
-    ax[2].plot(time_day, data['pred'][0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
+    ax[2].plot(time_day, pred[0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
     ax[2].legend()
     ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
     plt.setp(ax[2].get_xticklabels(), rotation=45)
