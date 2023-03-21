@@ -248,8 +248,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 18
-    for num in range(188,250,dis):
+    dis = 6
+    for num in range(23,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
