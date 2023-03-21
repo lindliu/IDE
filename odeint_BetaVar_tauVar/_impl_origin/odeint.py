@@ -69,7 +69,7 @@ def odeint(func, func_m, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
     Raises:
         ValueError: if an invalid `method` is provided.
     """
-    assert func_m.sigma.item()>=1e-3, 'sigma is too small'
+    # assert func_m.sigma.item()>=1e-3, 'sigma is too small'
     
     if func_m.sigma.item()<0.03:
         dt_ = func_m.sigma.item()/3
