@@ -226,7 +226,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[3]
+    country = countries[4]
     
     ### set false if using real cases to train
     estimate = True # True
@@ -242,8 +242,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 3
-    for num in range(220,250,dis):
+    dis = 10
+    for num in range(25,250,dis):
         
         ##### data preparation ######
         length = 400
@@ -406,8 +406,8 @@ if __name__ == '__main__':
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<9e-4: ## simulation
-                    # if loss<1e-5: ## estimated mexico and south korea
-                    if loss<1e-4: ## 2e-5 ###estimated south africa 
+                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<1e-4: ## 2e-5 ###estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                     # if loss<3e-6: ###real south africa
                     # if loss<5e-5: ###real denmark
