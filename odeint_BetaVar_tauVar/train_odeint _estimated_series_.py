@@ -243,8 +243,8 @@ if __name__ == '__main__':
     
     
     dis = 10
-    for num in range(25,250,dis):
-        
+    # for num in range(25,250,dis):
+    for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
         ##### data preparation ######
         length = 400
         recovery_time = 10
