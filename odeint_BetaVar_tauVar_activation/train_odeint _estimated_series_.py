@@ -63,7 +63,7 @@ class ODEFunc1(nn.Module):
         S, I, R = torch.split(y,1,dim=1)
         
         # beta = self.beta*5+10
-        beta = self.beta# * 1.5
+        beta = self.beta*1.5
         
         dSdt = - self.lamb * beta * S * I + integro    
         dIdt = self.lamb * beta * S * I - I
@@ -85,8 +85,8 @@ class ODEFunc(nn.Module):
             nn.Tanh(),
             nn.Linear(20, 1)
             # ,nn.Softsign()
-            # ,nn.ReLU6()
-            ,nn.Softplus()
+            ,nn.ReLU6()
+            # ,nn.Softplus()
         )
         
         for m in self.NN_beta.modules():
@@ -106,7 +106,7 @@ class ODEFunc(nn.Module):
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
         
         # beta = self.NN_beta(t) * 5 + 10
-        beta = self.NN_beta(t)# * 1.5
+        beta = self.NN_beta(t) * 1.5
         
         dSdt = - self.lamb * beta * S * I + integro
         dIdt = self.lamb * beta * S * I - I

@@ -46,7 +46,7 @@ class Memory(nn.Module):
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24):
+    def __init__(self, tau=1., lamb=1.24, N=1):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -57,23 +57,21 @@ class ODEFunc1(nn.Module):
         
         self.tau = tau
         self.lamb = lamb
+        self.N = N
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
-        
-        # beta = self.beta*5+10
-        beta = self.beta# * 1.5
-        
-        dSdt = - self.lamb * beta * S * I + integro    
-        dIdt = self.lamb * beta * S * I - I
+    
+        dSdt = - self.lamb * self.beta * S * I / self.N + integro    
+        dIdt = self.lamb * self.beta * S * I / self.N - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
 class ODEFunc(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24):
+    def __init__(self, tau=1., lamb=1.24, N=1.):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -84,8 +82,7 @@ class ODEFunc(nn.Module):
             nn.Linear(20, 20),
             nn.Tanh(),
             nn.Linear(20, 1)
-            # ,nn.Softsign()
-            # ,nn.ReLU6()
+            # ,nn.Sigmoid()
             ,nn.Softplus()
         )
         
@@ -99,17 +96,15 @@ class ODEFunc(nn.Module):
         ### characteristic time step
         self.tau = tau
         self.lamb = lamb
+        self.N = N
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
-        
-        # beta = self.NN_beta(t) * 5 + 10
-        beta = self.NN_beta(t)# * 1.5
-        
-        dSdt = - self.lamb * beta * S * I + integro
-        dIdt = self.lamb * beta * S * I - I
+    
+        dSdt = - self.lamb * self.NN_beta(t) * S * I / self.N + integro
+        dIdt = self.lamb * self.NN_beta(t) * S * I / self.N - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
@@ -124,7 +119,8 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     
     # func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
     I0 = batch_y[:,0,1].to(device)
-    batch_y0 = torch.cat([torch.tensor([func.S0.item()], dtype=torch.float32).to(device),I0,abs(1-func.S0.item()-I0)]).reshape(1,3)
+    # batch_y0 = torch.cat([torch.tensor([func.S0.item()*func.N], dtype=torch.float32).to(device),I0,abs(func.N-func.S0.item()-I0)]).reshape(1,3)
+    batch_y0 = torch.cat([torch.tensor([func.S0.item()], dtype=torch.float32).to(device),I0,abs(func.N-func.S0.item()-I0)]).reshape(1,3)
 
 
     pred_y = odeint(func, func_m, batch_y0, T, method=method).to(device)
@@ -178,7 +174,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
         
     os.makedirs(f'./figures/{file_name}',exist_ok=True)
     np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
-             sigma=func_m.sigma.item()*sc, mu=func_m.mu.item()*sc, beta=beta, tau=tau)
+             sigma=func_m.sigma.item()*sc, mu=func_m.mu.item()*sc, beta=beta, tau=tau, N=func.N)
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
@@ -187,7 +183,10 @@ def get_train_data(data, start, length, recovery_time, estimate=True, scale=1, d
     if estimate==True:
         data_ = data['proportion'][start:start+length].to_numpy().reshape([1,-1,1])
     else:
-        cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same') / data['population'].iloc[0]
+        # cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same') / data['population'].iloc[0]
+        # data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
+        
+        cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')
         data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
         
     return data_
@@ -233,10 +232,10 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[0]
+    country = countries[4]
     
     ### set false if using real cases to train
-    estimate = True # True
+    estimate = False # True
     need_inter = False
 
     ### load data
@@ -249,9 +248,10 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 10
-    for num in range(100,250,dis):
-    # for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
+    dis = 6
+    for num in range(215,250,dis):
+    # for num in range(130,250,dis):
+        
         ##### data preparation ######
         length = 400
         recovery_time = 10
@@ -282,6 +282,7 @@ if __name__ == '__main__':
             start = 0
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
         
+        N =  int(data['population'].iloc[0])
         # plt.plot(data_[0])
         data_ = np.repeat(data_,3,axis=2)
         
@@ -314,7 +315,7 @@ if __name__ == '__main__':
 
         
         tau = 1. ##  3#1.7 ###
-        func = ODEFunc(tau).to(device)
+        func = ODEFunc(tau, N=N).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
@@ -322,14 +323,14 @@ if __name__ == '__main__':
         # tau = 1.2
         # T = torch.linspace(0., 25, length).to(device)
         # method = 'euler'#'dopri5' ##
-        # func = ODEFunc1(tau).to(device)
+        # func = ODEFunc1(tau,N=N).to(device)
         # func.beta = nn.Parameter(torch.tensor(2.3).to(device), requires_grad=True)
         # func_m = Memory().to(device)
         # func_m.mu = nn.Parameter(torch.tensor(5.).to(device), requires_grad=True)
         # func_m.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
         # y = torch.tensor(train_data, dtype=torch.float32).to(device)
         # # y0 = y[[0],0,:].to(device)
-        # y0 = torch.tensor([[.99,.01,0]], dtype=torch.float).to(device)
+        # y0 = torch.tensor([[.99*func.N, .01*func.N, 0]], dtype=torch.float).to(device)
         # pred_y = odeint(func, func_m, y0, T, method=method).to(device)
         # plt.plot(pred_y[:,0,:].cpu().detach(), label=['S', 'I', 'R'])
         # # # plt.plot(train_data[0])
@@ -338,10 +339,10 @@ if __name__ == '__main__':
         # # plt.legend()
         
         
-        from hyper import hyper_min_2, hyper_min_3
+        from hyper_N import hyper_min_2, hyper_min_3
 
         ##### find a proper initial value of beta #####
-        c_func = ODEFunc1(tau).to(device)
+        c_func = ODEFunc1(tau, N=N).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
                            range_=range_, max_evals=300, need_inter=need_inter)
         beta_init, best_tau = best['beta'], best['tau']
@@ -352,7 +353,7 @@ if __name__ == '__main__':
         # func = train_beta(func, T, target)
         func = train_beta(func, T_, target)
 
-        for kk in range(35):
+        for kk in range(25):
             flag = False
 
             ### initialize mu, sigma and S0 
@@ -371,9 +372,9 @@ if __name__ == '__main__':
                 # idx = np.array([0])
                 # batch_y = torch.tensor(train_data[idx, ...], dtype=torch.float32).to(device)
                 
-                S0 = func.S0.item()
+                S0 = func.S0.item()#*func.N
                 I0 = batch_y[:,0,1].to(device)
-                batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,1-S0-I0]).reshape(1,3)
+                batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,func.N-S0-I0]).reshape(1,3)
                 # batch_y0 = batch_y[:,0,:].to(device)
                 
                 optimizer.zero_grad()
@@ -395,6 +396,13 @@ if __name__ == '__main__':
                     batch_I = batch_y[:,:,1]
                     loss = loss_fn(pred_I, batch_I)
                 
+                
+                # ll = pred_I.shape[1]//3
+                # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
+                # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
+                # loss = .5*loss1 + loss2
+                
+                
                 lll = pred_I.shape[1]
                 weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
                 loss_weighted = weight * torch.square(pred_I-batch_I)
@@ -412,11 +420,15 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
-                    # if loss<9e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<1e-4: ## 2e-5 ###estimated south africa 
+                    # ll = pred_I.shape[1]//3
+                    # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
+
+                    # if loss<3e-4: ## simulation
+                    # if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
-                    # if loss<3e-6: ###real south africa
+                    # if loss<1e+6: ###real south africa
+                    if loss<5e+7: ###real south korea
                     # if loss<5e-5: ###real denmark
                     # if loss<5e-5: ###estimate denmark
                         flag = True
@@ -445,6 +457,9 @@ if __name__ == '__main__':
         torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         
+        # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
+        # func.load_state_dict(torch.load(f'./models/func_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
+    
         writer.close()
         
     writer.flush()

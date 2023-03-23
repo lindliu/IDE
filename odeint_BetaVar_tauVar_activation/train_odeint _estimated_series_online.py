@@ -61,12 +61,9 @@ class ODEFunc1(nn.Module):
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
-        
-        # beta = self.beta*5+10
-        beta = self.beta# * 1.5
-        
-        dSdt = - self.lamb * beta * S * I + integro    
-        dIdt = self.lamb * beta * S * I - I
+    
+        dSdt = - self.lamb * self.beta * S * I + integro    
+        dIdt = self.lamb * self.beta * S * I - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
@@ -84,8 +81,7 @@ class ODEFunc(nn.Module):
             nn.Linear(20, 20),
             nn.Tanh(),
             nn.Linear(20, 1)
-            # ,nn.Softsign()
-            # ,nn.ReLU6()
+            # ,nn.Sigmoid()
             ,nn.Softplus()
         )
         
@@ -104,17 +100,14 @@ class ODEFunc(nn.Module):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
-        
-        # beta = self.NN_beta(t) * 5 + 10
-        beta = self.NN_beta(t)# * 1.5
-        
-        dSdt = - self.lamb * beta * S * I + integro
-        dIdt = self.lamb * beta * S * I - I
+    
+        dSdt = - self.lamb * self.NN_beta(t) * S * I + integro
+        dIdt = self.lamb * self.NN_beta(t) * S * I - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
-def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
+def save_fig(func, func_m, file_name, iteration, loss, batch_y, data_, length=300):
     T = torch.linspace(0., t_end, length*mul).to(device)
     T_ = torch.linspace(0., t_end, length).to(device)
 
@@ -232,8 +225,8 @@ if __name__ == '__main__':
                  'Slovenia', 'Denmark',\
                  'simulation']
     
-    # country = countries[-1]
-    country = countries[0]
+    country = countries[-1]
+    # country = countries[3]
     
     ### set false if using real cases to train
     estimate = True # True
@@ -249,16 +242,21 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 10
-    for num in range(100,250,dis):
-    # for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
+    # tau = 1. ##  3#1.7 ###
+    func = ODEFunc().to(device)
+    func_m = Memory().to(device)
+    
+    dis = 3
+    for num in range(120,250,dis):
+    # for num in range(130,250,dis):
+        
         ##### data preparation ######
         length = 400
         recovery_time = 10
 
         if country == 'South Africa':
             start = 630
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
+            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=10)
         elif country == 'Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
@@ -304,7 +302,7 @@ if __name__ == '__main__':
         batch_t = train_t
         
         if country == 'simulation':
-            file_name = f'{country}_{start}_{end}'
+            file_name = f'online_{country}_{start}_{end}'
         elif estimate:
             file_name = f'estimate_{country}_{start}_{end}'
         else:
@@ -312,13 +310,6 @@ if __name__ == '__main__':
        
         writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
-        
-        tau = 1. ##  3#1.7 ###
-        func = ODEFunc(tau).to(device)
-        func_m = Memory().to(device)
-        method = 'euler'##'dopri5' ##
-        
-        
         # tau = 1.2
         # T = torch.linspace(0., 25, length).to(device)
         # method = 'euler'#'dopri5' ##
@@ -337,20 +328,21 @@ if __name__ == '__main__':
         # # plt.plot(K)
         # # plt.legend()
         
-        
-        from hyper import hyper_min_2, hyper_min_3
+        method = 'euler'##'dopri5' ##
+        from hyper import hyper_min_1, hyper_min_3
 
-        ##### find a proper initial value of beta #####
-        c_func = ODEFunc1(tau).to(device)
-        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           range_=range_, max_evals=300, need_inter=need_inter)
-        beta_init, best_tau = best['beta'], best['tau']
-        ###############################################
-        func.tau = best_tau
+        # ##### find a proper initial value of beta #####
+        # c_func = ODEFunc1().to(device)
+        # init = [func_m.sigma.item(), func_m.mu.item(), 10., 1., func.S0.item(), func.tau] #sigma, mu, beta, gamma, S0, tau
+        # best = hyper_min_1(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
+        #                    init=init, range_=range_, max_evals=300, need_inter=need_inter)
+        # beta_init, best_tau = best['beta'], best['tau']
+        # ###############################################
+        # func.tau = best_tau
         
-        target = torch.ones(length,1).to(device) * beta_init
+        # target = torch.ones(length,1).to(device) * beta_init
         # func = train_beta(func, T, target)
-        func = train_beta(func, T_, target)
+        # # func = train_beta(func, T_, target)
 
         for kk in range(35):
             flag = False
@@ -395,6 +387,13 @@ if __name__ == '__main__':
                     batch_I = batch_y[:,:,1]
                     loss = loss_fn(pred_I, batch_I)
                 
+                
+                # ll = pred_I.shape[1]//3
+                # loss1 = torch.sum((pred_I[:,:ll]-batch_I[:,:ll])**2)
+                # loss2 = torch.sum((pred_I[:,-ll:]-batch_I[:,-ll:])**2)
+                # loss = .5*loss1 + loss2
+                
+                
                 lll = pred_I.shape[1]
                 weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
                 loss_weighted = weight * torch.square(pred_I-batch_I)
@@ -410,11 +409,14 @@ if __name__ == '__main__':
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
-                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
+                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, data_=data_, length=length)
                     
-                    # if loss<9e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<1e-4: ## 2e-5 ###estimated south africa 
+                    # ll = pred_I.shape[1]//3
+                    # loss_end = loss_fn(pred_I[:,-ll:], batch_I[:,-ll:])
+
+                    if loss<9e-4: ## simulation
+                    # if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<2e-5: ## estimated south africa 
                     # if loss<2e-6: ### estimated Belgium
                     # if loss<3e-6: ###real south africa
                     # if loss<5e-5: ###real denmark
@@ -431,20 +433,19 @@ if __name__ == '__main__':
                 break
             
             
-            # diff = torch.abs(pred_I-batch_I)
-            # cop_idx = diff.shape[1]//10  ## first 90% data
-            # if diff[:,-cop_idx:].sum()/diff.sum()>.3:
-            #     print("retrain beta!!!")
-            #     pred = func.NN_beta(T.reshape([-1,1]))
-            #     target = torch.ones(length,1).to(device) * beta_init
-            #     target[:cop_idx] = pred[:cop_idx].detach()
-            #     func = train_beta(func, T, target)
+            # print("retrain beta!!!")
+            # pred = func.NN_beta(T.reshape([-1,1]))
+            # target = torch.clip(pred.detach(),.5,100)
+            # func = train_beta(func, T, target)
             
 
         
         torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         
+        # func_m.load_state_dict(torch.load(f'./models/func_m_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
+        # func.load_state_dict(torch.load(f'./models/func_{country}_{start}_{end}_{epoch_sub*kk+itr}_{device.type}.pt'))
+    
         writer.close()
         
     writer.flush()
