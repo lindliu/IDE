@@ -81,8 +81,8 @@ class ODEFunc(nn.Module):
             nn.Linear(20, 20),
             nn.Tanh(),
             nn.Linear(20, 1)
-            # ,nn.Sigmoid()
-            ,nn.Softplus()
+            ,nn.Softsign()
+            # ,nn.Softplus()
         )
         
         for m in self.NN_beta.modules():
@@ -100,9 +100,11 @@ class ODEFunc(nn.Module):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
-    
-        dSdt = - self.lamb * self.NN_beta(t) * S * I + integro
-        dIdt = self.lamb * self.NN_beta(t) * S * I - I
+        
+        beta = self.NN_beta(t) * 10 + 10
+        
+        dSdt = - self.lamb * beta * S * I + integro
+        dIdt = self.lamb * beta * S * I - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
@@ -226,7 +228,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[4]
+    country = countries[0]
     
     ### set false if using real cases to train
     estimate = True # True
@@ -243,8 +245,8 @@ if __name__ == '__main__':
     
     
     dis = 10
-    # for num in range(25,250,dis):
-    for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
+    for num in range(100,250,dis):
+    # for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
         ##### data preparation ######
         length = 400
         recovery_time = 10
