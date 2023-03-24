@@ -110,8 +110,9 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
         
         I0 = batch_y[:,0,1].to(device)
         func.S0 = nn.Parameter(torch.tensor([S0]).to(device), requires_grad=True)
-        R0 = nn.Parameter(torch.tensor([1-func.S0.item()-I0.item()]).to(device), requires_grad=True)
-        
+        # R0 = nn.Parameter(torch.tensor([1-func.S0.item()-I0.item()]).to(device), requires_grad=True)
+        R0 = nn.Parameter(torch.tensor([func.N-func.S0.item()-I0.item()]).to(device), requires_grad=True)
+
         batch_y0 = torch.cat([func.S0,I0,R0]).reshape(1,3)
 
         # idx = np.array([0])
@@ -150,10 +151,10 @@ def hyper_min_2(func, func_m, batch_t, inter_t, batch_y, method, range_, max_eva
     space = {}
     space['sigma'] = hp.uniform('sigma', range_[0], range_[1])
     space['mu'] = hp.uniform('mu', range_[2], range_[3])
-    space['beta'] = hp.uniform('beta', .5, 15.)
-    # space['beta'] = hp.uniform('beta', 10.1, 13)
+    # space['beta'] = hp.uniform('beta', .5, 10.)
+    space['beta'] = hp.uniform('beta', -1, 1)
     space['gamma'] = hp.uniform('gamma', .99, 1.)
-    space['S0'] = hp.uniform('S0', 0., 1.)
+    space['S0'] = hp.uniform('S0', 0., 1.*func.N)
 
     space['tau'] = hp.uniform('tau', .7, 1.3)
     
@@ -185,8 +186,9 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
 
         I0 = batch_y[:,0,1].to(device)
         func.S0 = nn.Parameter(torch.tensor([S0]).to(device), requires_grad=True)
-        R0 = nn.Parameter(torch.tensor([1-func.S0.item()-I0.item()]).to(device), requires_grad=True)
-        
+        # R0 = nn.Parameter(torch.tensor([1-func.S0.item()-I0.item()]).to(device), requires_grad=True)
+        R0 = nn.Parameter(torch.tensor([func.N-func.S0.item()-I0.item()]).to(device), requires_grad=True)
+
         batch_y0 = torch.cat([func.S0,I0,R0]).reshape(1,3)
 
         # idx = np.array([0])
@@ -232,7 +234,7 @@ def hyper_min_3(func, func_m, batch_t, inter_t, batch_y, method, init, range_, m
     space['mu'] = hp.uniform('mu', range_[2], range_[3])
     # space['beta'] = hp.uniform('beta', .5, 10.)
     # space['gamma'] = hp.uniform('gamma', 0.1, 3.5)
-    space['S0'] = hp.uniform('S0', 0., 1.)
+    space['S0'] = hp.uniform('S0', 0., 1.*func.N)
     ## .7 means around 180 days for 1 wave, 1.5 means 90 days for 1 wave. 1 wave for south korea is 140 days
     space['tau'] = hp.uniform('tau', .7, 1.3)  
 

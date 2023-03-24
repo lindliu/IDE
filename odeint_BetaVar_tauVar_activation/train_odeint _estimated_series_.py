@@ -46,7 +46,7 @@ class Memory(nn.Module):
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24):
+    def __init__(self, tau=1., lamb=1.24, N=1):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -57,23 +57,25 @@ class ODEFunc1(nn.Module):
         
         self.tau = tau
         self.lamb = lamb
+        self.N = N
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         
-        # beta = self.beta*5+10
-        beta = self.beta*1.5
+        beta = self.beta*5+5
+        # beta = self.beta*1.5
+        # beta = torch.clamp(self.beta, 0, 10)
         
-        dSdt = - self.lamb * beta * S * I + integro    
-        dIdt = self.lamb * beta * S * I - I
+        dSdt = - self.lamb * beta * S * I / self.N + integro    
+        dIdt = self.lamb * beta * S * I / self.N - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
 class ODEFunc(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24):
+    def __init__(self, tau=1., lamb=1.24, N=1):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -84,8 +86,8 @@ class ODEFunc(nn.Module):
             nn.Linear(20, 20),
             nn.Tanh(),
             nn.Linear(20, 1)
-            # ,nn.Softsign()
-            ,nn.ReLU6()
+            ,nn.Softsign()
+            # ,nn.ReLU6()
             # ,nn.Softplus()
         )
         
@@ -99,17 +101,19 @@ class ODEFunc(nn.Module):
         ### characteristic time step
         self.tau = tau
         self.lamb = lamb
+        self.N = N
         
     def forward(self, t, y, integro):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
         
-        # beta = self.NN_beta(t) * 5 + 10
-        beta = self.NN_beta(t) * 1.5
+        beta = self.NN_beta(t) * 5 + 5
+        # beta = self.NN_beta(t) * 1.5
+        # beta = torch.clamp(self.NN_beta(t), 0, 10)
         
-        dSdt = - self.lamb * beta * S * I + integro
-        dIdt = self.lamb * beta * S * I - I
+        dSdt = - self.lamb * beta * S * I / self.N + integro
+        dIdt = self.lamb * beta * S * I / self.N - I
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
@@ -124,7 +128,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     
     # func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
     I0 = batch_y[:,0,1].to(device)
-    batch_y0 = torch.cat([torch.tensor([func.S0.item()], dtype=torch.float32).to(device),I0,abs(1-func.S0.item()-I0)]).reshape(1,3)
+    batch_y0 = torch.cat([torch.tensor([func.S0.item()], dtype=torch.float32).to(device),I0,abs(func.N-func.S0.item()-I0)]).reshape(1,3)
 
 
     pred_y = odeint(func, func_m, batch_y0, T, method=method).to(device)
@@ -134,7 +138,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     
     fig, ax = plt.subplots(2,3,figsize=(10,8))
     ax = ax.flatten()
-    ax[0].plot(T.cpu(), pred_y[0,:,0], label='S predict')
+    ax[0].plot(T.cpu(), pred_y[0,:,0]/N, label='S predict')
     ax[0].legend()
     ax[0].set_title('S')
     
@@ -146,13 +150,13 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     pred_I = I_inter(points_to_interp)
     
     # ax[1].plot(pred_y[0,:,1], label=f'I predict {loss:.2e}')
-    ax[1].plot(pred_I.detach().cpu(), label=f'I predict {loss:.2e}')
-    ax[1].plot(data_[0,:,1], label='I data')
-    ax[1].plot(batch_y[0,:,1].detach().cpu(), label='I train')
+    ax[1].plot(pred_I.detach().cpu()/N, label=f'I predict {loss:.2e}')
+    ax[1].plot(data_[0,:,1]/N, label='I data')
+    ax[1].plot(batch_y[0,:,1].detach().cpu()/N, label='I train')
     ax[1].legend()
     ax[1].set_title('I')
 
-    ax[2].plot(pred_y[0,:,2], label='R predict')
+    ax[2].plot(pred_y[0,:,2]/N, label='R predict')
     ax[2].legend()
     ax[2].set_title('R')
 
@@ -173,6 +177,8 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
 
     
     beta = func.NN_beta(T.reshape([-1,1])).detach().cpu().numpy()
+    beta = beta*5+5
+    # beta = np.clip(beta, 0, 10)
     ax[4].plot(beta)
     ax[4].set_title('beta')
         
@@ -185,11 +191,18 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
 def get_train_data(data, start, length, recovery_time, estimate=True, scale=1, data_type='cases_mean'):
     """data_type: 'daily_cases or cases_mean"""
     if estimate==True:
-        data_ = data['proportion'][start:start+length].to_numpy().reshape([1,-1,1])
-    else:
-        cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same') / data['population'].iloc[0]
-        data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
+        # data_ = data['proportion'][start:start+length].to_numpy().reshape([1,-1,1])
+        cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length]
+        data_ = cases_convolved / data['population'].iloc[0]
+        data_ = data_.reshape([1,-1,1])
         
+    else:
+        # cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same') / data['population'].iloc[0]
+        # data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
+        
+        cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')
+        data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
+
     return data_
 
 def train_beta(func, T, target):
@@ -228,15 +241,15 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
 
 if __name__ == '__main__':
 
-    countries = ['United Kingdom', 'Mexico', 'Belgium', 'South Africa', 'Republic of Korea',\
+    countries = ['Mexico', 'South Africa', 'Republic of Korea', 'Belgium', 'United Kingdom',\
                  'Slovenia', 'Denmark',\
                  'simulation']
     
     # country = countries[-1]
-    country = countries[0]
+    country = countries[1]
     
     ### set false if using real cases to train
-    estimate = True # True
+    estimate = True # False #
     need_inter = False
 
     ### load data
@@ -249,27 +262,20 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 10
-    for num in range(100,250,dis):
-    # for num in np.r_[np.arange(25,250,5)+660+2, np.array([910,912,915,917,922,925,927,930,932,935,937])]-660:
+    dis = 24
+    for num in range(20,300,dis):
         ##### data preparation ######
         length = 400
-        recovery_time = 10
+        recovery_time = 14
 
-        if country == 'South Africa':
-            start = 630
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
+        if country in ['Mexico', 'South Africa', 'Republic of Korea']:
+            start = 640
+            data_ = get_train_data(data, start, length, recovery_time, estimate)
         elif country == 'Belgium':
             start = 750
             data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Mexico':
-            start = 655
-            data_ = get_train_data(data, start, length, recovery_time, estimate, scale=1)
         elif country == 'United Kingdom':
             start = 750
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Republic of Korea':
-            start = 660
             data_ = get_train_data(data, start, length, recovery_time, estimate)
         elif country == 'Slovenia':
             start = 600
@@ -282,6 +288,11 @@ if __name__ == '__main__':
             start = 0
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
         
+        if estimate:
+            N = 1
+        else:
+            N =  int(data['population'].iloc[0])
+            
         # plt.plot(data_[0])
         data_ = np.repeat(data_,3,axis=2)
         
@@ -313,8 +324,8 @@ if __name__ == '__main__':
         writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        tau = 1. ##  3#1.7 ###
-        func = ODEFunc(tau).to(device)
+        # tau = 1. ##  3#1.7 ###
+        func = ODEFunc(N=N).to(device)
         func_m = Memory().to(device)
         method = 'euler'##'dopri5' ##
         
@@ -341,7 +352,7 @@ if __name__ == '__main__':
         from hyper import hyper_min_2, hyper_min_3
 
         ##### find a proper initial value of beta #####
-        c_func = ODEFunc1(tau).to(device)
+        c_func = ODEFunc1(N=N).to(device)
         best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
                            range_=range_, max_evals=300, need_inter=need_inter)
         beta_init, best_tau = best['beta'], best['tau']
@@ -373,7 +384,7 @@ if __name__ == '__main__':
                 
                 S0 = func.S0.item()
                 I0 = batch_y[:,0,1].to(device)
-                batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,1-S0-I0]).reshape(1,3)
+                batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,func.N-S0-I0]).reshape(1,3)
                 # batch_y0 = batch_y[:,0,:].to(device)
                 
                 optimizer.zero_grad()
@@ -414,11 +425,8 @@ if __name__ == '__main__':
                     
                     # if loss<9e-4: ## simulation
                     if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<1e-4: ## 2e-5 ###estimated south africa 
-                    # if loss<2e-6: ### estimated Belgium
+                    # if loss<1e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
-                    # if loss<5e-5: ###real denmark
-                    # if loss<5e-5: ###estimate denmark
                         flag = True
                         break
                     try:

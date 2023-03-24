@@ -130,7 +130,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     
     fig, ax = plt.subplots(2,3,figsize=(10,8))
     ax = ax.flatten()
-    ax[0].plot(T.cpu(), pred_y[0,:,0], label='S predict')
+    ax[0].plot(T.cpu(), pred_y[0,:,0]/N, label='S predict')
     ax[0].legend()
     ax[0].set_title('S')
     
@@ -142,13 +142,13 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     pred_I = I_inter(points_to_interp)
     
     # ax[1].plot(pred_y[0,:,1], label=f'I predict {loss:.2e}')
-    ax[1].plot(pred_I.detach().cpu(), label=f'I predict {loss:.2e}')
-    ax[1].plot(data_[0,:,1], label='I data')
-    ax[1].plot(batch_y[0,:,1].detach().cpu(), label='I train')
+    ax[1].plot(pred_I.detach().cpu()/N, label=f'I predict {loss:.2e}')
+    ax[1].plot(data_[0,:,1]/N, label='I data')
+    ax[1].plot(batch_y[0,:,1].detach().cpu()/N, label='I train')
     ax[1].legend()
     ax[1].set_title('I')
 
-    ax[2].plot(pred_y[0,:,2], label='R predict')
+    ax[2].plot(pred_y[0,:,2]/N, label='R predict')
     ax[2].legend()
     ax[2].set_title('R')
 
@@ -232,7 +232,7 @@ if __name__ == '__main__':
                  'simulation']
     
     # country = countries[-1]
-    country = countries[4]
+    country = countries[1]
     
     ### set false if using real cases to train
     estimate = False # True
@@ -248,8 +248,8 @@ if __name__ == '__main__':
         # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
     
     
-    dis = 6
-    for num in range(215,250,dis):
+    dis = 24
+    for num in range(20+24*3,250,dis):
     # for num in range(130,250,dis):
         
         ##### data preparation ######
