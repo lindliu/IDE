@@ -119,20 +119,12 @@ class ODEFunc(nn.Module):
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
 def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
-    T = torch.linspace(0., t_end, length*mul).to(device)
-    T_ = torch.linspace(0., t_end, length).to(device)
-
-    # idx = np.random.choice(np.arange(data.shape[0]),batch_size)
-    # batch_y = torch.tensor(data[idx, ...], dtype=torch.float32).to(device)
-    # batch_y0 = batch_y[:,0,:].to(device)
+    T = torch.linspace(0., t_end, length).to(device)
     
-    # func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
     I0 = batch_y[:,0,1].to(device)
     batch_y0 = torch.cat([torch.tensor([func.S0.item()], dtype=torch.float32).to(device),I0,abs(func.N-func.S0.item()-I0)]).reshape(1,3)
 
-
     pred_y = odeint(func, func_m, batch_y0, T, method=method).to(device)
-    # pred_y = odeint(func, func_m, batch_y0, batch_t, method='euler').to(device)
     pred_y_ = pred_y.transpose(1,0)
     pred_y = pred_y_.detach().cpu().numpy()
     
@@ -142,15 +134,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     ax[0].legend()
     ax[0].set_title('S')
     
-
-    # pred_y = odeint(func, func_m, batch_y0, T, method=method).to(device)
-    from _impl_origin.misc import Perturb, RegularGridInterpolator
-    points_to_interp = [T_]
-    I_inter = RegularGridInterpolator([T], pred_y_[:,:,1].flatten())
-    pred_I = I_inter(points_to_interp)
-    
-    # ax[1].plot(pred_y[0,:,1], label=f'I predict {loss:.2e}')
-    ax[1].plot(pred_I.detach().cpu()/N, label=f'I predict {loss:.2e}')
+    ax[1].plot(pred_y[0,:,1]/N, label=f'I predict {loss:.2e}')
     ax[1].plot(data_[0,:,1]/N, label='I data')
     ax[1].plot(batch_y[0,:,1].detach().cpu()/N, label='I train')
     ax[1].legend()
@@ -188,21 +172,24 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
-def get_train_data(data, start, length, recovery_time, estimate=True, scale=1, data_type='cases_mean'):
+def get_train_data(data, start, length, recovery_time, estimate=True, prop=True, scale=1, data_type='cases_mean'):
     """data_type: 'daily_cases or cases_mean"""
     if estimate==True:
-        # data_ = data['proportion'][start:start+length].to_numpy().reshape([1,-1,1])
-        cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length]
-        data_ = cases_convolved / data['population'].iloc[0]
-        data_ = data_.reshape([1,-1,1])
+        if prop==True:
+            cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length].reshape([1,-1,1])
+            data_ = cases_convolved / data['population'].iloc[0]
+        else:
+            cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length].reshape([1,-1,1])
+            data_ = cases_convolved
         
     else:
-        # cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same') / data['population'].iloc[0]
-        # data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
-        
-        cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')
-        data_ = cases_convolved[start:start+length].reshape([1,-1,1]) * scale
-
+        if prop==True:
+            cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')[start:start+length].reshape([1,-1,1]) * scale
+            data_ = cases_convolved / data['population'].iloc[0]
+        else:
+            cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')[start:start+length].reshape([1,-1,1]) * scale
+            data_ = cases_convolved
+            
     return data_
 
 def train_beta(func, T, target):
@@ -220,13 +207,13 @@ def train_beta(func, T, target):
             print(loss)
     return func
 
-def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_evals, need_inter):
+def func_initialization(func, func_m, batch_t, batch_y, method, max_evals):
     print(f'mu: {func_m.mu.item()}, sigma: {func_m.sigma.item()}')
     c_func = copy.deepcopy(func)
     c_func_m = copy.deepcopy(func_m)
     
     init = [func_m.sigma.item(), func_m.mu.item(), func.S0.item(), func.tau]
-    best = hyper_min_3(c_func, c_func_m, batch_t, inter_t, batch_y, method, init, range_=range_, max_evals=max_evals, need_inter=need_inter)
+    best = hyper_min_3(c_func, c_func_m, batch_t, batch_y, method, init, range_=range_, max_evals=max_evals)
     sigma, mu, S0, tau = best['sigma'], best['mu'], best['S0'], best['tau']
 
     func_m.sigma = nn.Parameter(torch.tensor(sigma).to(device), requires_grad=True)
@@ -234,23 +221,48 @@ def func_initialization(func, func_m, batch_t, inter_t, batch_y, method, max_eva
     
     func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
     func.tau = tau
-    # I0 = batch_y[:,0,1].to(device)
-    # batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,1-S0-I0]).reshape(1,3)
+    
     return func, func_m
     
 
+def test():
+    method = 'euler' # 'dopri5' #
+    ### func
+    func = ODEFunc1(tau=1.2).to(device)
+    beta = 2.3
+    beta = (beta-5)/5
+    func.beta = nn.Parameter(torch.tensor(beta).to(device), requires_grad=True)
+    
+    ### func_m
+    func_m = Memory().to(device)
+    func_m.mu = nn.Parameter(torch.tensor(5.).to(device), requires_grad=True)
+    func_m.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
+
+    ### dynamic
+    T = torch.linspace(0., 25, length).to(device)
+    y0 = torch.tensor([[.99,.01,0]], dtype=torch.float).to(device)
+    pred_y = odeint(func, func_m, y0, T, method=method).to(device)
+    
+    ### K
+    K = func_m(T.reshape(-1,1)).detach().cpu().numpy()[::-1]
+
+    ### plot
+    fig, ax = plt.subplots(1,2,figsize=(10,3))
+    ax[0].plot(pred_y[:,0,:].cpu().detach(), label=['S', 'I', 'R'])
+    ax[1].plot(K, label='distrubition K')
+    ax[0].legend()
+    ax[1].legend()
+        
 if __name__ == '__main__':
 
-    countries = ['Mexico', 'South Africa', 'Republic of Korea', 'Belgium', 'United Kingdom',\
-                 'Slovenia', 'Denmark',\
-                 'simulation']
+    countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
+                 'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    # country = countries[-1]
-    country = countries[1]
+    country = countries[2]
     
-    ### set false if using real cases to train
-    estimate = True # False #
-    need_inter = False
+    ### set estimate=false if using real cases to train
+    estimate, prop = True, True 
+    # estimate, prop = False, False 
 
     ### load data
     if country!='simulation':
@@ -258,9 +270,7 @@ if __name__ == '__main__':
         data['date'] = pd.to_datetime(data['date'])
     
     elif country=='simulation': 
-        data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])        
-        # data["date"] = pd.date_range(start='1/1/2021', periods=500)    
-    
+        data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 24
     for num in range(20,300,dis):
@@ -270,25 +280,19 @@ if __name__ == '__main__':
 
         if country in ['Mexico', 'South Africa', 'Republic of Korea']:
             start = 640
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Belgium':
+            data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
+        elif country in ['Belgium', 'United Kingdom']:
             start = 750
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'United Kingdom':
-            start = 750
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Slovenia':
+            data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
+        elif country in ['Slovenia', 'Denmark']:
             start = 600
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
-        elif country == 'Denmark':
-            start = 600
-            data_ = get_train_data(data, start, length, recovery_time, estimate)
+            data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
             start = 0
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
         
-        if estimate:
+        if prop:
             N = 1
         else:
             N =  int(data['population'].iloc[0])
@@ -296,18 +300,14 @@ if __name__ == '__main__':
         # plt.plot(data_[0])
         data_ = np.repeat(data_,3,axis=2)
         
-        # t_end, mul = 400, 3
-        t_end, mul = 25, 1 ##10,1
-        T = torch.linspace(0., t_end, length*mul).to(device)
-        T_ = torch.linspace(0., t_end, length).to(device)
+        t_end = 25
+        T = torch.linspace(0., t_end, length).to(device)
         
         range_ = [1e-3, t_end/10, recovery_time*3/length*t_end, t_end] ## sigma boundary, mu boundary
         
-        # num = 100
         end = start+num
-        train_t = copy.deepcopy(T[:num*mul])
+        train_t = copy.deepcopy(T[:num])
         train_data = copy.deepcopy(data_[:,:num, :])
-        inter_t = copy.deepcopy(T_[:num])
         
         batch_size = 1
         batch_y = torch.tensor(train_data, dtype=torch.float32).to(device)
@@ -324,51 +324,30 @@ if __name__ == '__main__':
         writer = SummaryWriter(log_dir=f'./runs/{file_name}')
 
         
-        # tau = 1. ##  3#1.7 ###
         func = ODEFunc(N=N).to(device)
-        func_m = Memory().to(device)
-        method = 'euler'##'dopri5' ##
-        
-        
-        # tau = 1.2
-        # T = torch.linspace(0., 25, length).to(device)
-        # method = 'euler'#'dopri5' ##
-        # func = ODEFunc1(tau).to(device)
-        # func.beta = nn.Parameter(torch.tensor(2.3).to(device), requires_grad=True)
-        # func_m = Memory().to(device)
-        # func_m.mu = nn.Parameter(torch.tensor(5.).to(device), requires_grad=True)
-        # func_m.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
-        # y = torch.tensor(train_data, dtype=torch.float32).to(device)
-        # # y0 = y[[0],0,:].to(device)
-        # y0 = torch.tensor([[.99,.01,0]], dtype=torch.float).to(device)
-        # pred_y = odeint(func, func_m, y0, T, method=method).to(device)
-        # plt.plot(pred_y[:,0,:].cpu().detach(), label=['S', 'I', 'R'])
-        # # # plt.plot(train_data[0])
-        # # K = func_m(T.reshape(-1,1)).detach().cpu().numpy()[::-1]
-        # # plt.plot(K)
-        # # plt.legend()
-        
-        
+        func_m = Memory().to(device)        
+
+        method = 'euler'##'dopri5' ##        
         from hyper import hyper_min_2, hyper_min_3
 
         ##### find a proper initial value of beta #####
         c_func = ODEFunc1(N=N).to(device)
-        best = hyper_min_2(c_func, func_m, batch_t, inter_t, batch_y, method=method, \
-                           range_=range_, max_evals=300, need_inter=need_inter)
+        best = hyper_min_2(c_func, func_m, batch_t, batch_y, method=method, \
+                           range_=range_, max_evals=300)
         beta_init, best_tau = best['beta'], best['tau']
         ###############################################
         func.tau = best_tau
         
         target = torch.ones(length,1).to(device) * beta_init
         # func = train_beta(func, T, target)
-        func = train_beta(func, T_, target)
+        func = train_beta(func, T, target)
 
         for kk in range(35):
             flag = False
 
             ### initialize mu, sigma and S0 
-            func, func_m = func_initialization(func, func_m, batch_t, inter_t, batch_y, \
-                                               method, max_evals=150, need_inter=need_inter)
+            func, func_m = func_initialization(func, func_m, batch_t, batch_y, \
+                                               method, max_evals=150)
             
             optimizer = optim.Adam([
                             {'params': func.parameters()},
@@ -379,38 +358,25 @@ if __name__ == '__main__':
     
             epoch_sub = 300
             for itr in range(epoch_sub):
-                # idx = np.array([0])
-                # batch_y = torch.tensor(train_data[idx, ...], dtype=torch.float32).to(device)
                 
                 S0 = func.S0.item()
                 I0 = batch_y[:,0,1].to(device)
                 batch_y0 = torch.cat([torch.tensor([S0], dtype=torch.float32).to(device),I0,func.N-S0-I0]).reshape(1,3)
-                # batch_y0 = batch_y[:,0,:].to(device)
                 
                 optimizer.zero_grad()
                 pred_y = odeint(func, func_m, batch_y0, batch_t, method=method).to(device)
                 pred_y = pred_y.transpose(1,0)
                 
+                ### loss
+                pred_I = pred_y[:,:,1]
+                batch_I = batch_y[:,:,1]
+                loss = loss_fn(pred_I, batch_I)
                 
-                if need_inter==True:
-                    from _impl_origin.misc import Perturb, RegularGridInterpolator
-                    points_to_interp = [inter_t]
-                    I_inter = RegularGridInterpolator([batch_t], pred_y[:,:,1].flatten())
-                    pred_I = I_inter(points_to_interp)
-                    
-                    batch_I = batch_y[:,:,1]
-                    loss = loss_fn(pred_I.flatten(), batch_I.flatten())
-                                
-                else:
-                    pred_I = pred_y[:,:,1]
-                    batch_I = batch_y[:,:,1]
-                    loss = loss_fn(pred_I, batch_I)
-                
+                ### weight loss
                 lll = pred_I.shape[1]
-                weight = torch.exp(torch.linspace(0,3,lll)).to(device) ## 4 for simulation
+                weight = torch.exp(torch.linspace(0,3,lll)).to(device)
                 loss_weighted = weight * torch.square(pred_I-batch_I)
                 loss = loss_weighted.mean()
-        
         
                 loss.backward()
                 optimizer.step()
@@ -434,21 +400,8 @@ if __name__ == '__main__':
                     except:
                         continue
             
-            
             if flag:
                 break
-            
-            
-            # diff = torch.abs(pred_I-batch_I)
-            # cop_idx = diff.shape[1]//10  ## first 90% data
-            # if diff[:,-cop_idx:].sum()/diff.sum()>.3:
-            #     print("retrain beta!!!")
-            #     pred = func.NN_beta(T.reshape([-1,1]))
-            #     target = torch.ones(length,1).to(device) * beta_init
-            #     target[:cop_idx] = pred[:cop_idx].detach()
-            #     func = train_beta(func, T, target)
-            
-
         
         torch.save(func_m.state_dict(), f'./models/func_m_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
         torch.save(func.state_dict(), f'./models/func_{file_name}_{epoch_sub*kk+itr}_{device.type}.pt')
