@@ -33,6 +33,9 @@ matplotlib.rc('font', **font)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
+### boundary of R0
+boundary = 5
+
 class Memory(nn.Module):    
     def __init__(self):
         super(Memory, self).__init__()
@@ -63,7 +66,7 @@ class ODEFunc1(nn.Module):
         t = t.reshape([1,1])
         S, I, R = torch.split(y,1,dim=1)
         
-        beta = self.beta*5+5
+        beta = (self.beta + 1) * boundary
         # beta = self.beta*1.5
         # beta = torch.clamp(self.beta, 0, 10)
         
@@ -108,7 +111,7 @@ class ODEFunc(nn.Module):
         S, I, R = torch.split(y,1,dim=1)
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
         
-        beta = self.NN_beta(t) * 5 + 5
+        beta = (self.NN_beta(t) + 1) * boundary
         # beta = self.NN_beta(t) * 1.5
         # beta = torch.clamp(self.NN_beta(t), 0, 10)
         
@@ -169,8 +172,7 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
 
     
     beta = func.NN_beta(T.reshape([-1,1])).detach().cpu().numpy()
-    beta = beta*5+5
-    # beta = np.clip(beta, 0, 10)
+    beta = (beta+1)*boundary
     ax[4].plot(beta)
     ax[4].set_title('beta')
         
@@ -238,7 +240,7 @@ def test():
     ### func
     func = ODEFunc1(tau=1.2).to(device)
     beta = 2.3
-    beta = (beta-5)/5
+    beta = (beta-boundary)/boundary
     func.beta = nn.Parameter(torch.tensor(beta).to(device), requires_grad=True)
     
     ### func_m
@@ -398,7 +400,7 @@ if __name__ == '__main__':
                     
                     # if loss<9e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
-                    if loss<1e-4: ## 2e-5 # estimated south africa 
+                    if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
                         flag = True
                         break
