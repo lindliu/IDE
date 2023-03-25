@@ -145,11 +145,19 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     ax[2].set_title('R')
 
     tau = func.tau
-    K = func_m(T.reshape(-1,1) * tau).detach().cpu().numpy()[::-1]
+    
+    if func_m.sigma.item()<0.03:
+        dt_ = abs(func_m.sigma.item())/3
+    else:
+        dt_ = 0.01
+    # dt_num = int(1/dt_)+1
+    dt_num = int(T[-1].item()/dt_)+1
+    t_ = torch.linspace(0,T[-1].item(),dt_num).to(device) * tau
+    K = func_m(t_.reshape(-1,1) * tau).detach().cpu().numpy()[::-1]
     from scipy.stats import norm
-    dist = norm.pdf(np.linspace(0,length,10000), loc=70, scale=1)
-    ax[3].plot(np.linspace(0,length,10000), dist[::-1], label='dist')
-    ax[3].plot(K, label='dist pred')
+    dist = norm.pdf(np.linspace(0,length,dt_num), loc=70, scale=1)
+    ax[3].plot(np.linspace(0,length,dt_num), dist[::-1], label='dist')
+    ax[3].plot(np.linspace(0,length,dt_num), K, label='dist pred')
     
     sc = (length/t_end/tau)
     mu = func_m.mu.item()*sc
@@ -273,7 +281,7 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 24
-    for num in range(20,300,dis):
+    for num in range(20+dis*5,300,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -339,7 +347,6 @@ if __name__ == '__main__':
         func.tau = best_tau
         
         target = torch.ones(length,1).to(device) * beta_init
-        # func = train_beta(func, T, target)
         func = train_beta(func, T, target)
 
         for kk in range(35):
@@ -390,8 +397,8 @@ if __name__ == '__main__':
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<9e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
-                    # if loss<1e-4: ## 2e-5 # estimated south africa 
+                    # if loss<1e-5: ## estimated mexico and south korea
+                    if loss<1e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
                         flag = True
                         break
