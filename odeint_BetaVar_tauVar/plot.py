@@ -18,8 +18,8 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = 4
-estimate = False ##True #
+i = 3
+estimate = True #False ##
 
 start_list = [750, 655, 750, 630, 660, 600, 600, 0]
 countries = ['United Kingdom', 'Mexico', 'Belgium', \
