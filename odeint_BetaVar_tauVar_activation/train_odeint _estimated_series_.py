@@ -49,7 +49,7 @@ class Memory(nn.Module):
 
 class ODEFunc1(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24, N=1):
+    def __init__(self, tau=1., lamb=1., N=1):
         super(ODEFunc1, self).__init__()
         # # self.beta = 2.3
         # # self.gamma = 1
@@ -78,7 +78,7 @@ class ODEFunc1(nn.Module):
 
 class ODEFunc(nn.Module):
 
-    def __init__(self, tau=1., lamb=1.24, N=1):
+    def __init__(self, tau=1., lamb=1., N=1):
         super(ODEFunc, self).__init__()
 
         self.NN_beta = nn.Sequential(
@@ -268,7 +268,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[3]
+    country = countries[0]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -399,8 +399,8 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
-                    # if loss<9e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
+                    if loss<7e-4: ## simulation
+                    # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
                         flag = True
