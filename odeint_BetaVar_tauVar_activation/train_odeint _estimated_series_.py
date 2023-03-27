@@ -268,7 +268,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[2]
+    country = countries[3]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -284,7 +284,7 @@ if __name__ == '__main__':
     
     dis = 24
     # for num in range(20+dis*5,300,dis):
-    for num in range(140,300,dis):
+    for num in range(20,300,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -400,8 +400,8 @@ if __name__ == '__main__':
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<9e-4: ## simulation
-                    # if loss<1e-5: ## estimated mexico and south korea
-                    if loss<2e-4: ## 2e-5 # estimated south africa 
+                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
                         flag = True
                         break
