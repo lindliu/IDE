@@ -268,7 +268,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[3]
+    country = countries[0]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -282,9 +282,9 @@ if __name__ == '__main__':
     elif country=='simulation': 
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
-    dis = 6
+    dis = 24
     # for num in range(20+dis*5,300,dis):
-    for num in range(140,300,dis):
+    for num in range(212+24,300,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -399,8 +399,8 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
-                    # if loss<7e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
+                    if loss<7e-4: ## simulation
+                    # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
                         flag = True
