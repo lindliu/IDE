@@ -282,9 +282,8 @@ if __name__ == '__main__':
     elif country=='simulation': 
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
-    dis = 24
-    # for num in range(20+dis*5,300,dis):
-    for num in range(212+24,300,dis):
+    dis = 6
+    for num in range(26,300,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
