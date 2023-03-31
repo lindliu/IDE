@@ -284,7 +284,7 @@ if __name__ == '__main__':
     
     dis = 24
     # for num in range(32,300,dis):
-    for num in np.arange(194,300,12):
+    for num in np.arange(254,300,12):
         ##### data preparation ######
         length = 400
         recovery_time = 14
