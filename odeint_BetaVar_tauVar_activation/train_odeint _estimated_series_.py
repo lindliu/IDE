@@ -297,7 +297,7 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 24
-    for num in range(20,300,dis):
+    for num in range(116+24,300,dis):
     # for num in np.arange(254,300,12):
         ##### data preparation ######
         length = 400
