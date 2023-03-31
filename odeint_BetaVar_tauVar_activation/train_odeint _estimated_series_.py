@@ -76,10 +76,23 @@ class ODEFunc1(nn.Module):
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
+class SoftsignCustom(nn.Module):
+    def __init__(self, c=1.0):
+        super(SoftsignCustom, self).__init__()
+        self.c = c
+
+    def forward(self, x):
+        return x / (self.c + torch.abs(x))
+# Softsign_cus = SoftsignCustom(c=2)
+# aa = nn.Sequential(Softsign_cus)
+# plt.plot(np.linspace(-100,100,1000), aa(torch.linspace(-100,100,1000)).numpy())
+
 class ODEFunc(nn.Module):
 
     def __init__(self, tau=1., lamb=1., N=1):
         super(ODEFunc, self).__init__()
+
+        Softsign_cus = SoftsignCustom(c=2)
 
         self.NN_beta = nn.Sequential(
             nn.Linear(1, 20),
@@ -90,6 +103,7 @@ class ODEFunc(nn.Module):
             nn.Tanh(),
             nn.Linear(20, 1)
             ,nn.Softsign()
+            # ,Softsign_cus
             # ,nn.ReLU6()
             # ,nn.Softplus()
         )
