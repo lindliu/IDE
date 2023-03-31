@@ -18,45 +18,63 @@ font = {#'family' : 'normal',
         'size'   : 16}
 matplotlib.rc('font', **font)
 
-i = 3
-estimate = True #False ##
+def get_train_data(data, start, length, recovery_time, estimate=True, prop=True, scale=1, data_type='cases_mean'):
+    """data_type: 'daily_cases or cases_mean"""
+    if estimate==True:
+        if prop==True:
+            cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length].reshape([1,-1,1])
+            data_ = cases_convolved / data['population'].iloc[0]
+        else:
+            cases_convolved = np.convolve(recovery_time*[1], data['inf_mean'], mode='same')[start:start+length].reshape([1,-1,1])
+            data_ = cases_convolved
+        
+    else:
+        if prop==True:
+            cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')[start:start+length].reshape([1,-1,1]) * scale
+            data_ = cases_convolved / data['population'].iloc[0]
+        else:
+            cases_convolved = np.convolve(recovery_time*[1], data[data_type], mode='same')[start:start+length].reshape([1,-1,1]) * scale
+            data_ = cases_convolved
+            
+    return data_
 
+i = 0
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
+start = start_list[i]
+
+### set estimate=false if using real cases to train
+estimate, prop = True, True 
+# estimate, prop = False, False 
 
 length = 400
 ### load data
 if country!='simulation':
-    data_train_ = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
-    data_train_['date'] = pd.to_datetime(data_train_['date'])
-
-    start = start_list[i]
-    if estimate==True:
-        data_train = data_train_['proportion'][start:start+length].to_numpy()
-    else:
-        data_train = np.convolve([1]*10, data_train_['cases_mean'][start:start+length].to_numpy(), 'same')
+    data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
+    data['date'] = pd.to_datetime(data['date'])
+    
+    data_train = get_train_data(data, start, length=length, recovery_time=14, estimate=estimate, prop=prop)
+    data_train = data_train.flatten()
 elif country=='simulation': 
-    data_train_ = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])        
-    # data_train_["date"] = pd.date_range(start='1/1/2021', periods=500)   
-    data_train_["date"] = np.arange(500)
+    data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])       
+    data['date'] = np.arange(500)
+     
+    data = data.iloc[start:start+length,:]
+    data_train = data['I']
 
-    start = start_list[i]
-    data_train = data_train_['I'][start:start+length].to_numpy()
-# data_train_ = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
-# data_train_['date'] = pd.to_datetime(data_train_['date'])
-
+if prop:
+    N = 1
+else:
+    N =  int(data['population'].iloc[0])
 
 if country == 'simulation':
     file_name = f'{country}'
-    N = 1
 elif estimate:
     file_name = f'estimate_{country}'
-    N = 1
 else:
     file_name = f'real_{country}'
-    N = int(data_train_.iloc[0]['population'])
-    data_train = data_train/N
+            
     
 path_u = glob.glob(f'./figures/{file_name}_{start}_*')
 
@@ -72,12 +90,10 @@ for p in path_:
     path.append(path_s[-1])
     
     
-data = np.load(path[0])
-print(list(data.keys()))
+data_pred = np.load(path[0])
+print(list(data_pred.keys()))
 
-
-
-time_day = data_train_['date'][start:start+length]
+time_day = data['date'][start:start+length]
 
 pred_length, pred_length_ = 2, 7
 pred_idx, prediction_I, prediction_I_ = [], [], []
@@ -93,16 +109,16 @@ for pp in path:
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
 
-    data = np.load(pp)
+    data_pred = np.load(pp)
     
     if length>time_day.shape[0]:
-        pred = data['pred'][:,:time_day.shape[0],:]
+        pred = data_pred['pred'][:,:time_day.shape[0],:]
     else:
-        pred = data['pred']/N
+        pred = data_pred['pred']/N
         
-    mu_list.append(data['mu'].item())
-    sigma_list.append(data['sigma'].item())
-    tau_list.append(data['tau'].item())
+    mu_list.append(data_pred['mu'].item())
+    sigma_list.append(data_pred['sigma'].item())
+    tau_list.append(data_pred['tau'].item())
     # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
     # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
     
@@ -146,20 +162,20 @@ if country=='simulation':
 
 
     # l = int(len(path) - len(path)//2.3)
-    l = 45
+    l = 21
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
-    data = np.load(pp)
-    pred = data['pred']
+    data_pred = np.load(pp)
+    pred = data_pred['pred']
     
-    S = data_train_['S'][start:start+length].to_numpy()
-    R = data_train_['R'][start:start+length].to_numpy()
+    S = data['S'][start:start+length].to_numpy()
+    R = data['R'][start:start+length].to_numpy()
 
     ax[2].plot(time_day.iloc[:pos], data_train[:pos], c='tab:orange', label='train I')
     ax[2].plot(time_day.iloc[pos:], data_train[pos:], c='r', label='test I')
-    ax[2].plot(time_day, data['pred'][0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
-    # ax[2].plot(time_day.iloc[pos:], data['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
+    ax[2].plot(time_day, data_pred['pred'][0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
+    # ax[2].plot(time_day.iloc[pos:], data_pred['pred'][0,pos:,1], c='r', linestyle='dashed', label='predict I')
     ax[2].legend()
     ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
     extraticks = [time_day[idx_end]]
@@ -189,9 +205,9 @@ if country=='simulation':
     # plt.setp(ax[4].get_xticklabels(), rotation=45)
     ax[4].set_title(f"(e)")
     
-    # ax[5].plot(time_day.iloc[0:pos], data['beta'][:pos,:], c='tab:green', label='$R_0(t)$')
-    # ax[5].plot(time_day.iloc[pos:length], data['beta'][pos:length,:], c='r', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
-    ax[5].plot(time_day, data['beta'], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
+    # ax[5].plot(time_day.iloc[0:pos], data_pred['beta'][:pos,:], c='tab:green', label='$R_0(t)$')
+    # ax[5].plot(time_day.iloc[pos:length], data_pred['beta'][pos:length,:], c='r', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
+    ax[5].plot(time_day, data_pred['beta'], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
     ax[5].legend()
     ax[5].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
     extraticks = [time_day[idx_end]]
@@ -233,7 +249,7 @@ else:
     ax[1].set_title(f"(b)")
 
     if estimate:
-        llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':1}
+        llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':16}
     else:
         llll = {'Mexico':60, 'South Africa':2, 'Republic of Korea':19}
     l = llll[country]
