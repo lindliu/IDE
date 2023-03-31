@@ -285,8 +285,8 @@ if __name__ == '__main__':
     country = countries[3]
     
     ### set estimate=false if using real cases to train
-    estimate, prop = True, True 
-    # estimate, prop = False, False 
+    # estimate, prop = True, True 
+    estimate, prop = False, False 
 
     ### load data
     if country!='simulation':
@@ -296,8 +296,8 @@ if __name__ == '__main__':
     elif country=='simulation': 
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
-    dis = 12
-    for num in range(26,300,dis):
+    dis = 24
+    for num in range(20,300,dis):
     # for num in np.arange(254,300,12):
         ##### data preparation ######
         length = 400
@@ -414,9 +414,11 @@ if __name__ == '__main__':
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<3e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<3e-6: ###real south africa
+                    # if loss<1e+6: ###real south africa
+                    if loss<5e+7: ###real south korea
                         flag = True
                         break
                     try:
