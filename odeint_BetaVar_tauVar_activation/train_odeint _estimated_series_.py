@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 3
+boundary = 4
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[3]
+    country = countries[2]
     
     ### set estimate=false if using real cases to train
     # estimate, prop = True, True 
@@ -296,8 +296,8 @@ if __name__ == '__main__':
     elif country=='simulation': 
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
-    dis = 24
-    for num in range(116+24,300,dis):
+    dis = 6
+    for num in range(26,300,dis):
     # for num in np.arange(254,300,12):
         ##### data preparation ######
         length = 400
@@ -416,9 +416,8 @@ if __name__ == '__main__':
                     # if loss<3e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    # if loss<3e-6: ###real south africa
-                    # if loss<1e+6: ###real south africa
-                    if loss<5e+7: ###real south korea
+                    if loss<1e+7: ###real south africa
+                    # if loss<5e+7: ###real south korea, real south africa
                         flag = True
                         break
                     try:
