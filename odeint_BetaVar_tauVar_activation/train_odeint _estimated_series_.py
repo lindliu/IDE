@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 4
+boundary = 3
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -236,14 +236,17 @@ def func_initialization(func, func_m, batch_t, batch_y, method, max_evals):
     c_func = copy.deepcopy(func)
     c_func_m = copy.deepcopy(func_m)
     
-    init = [func_m.sigma.item(), func_m.mu.item(), func.S0.item(), func.tau]
+    sigma_init = np.clip(func_m.sigma.item(), range_[0], range_[1])
+    mu_init = np.clip(func_m.mu.item(), range_[2], range_[3])
+    init = [sigma_init, mu_init, func.S0.item(), func.tau]
+    
     best = hyper_min_3(c_func, c_func_m, batch_t, batch_y, method, init, range_=range_, max_evals=max_evals)
     sigma, mu, S0, tau = best['sigma'], best['mu'], best['S0'], best['tau']
-
-    func_m.sigma = nn.Parameter(torch.tensor(sigma).to(device), requires_grad=True)
-    func_m.mu = nn.Parameter(torch.tensor(mu).to(device), requires_grad=True)
     
-    func.S0 = nn.Parameter(torch.tensor(S0).to(device), requires_grad=True)
+    func_m.sigma = nn.Parameter(torch.tensor(sigma, dtype=torch.float32).to(device), requires_grad=True)
+    func_m.mu = nn.Parameter(torch.tensor(mu, dtype=torch.float32).to(device), requires_grad=True)
+    
+    func.S0 = nn.Parameter(torch.tensor(S0, dtype=torch.float32).to(device), requires_grad=True)
     func.tau = tau
     
     return func, func_m
@@ -255,7 +258,7 @@ def test():
     func = ODEFunc1(tau=1.2).to(device)
     beta = 2.3
     beta = (beta-boundary)/boundary
-    func.beta = nn.Parameter(torch.tensor(beta).to(device), requires_grad=True)
+    func.beta = nn.Parameter(torch.tensor(beta, dtype=torch.float32).to(device), requires_grad=True)
     
     ### func_m
     func_m = Memory().to(device)
@@ -298,7 +301,7 @@ if __name__ == '__main__':
     
     dis = 6
     # for num in range(26,300,dis):
-    for num in np.arange(284,300,24):
+    for num in np.arange(128,300,24):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -328,7 +331,7 @@ if __name__ == '__main__':
         t_end = 25
         T = torch.linspace(0., t_end, length).to(device)
         
-        range_ = [1e-3, t_end/10, recovery_time*3/length*t_end, t_end] ## sigma boundary, mu boundary
+        range_ = [1e-3, t_end/5, recovery_time*3/length*t_end, t_end*2] ## sigma boundary, mu boundary
         
         end = start+num
         train_t = copy.deepcopy(T[:num])
