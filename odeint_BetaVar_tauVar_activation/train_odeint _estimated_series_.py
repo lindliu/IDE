@@ -282,7 +282,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[2]
+    country = countries[3]
     
     ### set estimate=false if using real cases to train
     # estimate, prop = True, True 
@@ -297,8 +297,8 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 6
-    for num in range(26,300,dis):
-    # for num in np.arange(254,300,12):
+    # for num in range(26,300,dis):
+    for num in np.arange(284,300,24):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -416,8 +416,8 @@ if __name__ == '__main__':
                     # if loss<3e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    if loss<1e+7: ###real south africa
-                    # if loss<5e+7: ###real south korea, real south africa
+                    # if loss<1e+7: ###real south africa
+                    if loss<5e+7: ###real south korea
                         flag = True
                         break
                     try:
