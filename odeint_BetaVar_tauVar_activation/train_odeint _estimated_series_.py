@@ -162,19 +162,18 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     ax[2].set_title('R')
 
     tau = func.tau
-    
     if func_m.sigma.item()<0.03:
         dt_ = abs(func_m.sigma.item())/3
     else:
         dt_ = 0.01
-    # dt_num = int(1/dt_)+1
     dt_num = int(T[-1].item()/dt_)+1
-    t_ = torch.linspace(0,T[-1].item(),dt_num).to(device) * tau
-    K = func_m(t_.reshape(-1,1) * tau).detach().cpu().numpy()[::-1]
+    t_ = torch.linspace(0,t_end,dt_num).to(device) * tau
+    K = func_m(t_.reshape(-1,1)).detach().cpu().numpy()[::-1]
+    
+    ax[3].plot(t_.cpu()/tau*(length/t_end), K, label='dist pred')
     from scipy.stats import norm
     dist = norm.pdf(np.linspace(0,length,dt_num), loc=70, scale=1)
     ax[3].plot(np.linspace(0,length,dt_num), dist[::-1], label='dist')
-    ax[3].plot(np.linspace(0,length,dt_num), K, label='dist pred')
     
     sc = (length/t_end/tau)
     mu = func_m.mu.item()*sc
@@ -301,7 +300,7 @@ if __name__ == '__main__':
     
     dis = 6
     # for num in range(26,300,dis):
-    for num in np.arange(128,300,24):
+    for num in np.arange(248,300,24):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -331,7 +330,7 @@ if __name__ == '__main__':
         t_end = 25
         T = torch.linspace(0., t_end, length).to(device)
         
-        range_ = [1e-3, t_end/5, recovery_time*3/length*t_end, t_end*2] ## sigma boundary, mu boundary
+        range_ = [1e-3, t_end/10, recovery_time*3/length*t_end, t_end*1.2] ## sigma boundary, mu boundary
         
         end = start+num
         train_t = copy.deepcopy(T[:num])
