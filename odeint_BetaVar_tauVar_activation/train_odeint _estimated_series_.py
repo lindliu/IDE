@@ -320,8 +320,8 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 6
-    for num in range(182,300,dis):
-    # for num in np.arange(170,300,12):
+    # for num in range(182,300,dis):
+    for num in np.arange(182+12,300,12):
         ##### data preparation ######
         length = 400
         recovery_time = 14
