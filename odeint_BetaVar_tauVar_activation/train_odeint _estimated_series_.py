@@ -76,7 +76,7 @@ class ODEFunc1(nn.Module):
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
     
-    
+# https://discuss.pytorch.org/t/set-constraints-on-parameters-or-layers/23620/7
 class WeightClipper(object):
 
     def __init__(self, frequency=5):
