@@ -114,7 +114,7 @@ for pp in path:
     if length>time_day.shape[0]:
         pred = data_pred['pred'][:,:time_day.shape[0],:]
     else:
-        pred = data_pred['pred']/N
+        pred = data_pred['pred']
         
     mu_list.append(data_pred['mu'].item())
     sigma_list.append(data_pred['sigma'].item())
@@ -135,6 +135,10 @@ for pp in path:
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
+prediction_I = np.array(prediction_I)
+prediction_I_ = np.array(prediction_I_)
+prediction_S = np.array(prediction_S)
+prediction_R = np.array(prediction_R)
 
 if country=='simulation': 
     fig, ax = plt.subplots(2,3,figsize=(20,9))
@@ -221,11 +225,11 @@ else:
     fig, ax = plt.subplots(1,5,figsize=(33,5))
 
     if estimate:
-        ax[0].plot(time_day, data_train, c='r', label='Estimated I')
+        ax[0].plot(time_day, data_train/N, c='r', label='Estimated I')
     else:
-        ax[0].plot(time_day, data_train, c='r', label='Daily average I')
-    ax[0].scatter(time_day.iloc[pred_idx], prediction_I, s=20, c='tab:blue', label=f'{pred_length} days predict I')
-    ax[0].scatter(time_day.iloc[pred_idx], prediction_I_, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
+        ax[0].plot(time_day, data_train/N, c='r', label='Daily average I')
+    ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+    ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
     ax[0].legend()
     plt.setp(ax[0].get_xticklabels(), rotation=45)
     ax[0].set_title(f"(a)")
@@ -259,8 +263,8 @@ else:
     data = np.load(pp)
     pred = data['pred']/N
     
-    ax[2].plot(time_day.iloc[:pos], data_train[:pos], c='tab:orange', label='train I')
-    ax[2].plot(time_day.iloc[pos:], data_train[pos:], c='r', label='test I')
+    ax[2].plot(time_day.iloc[:pos], data_train[:pos]/N, c='tab:orange', label='train I')
+    ax[2].plot(time_day.iloc[pos:], data_train[pos:]/N, c='r', label='test I')
     ax[2].plot(time_day, pred[0,:,1], c='tab:blue', linestyle='dashed', label='predict I')
     ax[2].legend()
     ax[2].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')

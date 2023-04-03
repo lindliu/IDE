@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 3
+boundary = 4
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -75,6 +75,27 @@ class ODEFunc1(nn.Module):
         dRdt = I - integro
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
+    
+    
+class WeightClipper(object):
+
+    def __init__(self, frequency=5):
+        self.frequency = frequency
+
+    def __call__(self, module):
+        # # filter the variables to get the ones you want
+        # if hasattr(module, 'weight'):
+        w = module.sigma.data
+        w = w.clamp(range_[0], range_[1])
+        module.sigma.data = w
+        
+        w = module.mu.data
+        w = w.clamp(range_[2], range_[3])
+        module.mu.data = w
+        
+# clipper = WeightClipper()
+# func_m.apply(clipper)
+
 
 class SoftsignCustom(nn.Module):
     def __init__(self, c=1.0):
@@ -284,7 +305,7 @@ if __name__ == '__main__':
     countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[3]
+    country = countries[2]
     
     ### set estimate=false if using real cases to train
     # estimate, prop = True, True 
@@ -299,8 +320,8 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 6
-    # for num in range(26,300,dis):
-    for num in np.arange(170,300,12):
+    for num in range(158,300,dis):
+    # for num in np.arange(170,300,12):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -353,6 +374,7 @@ if __name__ == '__main__':
         
         func = ODEFunc(N=N).to(device)
         func_m = Memory().to(device)        
+        clipper = WeightClipper()
 
         method = 'euler'##'dopri5' ##        
         from hyper import hyper_min_2, hyper_min_3
@@ -407,6 +429,11 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
                 
+                # with torch.no_grad():
+                #     func_m.sigma.clamp_(range_[0], range_[1])
+                #     # func_m.mu.clamp_(range_[2], range_[3])
+                func_m.apply(clipper)
+                
                 writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
                 writer.add_scalar(f'{file_name}_mu', func_m.mu.item(), epoch_sub*kk+itr)
                 writer.add_scalar(f'{file_name}_sigma', func_m.sigma.item(), epoch_sub*kk+itr)
@@ -418,8 +445,8 @@ if __name__ == '__main__':
                     # if loss<3e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    # if loss<1e+7: ###real south africa
-                    if loss<5e+7: ###real south korea
+                    if loss<1e+7: ###real south africa
+                    # if loss<5e+7: ###real south korea
                         flag = True
                         break
                     try:
