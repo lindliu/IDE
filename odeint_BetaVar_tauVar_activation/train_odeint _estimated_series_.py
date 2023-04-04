@@ -321,7 +321,7 @@ if __name__ == '__main__':
     
     dis = 6
     # for num in range(182,300,dis):
-    for num in np.arange(182+12,300,12):
+    for num in np.arange(182+12+12,300,12):
         ##### data preparation ######
         length = 400
         recovery_time = 14
