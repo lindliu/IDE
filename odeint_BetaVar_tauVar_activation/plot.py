@@ -38,15 +38,15 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 0
+i = 2
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
 start = start_list[i]
 
 ### set estimate=false if using real cases to train
-estimate, prop = True, True 
-# estimate, prop = False, False 
+# estimate, prop = True, True 
+estimate, prop = False, False 
 
 length = 400
 ### load data
