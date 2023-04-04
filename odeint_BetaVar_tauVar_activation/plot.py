@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 2
+i = 3
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]

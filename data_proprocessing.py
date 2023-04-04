@@ -61,9 +61,9 @@ def figsave(data_, country):
 
 # data = datasets[['date', 'location_name', 'inf_mean', 'cases_mean', 'reff_mean', 'daily_cases', 'population']]
 # data['date'] = pd.to_datetime(data['date'])
-# data.to_csv('./data/covid_estimated.csv', sep='\t', index=False)
+# data.to_csv('./data/main_data.csv', sep='\t', index=False)
 
-data = pd.read_csv('./data/covid_estimated.csv', sep='\t')
+data = pd.read_csv('./data/main_data.csv', sep='\t')
 data['date'] = pd.to_datetime(data['date'])
 
 countries = data['location_name'].unique()
