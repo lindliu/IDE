@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 3
+i = 2
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
@@ -238,7 +238,7 @@ else:
         me = {'Mexico':102.4, 'South Africa':106.1, 'Republic of Korea':87.4}
         # me = {'Mexico':107.8, 'South Africa':108.6, 'Republic of Korea':18}
     else:
-        me = {'Mexico':60, 'South Africa':54, 'Republic of Korea':81}
+        me = {'Mexico':60, 'South Africa':80, 'Republic of Korea':81}
     ax[1].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
     n = 3 ## how many sigmas
     ax[1].fill_between(time_day.iloc[pred_idx], np.clip(mu_list-sigma_list*n,0,1000), mu_list+sigma_list*n,
@@ -255,7 +255,7 @@ else:
     if estimate:
         llll = {'Mexico':60, 'South Africa':54, 'Republic of Korea':16}
     else:
-        llll = {'Mexico':60, 'South Africa':2, 'Republic of Korea':19}
+        llll = {'Mexico':60, 'South Africa':7, 'Republic of Korea':19}
     l = llll[country]
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
