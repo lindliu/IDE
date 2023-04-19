@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 1
+i = 3
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
@@ -166,7 +166,7 @@ if country=='simulation':
 
 
     # l = int(len(path) - len(path)//2.3)
-    l = 21
+    l = 41
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
@@ -253,9 +253,9 @@ else:
     ax[1].set_title(f"(b)")
 
     if estimate:
-        llll = {'Mexico':67, 'South Africa':46, 'Republic of Korea':40}
+        llll = {'Mexico':67, 'South Africa':49, 'Republic of Korea':79}
     else:
-        llll = {'Mexico':74, 'South Africa':7, 'Republic of Korea':39}
+        llll = {'Mexico':74, 'South Africa':21, 'Republic of Korea':85}
     l = llll[country]
     pp = path[l]
     idx_end = int(pp.split('/')[-2].split('_')[-1])
