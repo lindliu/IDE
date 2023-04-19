@@ -45,8 +45,8 @@ country = countries[i]
 start = start_list[i]
 
 ### set estimate=false if using real cases to train
-# estimate, prop = True, True 
-estimate, prop = False, False 
+estimate, prop = True, True 
+# estimate, prop = False, False 
 
 length = 400
 ### load data
@@ -63,7 +63,7 @@ elif country=='simulation':
     data = data.iloc[start:start+length,:]
     data_train = data['I']
 
-if prop:
+if prop or country=='simulation':
     N = 1
 else:
     N =  int(data['population'].iloc[0])
