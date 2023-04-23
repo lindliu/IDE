@@ -283,7 +283,7 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 3
-    for num in range(20,300,dis):
+    for num in range(317,350,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
