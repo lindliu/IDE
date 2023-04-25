@@ -45,8 +45,8 @@ country = countries[i]
 start = start_list[i]
 
 ### set estimate=false if using real cases to train
-estimate, prop = True, True 
-# estimate, prop = False, False 
+estimate, prop = True, True
+# estimate, prop = False, False
 
 length = 400
 ### load data
