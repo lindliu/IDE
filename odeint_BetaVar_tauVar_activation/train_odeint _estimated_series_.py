@@ -302,26 +302,29 @@ def test():
         
 if __name__ == '__main__':
 
-    countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
+    countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[3]
+    country = countries[0]
     
     ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
-    estimate, prop = False, False 
+    estimate, prop = True, True 
+    # estimate, prop = False, False 
 
     ### load data
-    if country!='simulation':
+    if country not in ['numerical', 'simulation']:
         data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
         data['date'] = pd.to_datetime(data['date'])
     
     elif country=='simulation': 
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
+    elif country=='numerical':
+        data = np.load('../data/numerical.npz')['SIR']
+        
     dis = 6
-    for num in np.r_[np.array([248,266])]:
-    # for num in np.arange(182+12+12,300,dis):
+    # for num in np.r_[np.array([248,266])]:
+    for num in np.arange(200,350,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -340,7 +343,12 @@ if __name__ == '__main__':
             start = 0
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
         
-        if prop:
+        elif country=='numerical':
+            start = 0
+            data_ = data[0,:,2].reshape([1,-1,1])
+        
+        
+        if prop or country=='simulation':
             N = 1
         else:
             N =  int(data['population'].iloc[0])
@@ -363,6 +371,8 @@ if __name__ == '__main__':
         batch_t = train_t
         
         if country == 'simulation':
+            file_name = f'{country}_{start}_{end}'
+        elif country == 'numerical':
             file_name = f'{country}_{start}_{end}'
         elif estimate:
             file_name = f'estimate_{country}_{start}_{end}'
@@ -442,11 +452,11 @@ if __name__ == '__main__':
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
-                    # if loss<3e-4: ## simulation
+                    if loss<3e-4: ## simulation
                     # if loss<1e-5: ## estimated mexico and south korea
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<1e+7: ###real south africa
-                    if loss<5e+7: ###real south korea
+                    # if loss<5e+7: ###real south korea
                         flag = True
                         break
                     try:

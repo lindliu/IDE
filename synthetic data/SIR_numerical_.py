@@ -59,7 +59,7 @@ def Norm(t, loc, scale):
 ##### scale
 tau = 1
 ##### time span
-start, end, length = 0, 25, 1000
+start, end, length = 0, 25, 400
 t = np.linspace(start, end, length)
 dt = t[1]-t[0]
 
