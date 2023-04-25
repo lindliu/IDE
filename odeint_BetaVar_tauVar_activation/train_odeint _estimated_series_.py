@@ -67,8 +67,6 @@ class ODEFunc1(nn.Module):
         S, I, R = torch.split(y,1,dim=1)
         
         beta = (self.beta + 1) * boundary
-        # beta = self.beta*1.5
-        # beta = torch.clamp(self.beta, 0, 10)
         
         dSdt = - self.lamb * beta * S * I / self.N + integro    
         dIdt = self.lamb * beta * S * I / self.N - I
@@ -147,8 +145,6 @@ class ODEFunc(nn.Module):
         # print('asfafasfasfsafasfd', I.shape, integro.shape)
         
         beta = (self.NN_beta(t) + 1) * boundary
-        # beta = self.NN_beta(t) * 1.5
-        # beta = torch.clamp(self.NN_beta(t), 0, 10)
         
         dSdt = - self.lamb * beta * S * I / self.N + integro
         dIdt = self.lamb * beta * S * I / self.N - I
@@ -305,7 +301,7 @@ if __name__ == '__main__':
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
                  'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
     
-    country = countries[0]
+    country = countries[1]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -348,7 +344,7 @@ if __name__ == '__main__':
             data_ = data[0,:,2].reshape([1,-1,1])
         
         
-        if prop or country=='simulation':
+        if prop or country in ['simulation', 'numerical']:
             N = 1
         else:
             N =  int(data['population'].iloc[0])

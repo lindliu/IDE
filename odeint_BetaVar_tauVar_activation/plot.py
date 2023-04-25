@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 3
+i = 1
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
@@ -102,7 +102,7 @@ mu_list, sigma_list = [], []
 tau_list = []
 
 t_end = 25
-T = np.linspace(0., t_end, length)[::-1]
+# T = np.linspace(0., t_end, 400)[:length][::-1]
                    
 for pp in path:
     
@@ -110,11 +110,7 @@ for pp in path:
     pos = idx_end-start
 
     data_pred = np.load(pp)
-    
-    if length>time_day.shape[0]:
-        pred = data_pred['pred'][:,:time_day.shape[0],:]
-    else:
-        pred = data_pred['pred']
+    pred = data_pred['pred'][:,:length,:]
         
     mu_list.append(data_pred['mu'].item())
     sigma_list.append(data_pred['sigma'].item())
@@ -171,7 +167,7 @@ if country=='simulation':
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
     data_pred = np.load(pp)
-    pred = data_pred['pred']
+    pred = data_pred['pred'][:,:length,:]
     
     S = data['S'][start:start+length].to_numpy()
     R = data['R'][start:start+length].to_numpy()
@@ -261,7 +257,7 @@ else:
     idx_end = int(pp.split('/')[-2].split('_')[-1])
     pos = idx_end-start
     data = np.load(pp)
-    pred = data['pred']/N
+    pred = data['pred'][:,:length,:]/N
     
     ax[2].plot(time_day.iloc[:pos], data_train[:pos]/N, c='tab:orange', label='train I')
     ax[2].plot(time_day.iloc[pos:], data_train[pos:]/N, c='r', label='test I')
@@ -278,7 +274,7 @@ else:
     plt.setp(ax[3].get_xticklabels(), rotation=45)
     ax[3].set_title(f"(d)")
 
-    ax[4].plot(time_day, data['beta'], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
+    ax[4].plot(time_day, data['beta'][:length], c='tab:blue', linestyle='dashed', marker='o', markersize=1, label='predict $R_0(t)$')
     ax[4].legend()
     ax[4].axvline(x=time_day[idx_end], color='k', linestyle='dashed', label='axvline')
     plt.setp(ax[4].get_xticklabels(), rotation=45)
