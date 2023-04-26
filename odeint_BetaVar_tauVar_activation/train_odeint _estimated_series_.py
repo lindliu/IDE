@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 4
+boundary = 1.5
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -298,10 +298,9 @@ def test():
         
 if __name__ == '__main__':
 
-    countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea',\
-                 'Belgium', 'United Kingdom', 'Slovenia', 'Denmark']
+    countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
-    country = countries[1]
+    country = countries[0]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -319,20 +318,13 @@ if __name__ == '__main__':
         data = np.load('../data/numerical.npz')['SIR']
         
     dis = 6
-    # for num in np.r_[np.array([248,266])]:
-    for num in np.arange(200,350,dis):
+    for num in np.arange(280,350,dis):
         ##### data preparation ######
         length = 400
         recovery_time = 14
 
         if country in ['Mexico', 'South Africa', 'Republic of Korea']:
             start = 640
-            data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
-        elif country in ['Belgium', 'United Kingdom']:
-            start = 750
-            data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
-        elif country in ['Slovenia', 'Denmark']:
-            start = 600
             data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
@@ -435,9 +427,6 @@ if __name__ == '__main__':
                 loss.backward()
                 optimizer.step()
                 
-                # with torch.no_grad():
-                #     func_m.sigma.clamp_(range_[0], range_[1])
-                #     # func_m.mu.clamp_(range_[2], range_[3])
                 func_m.apply(clipper)
                 
                 writer.add_scalar(f'{file_name}_Loss', loss, epoch_sub*kk+itr)
