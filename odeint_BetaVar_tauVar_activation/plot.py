@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 3
+i = 0
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
@@ -76,7 +76,7 @@ else:
     file_name = f'real_{country}'
             
     
-path_u = glob.glob(f'./figures/{file_name}_{start}_*')
+path_u = glob.glob(f'./figures_/{file_name}_{start}_*')
 
 idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
 path_ = np.array(path_u)[idx_sorted]
@@ -154,8 +154,8 @@ if country=='simulation':
         alpha=0.2, facecolor='#089FFF', #edgecolor='#1B2ACC', linewidth=1, 
         linestyle='dashdot', antialiased=True, label='3$\sigma$')
     ax[1].legend()
-    ax[1].axhline(y=81.1, color='k', linestyle='dashed', label='axvline')
-    extraticks = [81.1]
+    ax[1].axhline(y=70, color='k', linestyle='dashed', label='axvline')
+    extraticks = [70]
     ax[1].set_yticks(list(ax[1].get_yticks())[1:-1] + extraticks)
     # plt.setp(ax[1].get_xticklabels(), rotation=45)
     ax[1].set_title(f"(b)")
@@ -285,7 +285,7 @@ else:
     else:
         fig.suptitle(f"{country} datasets(average daily cases)", fontsize=30)
 
-os.makedirs(f'./figures/{file_name}_prediction', exist_ok=True)
+os.makedirs(f'./figures_/{file_name}_prediction', exist_ok=True)
 fig.tight_layout()
-fig.savefig(f'./figures/{file_name}_prediction/{file_name}_{pred_length}days_prediction.png', \
+fig.savefig(f'./figures_/{file_name}_prediction/{file_name}_{pred_length}days_prediction.png', \
             bbox_inches='tight', dpi=300)
