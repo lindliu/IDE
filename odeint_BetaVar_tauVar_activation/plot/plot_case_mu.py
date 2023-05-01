@@ -41,13 +41,13 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
 def load_result_path(country, start, estimate, prop, length):
     ### load data
     if country!='simulation':
-        data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
+        data = pd.read_csv(f'../../data/covid_{country}.csv', sep='\t')
         data['date'] = pd.to_datetime(data['date'])
         
         data_train = get_train_data(data, start, length=length, recovery_time=14, estimate=estimate, prop=prop)
         data_train = data_train.flatten()
     elif country=='simulation': 
-        data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])       
+        data = pd.DataFrame(np.load('../../data/simulation_2_3.npy'), columns=['S','I','R'])       
         data['date'] = np.arange(500)
          
         data = data.iloc[start:start+length,:]
@@ -66,7 +66,7 @@ def load_result_path(country, start, estimate, prop, length):
         file_name = f'real_{country}'
                 
         
-    path_u = glob.glob(f'./figures_/{file_name}_{start}_*')
+    path_u = glob.glob(f'../figures_/{file_name}_{start}_*')
     
     idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
     path_ = np.array(path_u)[idx_sorted]
@@ -174,6 +174,7 @@ for i in range(3):
         extraticks = [mu[f'{country}']]
         # ax[i+3+6*j].set_yticks(list(ax[i+3+6*j].get_yticks())[3:-1] + extraticks)
         ax[i*4+1+2*j].set_yticks([200,400,600] + extraticks)
+        ax[i*4+1+2*j].set_xlim([time_day.iloc[0], time_day.iloc[-1]])
         plt.setp(ax[i*4+1+2*j].get_xticklabels(), rotation=45)
         ax[i*4+1+2*j].set_xlabel(f"({index[i*4+1+2*j]})")
             
@@ -184,19 +185,19 @@ rows = ['Mexico', 'South Africa', 'Republic of Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                size='large', ha='right', va='center', rotation=90)
+                fontsize=30, ha='right', va='center', rotation=90)
 
 cols = ['cases prediction \n datasets(average daily cases)', '$\mu$ prediction \n datasets(average daily cases)', \
         'cases prediction \n datasets(estimated)', '$\mu$ prediction \n datasets(estimated)']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
-                size='large', ha='center', va='baseline')
+                fontsize=30, ha='center', va='baseline')
 # for ax_, col in zip(ax[0,:], cols):
 #     ax_.set_title(col)
 
 fig.tight_layout()
-fig.savefig(f'./figures_/prediction_cases_mu.png', \
+fig.savefig(f'./prediction_cases_mu.png', \
             bbox_inches='tight', dpi=300)
 
 

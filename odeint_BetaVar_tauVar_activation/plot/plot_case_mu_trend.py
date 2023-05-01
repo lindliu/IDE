@@ -38,7 +38,7 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
             
     return data_
 
-i = 0
+i = 1
 start_list = [0, 640, 640, 640]
 countries = ['simulation', 'Mexico', 'South Africa', 'Republic of Korea']
 country = countries[i]
@@ -51,13 +51,13 @@ estimate, prop = False, False
 length = 400
 ### load data
 if country!='simulation':
-    data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
+    data = pd.read_csv(f'../../data/covid_{country}.csv', sep='\t')
     data['date'] = pd.to_datetime(data['date'])
     
     data_train = get_train_data(data, start, length=length, recovery_time=14, estimate=estimate, prop=prop)
     data_train = data_train.flatten()
 elif country=='simulation': 
-    data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])       
+    data = pd.DataFrame(np.load('../../data/simulation_2_3.npy'), columns=['S','I','R'])       
     data['date'] = np.arange(500)
      
     data = data.iloc[start:start+length,:]
@@ -76,7 +76,7 @@ else:
     file_name = f'real_{country}'
             
     
-path_u = glob.glob(f'./figures_/{file_name}_{start}_*')
+path_u = glob.glob(f'../figures_/{file_name}_{start}_*')
 
 idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
 path_ = np.array(path_u)[idx_sorted]

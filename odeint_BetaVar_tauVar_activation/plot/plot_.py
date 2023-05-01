@@ -57,14 +57,14 @@ country = countries[i]
 length = 400
 ### load data
 if country!='simulation':
-    data_train_ = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
+    data_train_ = pd.read_csv(f'../../data/covid_{country}.csv', sep='\t')
     data_train_['date'] = pd.to_datetime(data_train_['date'])
 
     start = start_list[i]
     data_train = data_train_['proportion'][start:start+length].to_numpy()
 
 elif country=='simulation': 
-    data_train_ = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])        
+    data_train_ = pd.DataFrame(np.load('../../data/simulation_2_3.npy'), columns=['S','I','R'])        
     # data_train_["date"] = pd.date_range(start='1/1/2021', periods=500)   
     data_train_["date"] = np.arange(500)
 
@@ -82,7 +82,7 @@ else:
     file_name = f'real_{country}'
             
     
-path_u = glob.glob(f'./figures/{file_name}_{start}_*')
+path_u = glob.glob(f'../figures_/{file_name}_{start}_*')
 
 idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
 path_ = np.array(path_u)[idx_sorted]
