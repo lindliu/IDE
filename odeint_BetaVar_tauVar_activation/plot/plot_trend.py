@@ -293,7 +293,7 @@ pred_length, pred_length_ = 2, 7
 pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
 
 
-fig, ax = plt.subplots(2,4,figsize=(25,15))
+fig, ax = plt.subplots(2,4,figsize=(30,15))
 ax = ax.flatten()
 
 ax[0].axis('off')

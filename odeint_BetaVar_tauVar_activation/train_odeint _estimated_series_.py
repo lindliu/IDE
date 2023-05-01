@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 1.75
+boundary = 1.75 #4
 
 class Memory(nn.Module):    
     def __init__(self):
