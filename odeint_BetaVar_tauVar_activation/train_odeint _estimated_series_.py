@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 2#1.75 #
+boundary = 4#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -300,11 +300,11 @@ if __name__ == '__main__':
 
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
-    country = countries[3]
+    country = countries[2]
     
     ### set estimate=false if using real cases to train
-    estimate, prop = True, True 
-    # estimate, prop = False, False 
+    # estimate, prop = True, True 
+    estimate, prop = False, False 
 
     ### load data
     if country not in ['numerical', 'simulation']:
@@ -319,13 +319,13 @@ if __name__ == '__main__':
         
     dis = 6
     # for num in np.arange(280,350,dis):
-    for num in [135]:
+    for num in [127]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
 
         if country in ['Mexico', 'South Africa', 'Republic of Korea']:
-            start = 660#741#690#640#708#
+            start = 714#741#690#640#708#
             data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
