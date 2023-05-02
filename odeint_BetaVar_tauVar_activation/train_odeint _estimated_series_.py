@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 1.75 #4
+boundary = 2#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -206,10 +206,10 @@ def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
     ax[4].plot(beta)
     ax[4].set_title('beta')
         
-    os.makedirs(f'./figures/{file_name}',exist_ok=True)
-    np.savez(f'./figures/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
+    os.makedirs(f'./figures_trend_/{file_name}',exist_ok=True)
+    np.savez(f'./figures_trend_/{file_name}/{iteration}.npz', train=batch_y.cpu().numpy(), pred=pred_y, K=K, \
              sigma=func_m.sigma.item()*sc, mu=func_m.mu.item()*sc, beta=beta, tau=tau)
-    fig.savefig(f'./figures/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
+    fig.savefig(f'./figures_trend_/{file_name}/{iteration}.png', bbox_inches='tight', pad_inches=0)
     plt.close()
 
 def get_train_data(data, start, length, recovery_time, estimate=True, prop=True, scale=1, data_type='cases_mean'):
@@ -303,8 +303,8 @@ if __name__ == '__main__':
     country = countries[3]
     
     ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
-    estimate, prop = False, False 
+    estimate, prop = True, True 
+    # estimate, prop = False, False 
 
     ### load data
     if country not in ['numerical', 'simulation']:
@@ -319,13 +319,13 @@ if __name__ == '__main__':
         
     dis = 6
     # for num in np.arange(280,350,dis):
-    for num in [35]:
+    for num in [130]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
 
         if country in ['Mexico', 'South Africa', 'Republic of Korea']:
-            start = 640
+            start = 660#741#690#640#708#
             data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
@@ -439,7 +439,8 @@ if __name__ == '__main__':
                     save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
                     
                     # if loss<3e-4: ## simulation
-                    if loss<1e-5: ## estimated mexico and south korea
+                    # if loss<1e-4: ## estimated mexico and south korea
+                    if loss<1e-7:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
                     # if loss<1e+7: ###real south africa
                     # if loss<5e+7: ###real south korea

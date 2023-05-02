@@ -76,7 +76,7 @@ for idx in range(6):
         country = countries[idx]
         start = start_list[idx]
         
-        estimate, prop = (False, False) if idx<=3 else (True, True)
+        estimate, prop = (False, False) if idx<=2 else (True, True)
         if country=='simulation':
             filename = f'{country}_{start}'
         else:
@@ -143,8 +143,8 @@ for idx in range(6):
 
 ax = ax.reshape(6,3)
 pad = 5
-rows = ['Mexico\n(estimated datasets)', 'South Africa\n(estimated datasets)', 'Republic of Korea\n(estimated datasets)',\
-        'Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)']
+rows = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)',\
+        'Mexico\n(estimated datasets)', 'South Africa\n(estimated datasets)', 'Republic of Korea\n(estimated datasets)']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
