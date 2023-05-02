@@ -319,7 +319,7 @@ if __name__ == '__main__':
         
     dis = 6
     # for num in np.arange(280,350,dis):
-    for num in [130]:
+    for num in [135]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
