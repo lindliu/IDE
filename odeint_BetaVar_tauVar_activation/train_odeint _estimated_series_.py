@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 4#1.75 #
+boundary = 1.75#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -319,13 +319,13 @@ if __name__ == '__main__':
         
     dis = 6
     # for num in np.arange(280,350,dis):
-    for num in [127]:
+    for num in [60]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
 
         if country in ['Mexico', 'South Africa', 'Republic of Korea']:
-            start = 714#741#690#640#708#
+            start = 640#714#741#690#640#708#
             data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
@@ -341,7 +341,7 @@ if __name__ == '__main__':
             N = 1
         else:
             N =  int(data['population'].iloc[0])
-            
+        
         # plt.plot(data_[0])
         data_ = np.repeat(data_,3,axis=2)
         
@@ -389,7 +389,7 @@ if __name__ == '__main__':
         target = torch.ones(length,1).to(device) * beta_init
         func = train_beta(func, T, target)
 
-        for kk in range(35):
+        for kk in range(40):
             flag = False
 
             ### initialize mu, sigma and S0 
@@ -461,9 +461,9 @@ if __name__ == '__main__':
         
     writer.flush()
 
-    
+
     # func_m.load_state_dict(torch.load(f'./models/func_m_simulation_0_126_13501_cuda.pt'))
     # func.load_state_dict(torch.load(f'./models/func_simulation_0_126_13501_cuda.pt'))
-    
+
     # tensorboard --logdir=runs
     

@@ -68,17 +68,17 @@ def load_train_data(country, start, estimate, prop, length):
 countries = ['Mexico', 'South Africa', 'Republic of Korea', \
              'Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
 start_list_1 = [640, 640, 640, 640, 640, 640]
-start_list_2 = [690, 660, 741, 640, 640, 640]
+start_list_2 = [711, 670, 762, 690, 660, 741]
 length = 400
 
 fig, ax = plt.subplots(6,3, figsize=[30,35])
 ax = ax.flatten()
-for idx in range(3):
+for idx in range(6):
         country = countries[idx]
         start_1 = start_list_1[idx]
         start_2 = start_list_2[idx]
 
-        estimate, prop = (True, True) if idx<=2 else (False, False)
+        estimate, prop = (False, False) if idx<=2 else (True, True)
         filename = f'estimate_{country}' if estimate else f'real_{country}'
                   
         data_train, time_day, N = load_train_data(country, start_1, estimate, prop, length)
@@ -103,7 +103,7 @@ for idx in range(3):
         # idx = 0
         ax[idx*3].plot(time_day, data_train, c='r', label='estimated I')
         ax[idx*3].plot(time_day.iloc[:pos_peak_1+pos_peak_2], pred_peak_1[:pos_peak_1+pos_peak_2,1], c='b', linestyle='dashdot', label='predict I (1st peak)')
-        ax[idx*3].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:-pos_peak_1,1], c='darkgreen', linestyle='dotted', label='predict I (2nd peak)')
+        ax[idx*3].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:length-pos_peak_1,1], c='darkgreen', linestyle='dotted', label='predict I (2nd peak)')
 
         ax[idx*3].legend()
         ax[idx*3].axvline(x=time_day[endind_peak_1], color='k', linestyle='dashed', label='axvline')
@@ -117,8 +117,8 @@ for idx in range(3):
         ax[idx*3+1].plot(time_day.iloc[:pos_peak_1+pos_peak_2], pred_peak_1[:pos_peak_1+pos_peak_2, 0], c='b', label='S (1st peak)')
         ax[idx*3+1].plot(time_day.iloc[:pos_peak_1+pos_peak_2], pred_peak_1[:pos_peak_1+pos_peak_2, 2], c='b', linestyle='dashed', label='R (1st peak)')
 
-        ax[idx*3+1].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:-pos_peak_1, 0], c='darkgreen', label='S (2nd peak)')
-        ax[idx*3+1].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:-pos_peak_1, 2], c='darkgreen', linestyle='dashed', label='R (2nd peak)')
+        ax[idx*3+1].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:length-pos_peak_1, 0], c='darkgreen', label='S (2nd peak)')
+        ax[idx*3+1].plot(time_day.iloc[pos_peak_1:], pred_peak_2[:length-pos_peak_1, 2], c='darkgreen', linestyle='dashed', label='R (2nd peak)')
 
         ax[idx*3+1].legend()
         ax[idx*3+1].axvline(x=time_day[endind_peak_1], color='k', linestyle='dashed', label='axvline')
@@ -130,7 +130,7 @@ for idx in range(3):
 
 
         ax[idx*3+2].plot(time_day.iloc[:pos_peak_1+pos_peak_2], beta_peak_1[:pos_peak_1+pos_peak_2, 0], c='b', label='$R_0$ (1st peak)')
-        ax[idx*3+2].plot(time_day.iloc[pos_peak_1:], beta_peak_2[:-pos_peak_1, 0], c='darkgreen', label='$R_0$ (2nd peak)')
+        ax[idx*3+2].plot(time_day.iloc[pos_peak_1:], beta_peak_2[:length-pos_peak_1, 0], c='darkgreen', label='$R_0$ (2nd peak)')
 
         ax[idx*3+2].legend()
         ax[idx*3+2].axvline(x=time_day[endind_peak_1], color='k', linestyle='dashed', label='axvline')
@@ -156,7 +156,7 @@ for ax_, col in zip(ax[0], cols):
                 fontsize=30, ha='center', va='baseline')
 
 fig.tight_layout()
-fig.savefig(f'./prediction_trend.png', \
+fig.savefig(f'./prediction_trend_.png', \
             bbox_inches='tight', dpi=300)
 
     
