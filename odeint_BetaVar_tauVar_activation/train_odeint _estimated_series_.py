@@ -300,11 +300,11 @@ if __name__ == '__main__':
 
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
-    country = countries[2]
+    country = countries[1]
     
     ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
-    estimate, prop = False, False 
+    estimate, prop = True, True 
+    # estimate, prop = False, False 
 
     ### load data
     if country not in ['numerical', 'simulation']:
@@ -319,7 +319,7 @@ if __name__ == '__main__':
         
     dis = 6
     # for num in np.arange(280,350,dis):
-    for num in [60]:
+    for num in [100]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -329,7 +329,7 @@ if __name__ == '__main__':
             data_ = get_train_data(data, start, length, recovery_time, estimate, prop)
         
         elif country=='simulation':
-            start = 0
+            start = 26
             data_ = data['I'][start:start+length].to_numpy().reshape([1,-1,1])
         
         elif country=='numerical':
