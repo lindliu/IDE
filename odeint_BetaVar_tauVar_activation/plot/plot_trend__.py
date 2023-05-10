@@ -172,8 +172,6 @@ for idx in range(6):
         mu_list.append(data_pred['mu'].item())
         sigma_list.append(data_pred['sigma'].item())
         tau_list.append(data_pred['tau'].item())
-        # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
-        # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
         
         pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
         prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
@@ -193,6 +191,9 @@ for idx in range(6):
     prediction_S = np.array(prediction_S)
     prediction_R = np.array(prediction_R)
         
+    
+    ax[idx*3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
+                    pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
     
     if estimate:
         ax[idx*3].plot(time_day, data_train/N, c='r', label='Estimated I')
@@ -257,12 +258,7 @@ fig.savefig(f'./prediction_trend__.png', \
     
     
     
-    
-"""
-    
-    
-    
-    
+
 
 
 def load_result_path(country, start, estimate, prop, length):
@@ -387,6 +383,10 @@ for pp in path:
     ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
                 pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=1)
 
+
+ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
+            pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
@@ -419,7 +419,7 @@ plt.setp(ax[6].get_xticklabels(), rotation=45)
 ax[6].set_xlabel(f"(e)")
 
 
-ax[7].plot(time_day, data_pred['beta'], label='$R_0$')
+ax[7].plot(time_day, data_pred['beta'], label='$R_0(t)$')
 ax[7].legend()
 ax[7].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 
@@ -430,10 +430,8 @@ plt.setp(ax[7].get_xticklabels(), rotation=45)
 ax[7].set_xlabel(f"(f)")
 
 
-# fig.tight_layout()
-# fig.savefig(f'./prediction_trend_synthetic__.png', \
-#             bbox_inches='tight', dpi=300)
+fig.tight_layout()
+fig.savefig(f'./prediction_trend_synthetic__.png', \
+            bbox_inches='tight', dpi=300)
 
     
-
-"""
