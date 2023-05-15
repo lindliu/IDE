@@ -132,22 +132,140 @@ def load_results(path, pred_length=2, pred_length_=7):
 
 
 
+# countries = ['Mexico', 'South Africa', 'Republic of Korea', \
+#              'Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
+# start_list = [640, 640, 640, 640, 640, 640]
+# length = 400
+
+# xlabel = ['a', 'b', 'c', 'd', 'e', 'f']
+
+# fig, ax = plt.subplots(6,3, figsize=[30,50])
+# ax = ax.flatten()
+# for idx in range(6):
+    
+#     country = countries[idx]
+#     start = start_list[idx]
+
+#     estimate, prop = (False, False) if idx<=2 else (True, True)
+#     filename = f'estimate_{country}' if estimate else f'real_{country}'
+    
+#     path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
+#     pred_length, pred_length_ = 14, 7
+#     # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
+#     pred_idx, prediction_I, prediction_I_ = [], [], []
+#     prediction_S, prediction_R = [], []
+#     mu_list, sigma_list = [], []
+#     tau_list = []
+    
+#     t_end = 25
+#     # T = np.linspace(0., t_end, 400)[:length][::-1]
+                       
+#     for pp in path:
+        
+#         idx_end = int(pp.split('/')[-2].split('_')[-1])
+#         pos = idx_end-start
+    
+#         data_pred = np.load(pp)
+#         pred = data_pred['pred'][:,:length,:]
+            
+#         mu_list.append(data_pred['mu'].item())
+#         sigma_list.append(data_pred['sigma'].item())
+#         tau_list.append(data_pred['tau'].item())
+        
+#         pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+#         prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
+#         prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
+        
+#         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+#         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+        
+#         ax[idx*3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
+#                     pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=1)
+    
+#     mu_list = np.array(mu_list)
+#     sigma_list = np.array(sigma_list)
+    
+#     prediction_I = np.array(prediction_I)
+#     prediction_I_ = np.array(prediction_I_)
+#     prediction_S = np.array(prediction_S)
+#     prediction_R = np.array(prediction_R)
+        
+    
+#     ax[idx*3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
+#                     pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+    
+#     if estimate:
+#         ax[idx*3].plot(time_day, data_train/N, c='r', label='Estimated I')
+#     else:
+#         ax[idx*3].plot(time_day, data_train/N, c='r', label='Daily average I')
+#     # ax[idx*3].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+#     # ax[idx*3].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
+#     ax[idx*3].legend()
+#     plt.setp(ax[idx*3].get_xticklabels(), rotation=45)
+#     ax[idx*3].set_xlabel(f"({xlabel[idx]}1)")
+        
+
+#     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
+#     data_path = pp
+#     endind = int(data_path.split('/')[-2].split('_')[-1])    
+#     ax[idx*3].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+
+#     data_series = np.load(data_path)
+#     data_pred = data_series['pred'][0]/N
+#     data_beta = data_series['beta']
+    
+#     # ax[idx*3+1].plot(time_day, data_pred[:, 1], label='I')
+#     ax[idx*3+1].plot(time_day, data_pred[:, 0], label='S')
+#     ax[idx*3+1].plot(time_day, data_pred[:, 2], label='R')
+#     ax[idx*3+1].legend()
+#     # ax[idx*3+1].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
+#     ax[idx*3+1].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+#     plt.setp(ax[idx*3+1].get_xticklabels(), rotation=45)
+#     ax[idx*3+1].set_xlabel(f"({xlabel[idx]}2)")
+
+
+#     ax[idx*3+2].plot(time_day, data_beta[:, 0], label='$R_0(t)$')
+#     ax[idx*3+2].legend()
+#     # ax[idx*3+2].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
+#     ax[idx*3+2].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+#     plt.setp(ax[idx*3+2].get_xticklabels(), rotation=45)
+#     ax[idx*3+2].set_xlabel(f"({xlabel[idx]}3)")
+
+
+
+# ax = ax.reshape(6,3)
+# pad = 5
+# rows = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)',\
+#         'Mexico\n(estimated datasets)', 'South Africa\n(estimated datasets)', 'Republic of Korea\n(estimated datasets)']
+# for ax_, row in zip(ax[:,0], rows):
+#     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
+#                 xycoords=ax_.yaxis.label, textcoords='offset points',
+#                 fontsize=30, ha='right', va='center', rotation=90)
+
+# cols = ['I prediction', 'S and R prediction', 'Estimated $R_0(t)$']
+# for ax_, col in zip(ax[0], cols):
+#     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
+#                 xycoords='axes fraction', textcoords='offset points',
+#                 fontsize=30, ha='center', va='baseline')
+
+# fig.tight_layout()
+# fig.savefig(f'./prediction_trend__.png', \
+#             bbox_inches='tight', dpi=300)
+
 countries = ['Mexico', 'South Africa', 'Republic of Korea', \
              'Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
 start_list = [640, 640, 640, 640, 640, 640]
-start_list_2 = [711, 670, 762, 690, 660, 741]
 length = 400
 
-xlabel = ['a', 'b', 'c', 'd', 'e', 'f']
-
-fig, ax = plt.subplots(6,3, figsize=[30,50])
+xlabel = ['a', 'b', 'c']
+fig, ax = plt.subplots(3,4, figsize=[30,20])
 ax = ax.flatten()
-for idx in range(6):
+for idx in range(3):
     
     country = countries[idx]
     start = start_list[idx]
 
-    estimate, prop = (False, False) if idx<=2 else (True, True)
+    estimate, prop = (False, False) 
     filename = f'estimate_{country}' if estimate else f'real_{country}'
     
     path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
@@ -180,8 +298,8 @@ for idx in range(6):
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
-        ax[idx*3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=1)
+        ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
+                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
     
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
@@ -192,58 +310,124 @@ for idx in range(6):
     prediction_R = np.array(prediction_R)
         
     
-    ax[idx*3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
+    ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
                     pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
     
     if estimate:
-        ax[idx*3].plot(time_day, data_train/N, c='r', label='Estimated I')
+        ax[idx*4].plot(time_day, data_train/N, c='r', label='Estimated I')
     else:
-        ax[idx*3].plot(time_day, data_train/N, c='r', label='Daily average I')
-    # ax[idx*3].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
-    # ax[idx*3].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
-    ax[idx*3].legend()
-    plt.setp(ax[idx*3].get_xticklabels(), rotation=45)
-    ax[idx*3].set_xlabel(f"({xlabel[idx]}1)")
+        ax[idx*4].plot(time_day, data_train/N, c='r', label='Daily average I')
+    # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+    # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
+    ax[idx*4].legend()
+    plt.setp(ax[idx*4].get_xticklabels(), rotation=45)
+    ax[idx*4].set_xlabel(f"({xlabel[idx]}1)")
         
 
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
     data_path = pp
     endind = int(data_path.split('/')[-2].split('_')[-1])    
-    ax[idx*3].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+    ax[idx*4].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 
     data_series = np.load(data_path)
-    data_pred = data_series['pred'][0]/N
+    # data_pred = data_series['pred'][0]/N
+    data_beta = data_series['beta']
+
+    ax[idx*4+1].plot(time_day, data_beta[:, 0], label='$R_0(t)$')
+    ax[idx*4+1].legend()
+    # ax[idx*4+1].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
+    ax[idx*4+1].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+    plt.setp(ax[idx*4+1].get_xticklabels(), rotation=45)
+    ax[idx*4+1].set_xlabel(f"({xlabel[idx]}2)")
+
+
+
+    
+    estimate, prop = (True, True)
+    filename = f'estimate_{country}' if estimate else f'real_{country}'
+    
+    path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
+    pred_length, pred_length_ = 14, 7
+    # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
+    pred_idx, prediction_I, prediction_I_ = [], [], []
+    prediction_S, prediction_R = [], []
+    mu_list, sigma_list = [], []
+    tau_list = []
+    
+    t_end = 25
+    # T = np.linspace(0., t_end, 400)[:length][::-1]
+                       
+    for pp in path:
+        
+        idx_end = int(pp.split('/')[-2].split('_')[-1])
+        pos = idx_end-start
+    
+        data_pred = np.load(pp)
+        pred = data_pred['pred'][:,:length,:]
+            
+        mu_list.append(data_pred['mu'].item())
+        sigma_list.append(data_pred['sigma'].item())
+        tau_list.append(data_pred['tau'].item())
+        
+        pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+        prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
+        prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
+        
+        prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+        prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+        
+        ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
+                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
+    
+    mu_list = np.array(mu_list)
+    sigma_list = np.array(sigma_list)
+    
+    prediction_I = np.array(prediction_I)
+    prediction_I_ = np.array(prediction_I_)
+    prediction_S = np.array(prediction_S)
+    prediction_R = np.array(prediction_R)
+        
+    
+    ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
+                    pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+    
+    if estimate:
+        ax[idx*4+2].plot(time_day, data_train/N, c='r', label='Estimated I')
+    else:
+        ax[idx*4+2].plot(time_day, data_train/N, c='r', label='Daily average I')
+    # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
+    # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
+    ax[idx*4+2].legend()
+    plt.setp(ax[idx*4+2].get_xticklabels(), rotation=45)
+    ax[idx*4+2].set_xlabel(f"({xlabel[idx]}3)")
+        
+
+    # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
+    data_path = pp
+    endind = int(data_path.split('/')[-2].split('_')[-1])    
+    ax[idx*4+2].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+
+    data_series = np.load(data_path)
+    # data_pred = data_series['pred'][0]/N
     data_beta = data_series['beta']
     
-    # ax[idx*3+1].plot(time_day, data_pred[:, 1], label='I')
-    ax[idx*3+1].plot(time_day, data_pred[:, 0], label='S')
-    ax[idx*3+1].plot(time_day, data_pred[:, 2], label='R')
-    ax[idx*3+1].legend()
-    # ax[idx*3+1].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
-    ax[idx*3+1].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
-    plt.setp(ax[idx*3+1].get_xticklabels(), rotation=45)
-    ax[idx*3+1].set_xlabel(f"({xlabel[idx]}2)")
 
+    ax[idx*4+3].plot(time_day, data_beta[:, 0], label='$R_0(t)$')
+    ax[idx*4+3].legend()
+    # ax[idx*4+1].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
+    ax[idx*4+3].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
+    plt.setp(ax[idx*4+3].get_xticklabels(), rotation=45)
+    ax[idx*4+3].set_xlabel(f"({xlabel[idx]}4)")
 
-    ax[idx*3+2].plot(time_day, data_beta[:, 0], label='$R_0(t)$')
-    ax[idx*3+2].legend()
-    # ax[idx*3+2].axvline(x=time_day[start], color='k', linestyle='dashed', label='axvline')
-    ax[idx*3+2].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
-    plt.setp(ax[idx*3+2].get_xticklabels(), rotation=45)
-    ax[idx*3+2].set_xlabel(f"({xlabel[idx]}3)")
-
-
-
-ax = ax.reshape(6,3)
+ax = ax.reshape(3,4)
 pad = 5
-rows = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)',\
-        'Mexico\n(estimated datasets)', 'South Africa\n(estimated datasets)', 'Republic of Korea\n(estimated datasets)']
+rows = ['Mexico', 'South Africa', 'Republic of Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
                 fontsize=30, ha='right', va='center', rotation=90)
 
-cols = ['I prediction', 'S and R prediction', 'Estimated $R_0(t)$']
+cols = ['14-day prediction\n(average daily cases)', '$R_0(t)$\n(average daily cases)', '14-day prediction\n(estimated datasets)', '$R_0(t)$\n(estimated datasets)']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
@@ -254,7 +438,6 @@ fig.savefig(f'./prediction_trend__.png', \
             bbox_inches='tight', dpi=300)
 
 
-    
     
     
     
@@ -381,7 +564,7 @@ for pp in path:
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
     ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=1)
+                pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
 
 
 ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \

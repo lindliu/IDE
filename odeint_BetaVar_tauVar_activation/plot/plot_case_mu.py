@@ -130,7 +130,7 @@ def load_results(path, pred_length=2, pred_length_=7):
     return pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R
 
 
-index = ['a','b','c','d','e','f','g','h','i','j','k','l']
+index = ['a1','a2','a3','a4','b1','b2','b3','b4','c1','c2','c3','c4']
 fig, ax = plt.subplots(3,4,figsize=(30,20))
 ax = ax.flatten()
 for i in range(3):

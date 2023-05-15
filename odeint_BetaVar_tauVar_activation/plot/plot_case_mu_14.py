@@ -178,7 +178,7 @@ for i in range(3):
             prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
             
             ax[i*4+2*j].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                        pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=1)
+                        pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
         
         mu_list = np.array(mu_list)
         sigma_list = np.array(sigma_list)
