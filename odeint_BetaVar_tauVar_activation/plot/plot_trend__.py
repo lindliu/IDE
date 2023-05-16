@@ -6,7 +6,7 @@
 # @author: dliu
 # """
 
-
+                
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
@@ -252,11 +252,29 @@ def load_results(path, pred_length=2, pred_length_=7):
 # fig.savefig(f'./prediction_trend__.png', \
 #             bbox_inches='tight', dpi=300)
 
-countries = ['Mexico', 'South Africa', 'Republic of Korea', \
-             'Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
-start_list = [640, 640, 640, 640, 640, 640]
+
+def findPeakElement(nums):
+    n=len(nums)
+    if n==1 or nums[0]>nums[1]:
+        return 0
+    elif nums[n-1]>nums[n-2]:
+        return n-1
+    l,h=0,n-1
+    while l<=h:
+        m=(l+h)>>1
+        if nums[m]>nums[m+1] and nums[m]>nums[m-1]:
+            return m
+        elif nums[m]>nums[m+1]:
+            h=m-1
+        else:
+            l=m+1 
+            
+countries = ['Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
+start_list = [640, 640, 640]
 length = 400
 
+
+pred_length = 7*7
 xlabel = ['a', 'b', 'c']
 fig, ax = plt.subplots(3,4, figsize=[30,20])
 ax = ax.flatten()
@@ -269,7 +287,6 @@ for idx in range(3):
     filename = f'estimate_{country}' if estimate else f'real_{country}'
     
     path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-    pred_length, pred_length_ = 14, 7
     # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
     pred_idx, prediction_I, prediction_I_ = [], [], []
     prediction_S, prediction_R = [], []
@@ -292,26 +309,28 @@ for idx in range(3):
         tau_list.append(data_pred['tau'].item())
         
         pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-        prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
-        prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
-        
+        prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])        
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
         ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
-    
+                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
+        
+        # peak_idx = findPeakElement(pred[0,idx_end-start:idx_end-start+pred_length,1]/N)
+        # ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)[peak_idx]], \
+        #             pred[0,idx_end-start+peak_idx,1]/N, c='r',alpha=.8,s=40)
+        
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
     
     prediction_I = np.array(prediction_I)
-    prediction_I_ = np.array(prediction_I_)
     prediction_S = np.array(prediction_S)
     prediction_R = np.array(prediction_R)
         
     
     ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-                    pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+                    pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=20)
+    
     
     if estimate:
         ax[idx*4].plot(time_day, data_train/N, c='r', label='Estimated I')
@@ -320,9 +339,10 @@ for idx in range(3):
     # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
     # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
     ax[idx*4].legend()
+    ax[idx*4].set_ylim(0,data_train.max()/N*2)
     plt.setp(ax[idx*4].get_xticklabels(), rotation=45)
     ax[idx*4].set_xlabel(f"({xlabel[idx]}1)")
-        
+    
 
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
     data_path = pp
@@ -347,9 +367,8 @@ for idx in range(3):
     filename = f'estimate_{country}' if estimate else f'real_{country}'
     
     path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-    pred_length, pred_length_ = 14, 7
     # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
-    pred_idx, prediction_I, prediction_I_ = [], [], []
+    pred_idx, prediction_I = [], []
     prediction_S, prediction_R = [], []
     mu_list, sigma_list = [], []
     tau_list = []
@@ -371,25 +390,22 @@ for idx in range(3):
         
         pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
         prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
-        prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
-        
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
         ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
+                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
     
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
     
     prediction_I = np.array(prediction_I)
-    prediction_I_ = np.array(prediction_I_)
     prediction_S = np.array(prediction_S)
     prediction_R = np.array(prediction_R)
         
     
     ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-                    pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+                    pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=20)
     
     if estimate:
         ax[idx*4+2].plot(time_day, data_train/N, c='r', label='Estimated I')
@@ -398,6 +414,7 @@ for idx in range(3):
     # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
     # ax[idx*4].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days predict I')
     ax[idx*4+2].legend()
+    ax[idx*4+2].set_ylim(0,data_train.max()/N*2)
     plt.setp(ax[idx*4+2].get_xticklabels(), rotation=45)
     ax[idx*4+2].set_xlabel(f"({xlabel[idx]}3)")
         
@@ -427,7 +444,7 @@ for ax_, row in zip(ax[:,0], rows):
                 xycoords=ax_.yaxis.label, textcoords='offset points',
                 fontsize=30, ha='right', va='center', rotation=90)
 
-cols = ['14-day prediction\n(average daily cases)', '$R_0(t)$\n(average daily cases)', '14-day prediction\n(estimated datasets)', '$R_0(t)$\n(estimated datasets)']
+cols = [f'{pred_length}-day prediction\n(average daily cases)', '$R_0(t)$\n(average daily cases)', f'{pred_length}-day prediction\n(estimated datasets)', '$R_0(t)$\n(estimated datasets)']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
@@ -532,9 +549,9 @@ ax[2].set_xlabel(f"(b)")
 # filename = f'estimate_{country}' if estimate else f'real_{country}'
 
 # path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-pred_length, pred_length_ = 14, 7
+pred_length = 7*7
 # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
-pred_idx, prediction_I, prediction_I_ = [], [], []
+pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
 mu_list, sigma_list = [], []
 tau_list = []
@@ -557,24 +574,21 @@ for pp in path:
     # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
     
     pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-    prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
-    prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
-    
+    prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])    
     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
     ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                pred[0,idx_end-start:idx_end-start+pred_length,1]/N, s=10)
+                pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
 
 
 ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-            pred[0,idx_end-start:idx_end-start+53,1]/N, s=1)
+            pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=30)
 
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
 
 prediction_I = np.array(prediction_I)
-prediction_I_ = np.array(prediction_I_)
 prediction_S = np.array(prediction_S)
 prediction_R = np.array(prediction_R)
 
