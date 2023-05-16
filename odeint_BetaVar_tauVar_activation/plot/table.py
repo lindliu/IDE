@@ -136,8 +136,19 @@ countries = ['Mexico', 'South Africa', 'Republic of Korea', \
 start_list = [640, 640, 640, 640, 640, 640, 0]
 length = 400
 
+
+## first decend
+points1 = np.array([75, 45, 140, 65, 35, 125, 45])
+points2 = points1+40
+
+# ## second decend
+# points1 = np.array([250, 190, 290, 245, 180, 280, 185])
+# points2 = points1+40
+
 fig, ax = plt.subplots(3,3,figsize=[30,20])
 ax = ax.flatten()
+fig1, ax1 = plt.subplots(3,3,figsize=[30,20])
+ax1 = ax1.flatten()
 for idx in range(len(countries)):
     country = countries[idx]
     start = start_list[idx]
@@ -149,34 +160,54 @@ for idx in range(len(countries)):
         filename = f'estimate_{country}' if estimate else f'real_{country}'
     
     path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-    pred_length = 7*7
+    pred_length = 7*4
     pred_idx, prediction_I, data_true = [], [], []
     prediction_S, prediction_R = [], []
     mu_list, sigma_list = [], []
     tau_list = []
     
     t_end = 25
-    # T = np.linspace(0., t_end, 400)[:length][::-1]
                        
+    # for pp in path:
+        
+    #     idx_end = int(pp.split('/')[-2].split('_')[-1])
+    #     pos = idx_end-start
+    
+    #     data_pred = np.load(pp)
+    #     pred = data_pred['pred'][:,:length,:]
+        
+    #     mu_list.append(data_pred['mu'].item())
+    #     sigma_list.append(data_pred['sigma'].item())
+    #     tau_list.append(data_pred['tau'].item())
+        
+    #     pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+    #     prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
+    #     data_true.append(data_train[pos:pos+pred_length])
+        
+        
+    #     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+    #     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+    
     for pp in path:
         
         idx_end = int(pp.split('/')[-2].split('_')[-1])
         pos = idx_end-start
-    
-        data_pred = np.load(pp)
-        pred = data_pred['pred'][:,:length,:]
-        
-        mu_list.append(data_pred['mu'].item())
-        sigma_list.append(data_pred['sigma'].item())
-        tau_list.append(data_pred['tau'].item())
-        
-        pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-        prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
-        data_true.append(data_train[pos:pos+pred_length])
-        
-        
-        prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-        prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+
+        if pos>=points1[idx] and pos<=points2[idx]:
+            data_pred = np.load(pp)
+            pred = data_pred['pred'][:,:length,:]
+            
+            mu_list.append(data_pred['mu'].item())
+            sigma_list.append(data_pred['sigma'].item())
+            tau_list.append(data_pred['tau'].item())
+            
+            pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+            prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
+            data_true.append(data_train[pos:pos+pred_length])
+            
+            
+            prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+            prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
@@ -188,7 +219,7 @@ for idx in range(len(countries)):
     prediction_R = np.array(prediction_R)
     
     
-    error = abs(data_true-prediction_I)/data_train.max()*1.3  ### relative error
+    error = abs(data_true-prediction_I)/data_train.max()  ### relative error
     error_m = np.median(error,axis=0)
     error_m_week = error_m.reshape([-1,7]).mean(1)
     
@@ -197,3 +228,8 @@ for idx in range(len(countries)):
     ax[idx].plot(error_m)
     ax[idx].plot(np.repeat(error_m_week,7))
     ax[idx].set_title(f'{filename}')
+
+
+    ax1[idx].plot(data_train)
+    ax1[idx].axvline(x=points1[idx], color='k', linestyle='dashed', label='axvline')
+    ax1[idx].axvline(x=points2[idx], color='r', linestyle='dashed', label='axvline')
