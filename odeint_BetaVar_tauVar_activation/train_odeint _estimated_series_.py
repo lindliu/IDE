@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 4#1.75 #
+boundary = 5#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -317,9 +317,9 @@ if __name__ == '__main__':
     elif country=='numerical':
         data = np.load('../data/numerical.npz')['SIR']
         
-    dis = 6
-    # for num in np.arange(280,350,dis):
-    for num in [347]:
+    dis = 3
+    # for num in np.arange(5,20,dis):
+    for num in np.array([60, 61]):
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -440,9 +440,9 @@ if __name__ == '__main__':
                     
                     # if loss<3e-4: ## simulation
                     # if loss<1e-4: ## estimated mexico and south korea
-                    if loss<1e-7:
+                    if loss<5e-5:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    # if loss<1e+7: ###real south africa
+                    # if loss<1e+6: ###real south africa
                     # if loss<5e+7: ###real south korea
                         flag = True
                         break

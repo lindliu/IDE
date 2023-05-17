@@ -130,16 +130,20 @@ def load_results(path, pred_length=2, pred_length_=7):
     return pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R
 
 
-
 countries = ['Mexico', 'South Africa', 'Republic of Korea', \
              'Mexico', 'South Africa', 'Republic of Korea', 'simulation']  #
 start_list = [640, 640, 640, 640, 640, 640, 0]
 length = 400
 
 
+
 ## first decend
-points1 = np.array([75, 45, 140, 65, 35, 125, 45])
-points2 = points1+40
+points1 = np.array([71, 41, 134, 62, 31, 120, 39]) ### first peak
+points2 = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
+
+# ## first decend
+# points1 = np.array([75, 45, 140, 65, 35, 125, 45])
+# points2 = points1+40
 
 # ## second decend
 # points1 = np.array([250, 190, 290, 245, 180, 280, 185])
@@ -167,7 +171,12 @@ for idx in range(len(countries)):
     tau_list = []
     
     t_end = 25
-                       
+    
+    # aa = np.array([75, 45, 140, 65, 35, 125, 45])+40
+    # print(f'{filename} first peak:', np.argmax(data_train[:aa[idx]]))
+    # aa = np.array([250, 190, 290, 245, 180, 280, 185])+40
+    # print(f'{filename} second peak:', np.argmax(data_train[aa[idx]-80:aa[idx]])+aa[idx]-80)
+
     # for pp in path:
         
     #     idx_end = int(pp.split('/')[-2].split('_')[-1])

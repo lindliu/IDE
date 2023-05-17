@@ -253,28 +253,18 @@ def load_results(path, pred_length=2, pred_length_=7):
 #             bbox_inches='tight', dpi=300)
 
 
-def findPeakElement(nums):
-    n=len(nums)
-    if n==1 or nums[0]>nums[1]:
-        return 0
-    elif nums[n-1]>nums[n-2]:
-        return n-1
-    l,h=0,n-1
-    while l<=h:
-        m=(l+h)>>1
-        if nums[m]>nums[m+1] and nums[m]>nums[m-1]:
-            return m
-        elif nums[m]>nums[m+1]:
-            h=m-1
-        else:
-            l=m+1 
-            
+### 'real Mexico', 'real South Africa', 'real Korea', 'est Mexico', 'est South Africa', 'est Korea''simulation
+peak_start = np.zeros(7)#np.array([40,0,40,25,0,40,40])
+peak_st = np.array([71, 41, 134, 62, 31, 120, 39]) ### first peak
+peak_nd = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
+
+peak_st_idx, peak_nd_idx = [], []
+
 countries = ['Mexico', 'South Africa', 'Republic of Korea']  #'simulation'
 start_list = [640, 640, 640]
 length = 400
 
-
-pred_length = 7*7
+pred_length = 7*4
 xlabel = ['a', 'b', 'c']
 fig, ax = plt.subplots(3,4, figsize=[30,20])
 ax = ax.flatten()
@@ -295,7 +285,10 @@ for idx in range(3):
     
     t_end = 25
     # T = np.linspace(0., t_end, 400)[:length][::-1]
-                       
+    
+    peak_st_idx.append([])
+    peak_nd_idx.append([])
+    
     for pp in path:
         
         idx_end = int(pp.split('/')[-2].split('_')[-1])
@@ -313,13 +306,24 @@ for idx in range(3):
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
-        ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
+        ax[idx*4].scatter(time_day.iloc[np.arange(pos, pos+pred_length)], \
+                    pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
         
-        # peak_idx = findPeakElement(pred[0,idx_end-start:idx_end-start+pred_length,1]/N)
-        # ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)[peak_idx]], \
-        #             pred[0,idx_end-start+peak_idx,1]/N, c='r',alpha=.8,s=40)
-        
+        # if pos<peak_st[idx]-pred_length:
+        if pos<peak_st[idx] and pos>peak_st[idx]-pred_length:
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+            ax[idx*4].scatter(time_day.iloc[np.arange(pos, pos+pred_length)[peak_idx]], \
+                        pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+            
+            peak_st_idx[-1].append(peak_idx+pos)
+            
+        if pos<peak_nd[idx] and pos>peak_nd[idx]-pred_length:
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+            ax[idx*4].scatter(time_day.iloc[np.arange(pos, pos+pred_length)[peak_idx]], \
+                        pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+            
+            peak_nd_idx[-1].append(peak_idx+pos)
+
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
     
@@ -328,8 +332,8 @@ for idx in range(3):
     prediction_R = np.array(prediction_R)
         
     
-    ax[idx*4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-                    pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=20)
+    ax[idx*4].scatter(time_day.iloc[np.arange(pos, idx_end-start+53)], \
+                    pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=20)
     
     
     if estimate:
@@ -375,7 +379,10 @@ for idx in range(3):
     
     t_end = 25
     # T = np.linspace(0., t_end, 400)[:length][::-1]
-                       
+                   
+    peak_st_idx.append([])
+    peak_nd_idx.append([])
+    
     for pp in path:
         
         idx_end = int(pp.split('/')[-2].split('_')[-1])
@@ -393,9 +400,25 @@ for idx in range(3):
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
-        ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                    pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
+        ax[idx*4+2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)], \
+                    pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
     
+    
+        
+        if pos<peak_st[idx+3] and pos>peak_st[idx+3]-pred_length:
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+            ax[idx*4+2].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                        pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+            
+            peak_st_idx[-1].append(peak_idx+pos)
+
+        if pos<peak_nd[idx+3] and pos>peak_nd[idx+3]-pred_length:
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+            ax[idx*4+2].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                        pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+            
+            peak_nd_idx[-1].append(peak_idx+pos)
+
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
     
@@ -404,8 +427,8 @@ for idx in range(3):
     prediction_R = np.array(prediction_R)
         
     
-    ax[idx*4+2].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-                    pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=20)
+    ax[idx*4+2].scatter(time_day.iloc[np.arange(pos, idx_end-start+53)], \
+                    pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=20)
     
     if estimate:
         ax[idx*4+2].plot(time_day, data_train/N, c='r', label='Estimated I')
@@ -457,7 +480,38 @@ fig.savefig(f'./prediction_trend__.png', \
 
     
     
-    
+
+# peak_st = np.array([71, 41, 134, 62, 31, 120, 39]) ### first peak
+# peak_nd = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
+
+print('First peak:')
+error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]))
+print(f'Real Mexico: {error_M_R}')
+error_M_E = np.median(abs(np.array(peak_st_idx[1])-peak_st[3]))
+print(f'Estimated Mexico: {error_M_E}')
+error_SA_R = np.median(abs(np.array(peak_st_idx[2])-peak_st[1]))
+print(f'Real SA: {error_SA_R}')
+error_SA_E = np.median(abs(np.array(peak_st_idx[3])-peak_st[4]))
+print(f'Estimated SA: {error_SA_E}')
+error_SK_R = np.median(abs(np.array(peak_st_idx[4])-peak_st[2]))
+print(f'Real SK: {error_SK_R}')
+error_SK_E = np.median(abs(np.array(peak_st_idx[5])-peak_st[5]))
+print(f'Estimated SK: {error_SK_E}')
+
+
+print('Second peak:')
+error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]))
+print(f'Real Mexico: {error_M_R}')
+error_M_E = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[3]))
+print(f'Estimated Mexico: {error_M_E}')
+error_SA_R = np.median(abs(np.array(peak_nd_idx[2])-peak_nd[1]))
+print(f'Real SA: {error_SA_R}')
+error_SA_E = np.median(abs(np.array(peak_nd_idx[3])-peak_nd[4]))
+print(f'Estimated SA: {error_SA_E}')
+error_SK_R = np.median(abs(np.array(peak_nd_idx[4])-peak_nd[2]))
+print(f'Real SK: {error_SK_R}')
+error_SK_E = np.median(abs(np.array(peak_nd_idx[5])-peak_nd[5]))
+print(f'Estimated SK: {error_SK_E}')
 
 
 
@@ -549,7 +603,7 @@ ax[2].set_xlabel(f"(b)")
 # filename = f'estimate_{country}' if estimate else f'real_{country}'
 
 # path, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-pred_length = 7*7
+pred_length = 7*5
 # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
 pred_idx, prediction_I = [], []
 prediction_S, prediction_R = [], []
@@ -558,7 +612,7 @@ tau_list = []
 
 t_end = 25
 # T = np.linspace(0., t_end, 400)[:length][::-1]
-                   
+peak_st_sim_idx, peak_nd_sim_idx, peak_rd_sim_idx = [], [], []
 for pp in path:
     
     idx_end = int(pp.split('/')[-2].split('_')[-1])
@@ -578,12 +632,34 @@ for pp in path:
     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
-    ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-                pred[0,idx_end-start:idx_end-start+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
+    ax[4].scatter(time_day.iloc[np.arange(pos,pos+pred_length)], \
+                pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
 
+    # if pos<peak_st[idx]-pred_length:
+    if pos<39 and pos>0:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[4].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_st_sim_idx.append(peak_idx+pos)
 
-ax[4].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+53)], \
-            pred[0,idx_end-start:idx_end-start+53,1]/N, c='tab:blue',alpha=.1,s=30)
+    if pos<178 and pos>178-pred_length:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[4].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_nd_sim_idx.append(peak_idx+pos)
+
+    if pos<291 and pos>291-pred_length:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[4].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_rd_sim_idx.append(peak_idx+pos)
+
+                
+ax[4].scatter(time_day.iloc[np.arange(pos, pos+53)], \
+            pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=30)
 
 mu_list = np.array(mu_list)
 sigma_list = np.array(sigma_list)
@@ -632,3 +708,16 @@ fig.savefig(f'./prediction_trend_synthetic__.png', \
             bbox_inches='tight', dpi=300)
 
     
+
+
+print('Second peak:')
+error_S_st = np.median(abs(np.array(peak_st_sim_idx)-39))
+print(f'Simulation: {error_S_st}')
+
+print('Second peak:')
+error_S_nd = np.median(abs(np.array(peak_nd_sim_idx)-178))
+print(f'Simulation: {error_S_nd}')
+
+print('Third peak:')
+error_S_rd = np.median(abs(np.array(peak_rd_sim_idx)-291))
+print(f'Simulation: {error_S_rd}')
