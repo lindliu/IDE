@@ -300,7 +300,7 @@ if __name__ == '__main__':
 
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
-    country = countries[2]
+    country = countries[3]
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -319,7 +319,9 @@ if __name__ == '__main__':
         
     dis = 3
     # for num in np.arange(5,20,dis):
-    for num in np.array([60, 61]):
+    for num in np.array([148, 
+    150, 151, 153, 154, 156, 157, 159, 160, 162,
+    163, 165, 166, 168, 169, 171, 172, 174, 175]):
         ##### data preparation ######
         length = 400
         recovery_time = 14
