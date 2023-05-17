@@ -29,6 +29,8 @@ font = {#'family' : 'normal',
         'size'   : 10}
 matplotlib.rc('font', **font)
 
+from hyper import hyper_min_2, hyper_min_3
+method = 'euler'##'dopri5' ##        
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
@@ -77,18 +79,19 @@ class ODEFunc1(nn.Module):
 # https://discuss.pytorch.org/t/set-constraints-on-parameters-or-layers/23620/7
 class WeightClipper(object):
 
-    def __init__(self, frequency=5):
+    def __init__(self, range_, frequency=5):
+        self.range_ = range_
         self.frequency = frequency
 
     def __call__(self, module):
         # # filter the variables to get the ones you want
         # if hasattr(module, 'weight'):
         w = module.sigma.data
-        w = w.clamp(range_[0], range_[1])
+        w = w.clamp(self.range_[0], self.range_[1])
         module.sigma.data = w
         
         w = module.mu.data
-        w = w.clamp(range_[2], range_[3])
+        w = w.clamp(self.range_[2], self.range_[3])
         module.mu.data = w
         
 # clipper = WeightClipper()
@@ -152,7 +155,7 @@ class ODEFunc(nn.Module):
         
         return torch.cat((dSdt,dIdt,dRdt),1) * self.tau
 
-def save_fig(func, func_m, file_name, iteration, loss, batch_y, length=300):
+def save_fig(func, func_m, file_name, iteration, loss, batch_y, N, t_end, data_, length=300):
     T = torch.linspace(0., t_end, length).to(device)
     
     I0 = batch_y[:,0,1].to(device)
@@ -247,7 +250,7 @@ def train_beta(func, T, target):
             print(loss)
     return func
 
-def func_initialization(func, func_m, batch_t, batch_y, method, max_evals):
+def func_initialization(func, func_m, batch_t, batch_y, method, range_, max_evals):
     print(f'mu: {func_m.mu.item()}, sigma: {func_m.sigma.item()}')
     c_func = copy.deepcopy(func)
     c_func_m = copy.deepcopy(func_m)
@@ -280,7 +283,8 @@ def test():
     func_m = Memory().to(device)
     func_m.mu = nn.Parameter(torch.tensor(5.).to(device), requires_grad=True)
     func_m.sigma = nn.Parameter(torch.tensor(1.).to(device), requires_grad=True)
-
+    
+    length = 400
     ### dynamic
     T = torch.linspace(0., 25, length).to(device)
     y0 = torch.tensor([[.99,.01,0]], dtype=torch.float).to(device)
@@ -295,17 +299,8 @@ def test():
     ax[1].plot(K, label='distrubition K')
     ax[0].legend()
     ax[1].legend()
-        
-if __name__ == '__main__':
 
-    countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
-    
-    country = countries[3]
-    
-    ### set estimate=false if using real cases to train
-    estimate, prop = True, True 
-    # estimate, prop = False, False 
-
+def main(country, estimate, prop, array):
     ### load data
     if country not in ['numerical', 'simulation']:
         data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
@@ -319,9 +314,7 @@ if __name__ == '__main__':
         
     dis = 3
     # for num in np.arange(5,20,dis):
-    for num in np.array([148, 
-    150, 151, 153, 154, 156, 157, 159, 160, 162,
-    163, 165, 166, 168, 169, 171, 172, 174, 175]):
+    for num in array:
         ##### data preparation ######
         length = 400
         recovery_time = 14
@@ -375,10 +368,7 @@ if __name__ == '__main__':
         
         func = ODEFunc(N=N).to(device)
         func_m = Memory().to(device)        
-        clipper = WeightClipper()
-
-        method = 'euler'##'dopri5' ##        
-        from hyper import hyper_min_2, hyper_min_3
+        clipper = WeightClipper(range_)
 
         ##### find a proper initial value of beta #####
         c_func = ODEFunc1(N=N).to(device)
@@ -396,7 +386,7 @@ if __name__ == '__main__':
 
             ### initialize mu, sigma and S0 
             func, func_m = func_initialization(func, func_m, batch_t, batch_y, \
-                                               method, max_evals=150)
+                                               method, range_, max_evals=150)
             
             optimizer = optim.Adam([
                             {'params': func.parameters()},
@@ -438,13 +428,14 @@ if __name__ == '__main__':
 
                 if itr%100==0:
                     print(f'itr: {epoch_sub*kk+itr}, loss: {loss.item():.2e}')
-                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, batch_y=batch_y, length=length)
+                    save_fig(func, func_m, file_name, iteration=epoch_sub*kk+itr, loss=loss, \
+                             batch_y=batch_y, N=N, t_end=t_end, data_=data_, length=length)
                     
                     # if loss<3e-4: ## simulation
                     # if loss<1e-4: ## estimated mexico and south korea
-                    if loss<5e-5:
+                    # if loss<5e-5:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    # if loss<1e+6: ###real south africa
+                    if loss<1e+6: ###real south africa
                     # if loss<5e+7: ###real south korea
                         flag = True
                         break
@@ -469,3 +460,25 @@ if __name__ == '__main__':
 
     # tensorboard --logdir=runs
     
+if __name__ == '__main__':
+
+    countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
+    
+    country = countries[2]
+    
+    ### set estimate=false if using real cases to train
+    # estimate, prop = True, True 
+    estimate, prop = False, False 
+
+    array_all = [[43, 45, 46, 48, 49, 51, 52, 54, 55, 57, 58, 
+           60, 61, 63, 64, 66, 67, 69, 219, 220, 222, 223, 225, 226, 228, 229, 231,
+                  232, 234, 235, 237, 238, 240, 241, 243, 244,
+                  246],
+                 [13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 25, 27, 28,
+                         30, 31, 33, 34, 36, 37, 39, 40,159, 160, 162, 163, 165, 166, 168, 169, 171,
+                                172, 174, 175, 177, 178, 180, 181, 183, 184, 186],
+                 [106, 108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126, 127, 129, 130,132, 133,
+                  255, 256, 258, 259, 261, 262, 264, 265, 267,
+                        268, 270, 271, 273, 274, 276, 277, 279, 280,282]]
+    for country, array in zip(['Mexico', 'South Africa', 'Republic of Korea'],array_all):
+        main(country, estimate, prop, array)
