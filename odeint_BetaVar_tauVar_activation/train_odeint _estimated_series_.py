@@ -312,7 +312,7 @@ def main(country, estimate, prop, array):
     elif country=='numerical':
         data = np.load('../data/numerical.npz')['SIR']
         
-    dis = 3
+    # dis = 3
     # for num in np.arange(5,20,dis):
     for num in array:
         ##### data preparation ######
@@ -433,9 +433,9 @@ def main(country, estimate, prop, array):
                     
                     # if loss<3e-4: ## simulation
                     # if loss<1e-4: ## estimated mexico and south korea
-                    # if loss<5e-5:
+                    if loss<2.5e-4:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    if loss<1e+6: ###real south africa
+                    # if loss<1e+6: ###real south africa
                     # if loss<5e+7: ###real south korea
                         flag = True
                         break
@@ -464,21 +464,33 @@ if __name__ == '__main__':
 
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
-    country = countries[2]
+    country = countries[3]
     
     ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
-    estimate, prop = False, False 
+    estimate, prop = True, True 
+    # estimate, prop = False, False 
 
-    array_all = [[43, 45, 46, 48, 49, 51, 52, 54, 55, 57, 58, 
-           60, 61, 63, 64, 66, 67, 69, 219, 220, 222, 223, 225, 226, 228, 229, 231,
-                  232, 234, 235, 237, 238, 240, 241, 243, 244,
-                  246],
-                 [13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 25, 27, 28,
-                         30, 31, 33, 34, 36, 37, 39, 40,159, 160, 162, 163, 165, 166, 168, 169, 171,
-                                172, 174, 175, 177, 178, 180, 181, 183, 184, 186],
-                 [106, 108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126, 127, 129, 130,132, 133,
-                  255, 256, 258, 259, 261, 262, 264, 265, 267,
-                        268, 270, 271, 273, 274, 276, 277, 279, 280,282]]
+    # array_all = [[43, 45, 46, 48, 49, 51, 52, 54, 55, 57, 58, 
+    #        60, 61, 63, 64, 66, 67, 69, 219, 220, 222, 223, 225, 226, 228, 229, 231,
+    #               232, 234, 235, 237, 238, 240, 241, 243, 244,
+    #               246],
+    #              [13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 25, 27, 28,
+    #                      30, 31, 33, 34, 36, 37, 39, 40,159, 160, 162, 163, 165, 166, 168, 169, 171,
+    #                             172, 174, 175, 177, 178, 180, 181, 183, 184, 186],
+    #              [106, 108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126, 127, 129, 130,132, 133,
+    #               255, 256, 258, 259, 261, 262, 264, 265, 267,
+    #                     268, 270, 271, 273, 274, 276, 277, 279, 280,282]]
+    # for country, array in zip(['Mexico', 'South Africa', 'Republic of Korea'],array_all):
+    #     main(country, estimate, prop, array)
+    
+    
+    array_all = [[213, 214, 216, 217, 219, 220, 222, 223,
+           225, 226, 228, 229, 231, 232, 234, 235, 237, 238],
+                 [174, 175],
+                 [93,  94,  96,  97,  99, 100, 102, 103,
+                105, 106, 108, 109, 111, 112, 114, 115, 117,118,
+                246, 247, 249, 250, 252, 253, 255, 256,
+                258, 259, 261, 262, 264, 265, 267, 268, 270, 271]]
     for country, array in zip(['Mexico', 'South Africa', 'Republic of Korea'],array_all):
+        # array = np.arange(20,350,3)
         main(country, estimate, prop, array)
