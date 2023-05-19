@@ -318,8 +318,10 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 3
-    for num in range(320,350,dis):
-    # for num in np.arange(170,300,12):
+    # for num in range(320,350,dis):
+    for num in [11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 25, 27,
+           28, 30, 31, 33, 34, 36, 37,150, 151, 153, 154, 156, 157, 159, 160, 162,
+                  163, 165, 166, 168, 169, 171, 172, 174, 175, 177]:
         ##### data preparation ######
         length = 400
         recovery_time = 14

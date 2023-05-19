@@ -34,7 +34,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 4
+boundary = 5
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -318,8 +318,10 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 3
-    for num in range(308,350,dis):
-    # for num in np.arange(170,300,12):
+    # for num in range(308,350,dis):
+    for num in [106, 108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126, 127, 129, 130,132, 133,
+    255, 256, 258, 259, 261, 262, 264, 265, 267,
+          268, 270, 271, 273, 274, 276, 277, 279, 280,282]:
         ##### data preparation ######
         length = 400
         recovery_time = 14
