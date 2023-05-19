@@ -318,7 +318,9 @@ if __name__ == '__main__':
         data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
     
     dis = 3
-    for num in range(287,350,dis):
+    for num in [220, 222, 223, 225, 226, 228, 229, 231,
+                  232, 234, 235, 237, 238, 240, 241, 243, 244,
+                  246]:
     # for num in np.arange(170,300,12):
         ##### data preparation ######
         length = 400
