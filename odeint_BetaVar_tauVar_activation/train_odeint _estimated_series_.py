@@ -36,7 +36,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 5#1.75 #
+boundary = 1.75#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -483,7 +483,7 @@ if __name__ == '__main__':
     #     main(country, estimate, prop, array)
     
     
-    array_all = [[22,25,28]]
-    for country, array in zip(['South Africa'],array_all):
+    array_all = [[347]]
+    for country, array in zip(['simulation'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array)
