@@ -177,47 +177,47 @@ for idx in range(len(countries)):
     # aa = np.array([250, 190, 290, 245, 180, 280, 185])+40
     # print(f'{filename} second peak:', np.argmax(data_train[aa[idx]-80:aa[idx]])+aa[idx]-80)
 
-    # for pp in path:
-        
-    #     idx_end = int(pp.split('/')[-2].split('_')[-1])
-    #     pos = idx_end-start
-    
-    #     data_pred = np.load(pp)
-    #     pred = data_pred['pred'][:,:length,:]
-        
-    #     mu_list.append(data_pred['mu'].item())
-    #     sigma_list.append(data_pred['sigma'].item())
-    #     tau_list.append(data_pred['tau'].item())
-        
-    #     pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-    #     prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
-    #     data_true.append(data_train[pos:pos+pred_length])
-        
-        
-    #     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-    #     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
-    
     for pp in path:
         
         idx_end = int(pp.split('/')[-2].split('_')[-1])
         pos = idx_end-start
-
-        if pos>=points1[idx] and pos<=points2[idx]:
-            data_pred = np.load(pp)
-            pred = data_pred['pred'][:,:length,:]
-            
-            mu_list.append(data_pred['mu'].item())
-            sigma_list.append(data_pred['sigma'].item())
-            tau_list.append(data_pred['tau'].item())
-            
-            pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-            prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
-            data_true.append(data_train[pos:pos+pred_length])
-            
-            
-            prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-            prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+    
+        data_pred = np.load(pp)
+        pred = data_pred['pred'][:,:length,:]
         
+        mu_list.append(data_pred['mu'].item())
+        sigma_list.append(data_pred['sigma'].item())
+        tau_list.append(data_pred['tau'].item())
+        
+        pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+        prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
+        data_true.append(data_train[pos:pos+pred_length])
+        
+        
+        prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+        prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+    
+    # for pp in path:
+        
+    #     idx_end = int(pp.split('/')[-2].split('_')[-1])
+    #     pos = idx_end-start
+
+    #     if pos>=points1[idx] and pos<=points2[idx]:
+    #         data_pred = np.load(pp)
+    #         pred = data_pred['pred'][:,:length,:]
+            
+    #         mu_list.append(data_pred['mu'].item())
+    #         sigma_list.append(data_pred['sigma'].item())
+    #         tau_list.append(data_pred['tau'].item())
+            
+    #         pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
+    #         prediction_I.append(list(pred[0,pos:pos+pred_length,1]))
+    #         data_true.append(data_train[pos:pos+pred_length])
+            
+            
+    #         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+    #         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+    
     mu_list = np.array(mu_list)
     sigma_list = np.array(sigma_list)
     
@@ -228,7 +228,8 @@ for idx in range(len(countries)):
     prediction_R = np.array(prediction_R)
     
     
-    error = abs(data_true-prediction_I)/data_train.max()  ### relative error
+    # error = abs(data_true-prediction_I)/data_train.max()  ### relative error
+    error = abs(data_true-prediction_I)/data_true  ### error
     error_m = np.median(error,axis=0)
     error_m_week = error_m.reshape([-1,7]).mean(1)
     
