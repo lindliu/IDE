@@ -108,7 +108,6 @@ xlable = ['a', 'b', 'c', 'd', 'e', 'f']
 fig, ax = plt.subplots(5,6, figsize=[36,32], gridspec_kw={'height_ratios': [2, 1.5, 2, 1, 1]})
 ax = ax.flatten()
 for idx in range(6):
-    
     country = countries[idx]
     start = start_list[idx]
 
@@ -245,7 +244,7 @@ for idx in range(6):
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
     data_path = pp
     endind = int(data_path.split('/')[-2].split('_')[-1])    
-    ax[idx].axvline(x=time_day[endind], color='k', linestyle='dashed')
+    ax[idx+6*2].axvline(x=time_day[endind], color='k', linestyle='dashed')
     ax[idx+6*4].axvline(x=time_day[endind], color='k', linestyle='dashed')
 
     data_series = np.load(data_path)
@@ -426,8 +425,6 @@ ax[1].axvline(x=time_day[347], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[1].get_xticklabels(), rotation=45)
 ax[1].set_xlabel(f"(c)")
 
-
-
 ax[0].plot(time_day, data_train/N, c='r', label='Synthetic I')
 ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_1} days predict I')
 ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
@@ -435,7 +432,6 @@ ax[0].legend()
 ax[0].set_ylim(0, .4)
 plt.setp(ax[0].get_xticklabels(), rotation=45)
 ax[0].set_xlabel(f"(a)")
-
 
 ax[4].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
 n = 3 ## how many sigmas
@@ -451,8 +447,6 @@ ax[4].set_xlim([0,400])
 plt.setp(ax[4].get_xticklabels(), rotation=45)
 ax[4].set_xlabel(f"(b)")
 
-
-
 ax[5].scatter(time_day.iloc[peak_st_sim_idx], time_day.iloc[model_st_date], c='b')
 ax[5].scatter(time_day.iloc[peak_nd_sim_idx], time_day.iloc[model_nd_date], c='b')
 ax[5].scatter(time_day.iloc[peak_rd_sim_idx], time_day.iloc[model_rd_date], c='b')
@@ -467,10 +461,9 @@ ax[5].axhline(y=time_day[peaks[2]+start], color='r', linestyle='dashed', label='
 ax[5].axhspan(ymin=time_day[np.clip(peaks[0]+start-pred_length,0,400)], ymax=time_day[peaks[0]+start], alpha=0.3, color='gray')
 ax[5].axhspan(ymin=time_day[np.clip(peaks[1]+start-pred_length,0,400)], ymax=time_day[peaks[1]+start], alpha=0.3, color='gray')
 ax[5].axhspan(ymin=time_day[np.clip(peaks[2]+start-pred_length,0,400)], ymax=time_day[peaks[2]+start], alpha=0.3, color='gray')
-ax[5].set_ylabel('Model date')
+# ax[5].set_ylabel('Model date')
 plt.setp(ax[5].get_xticklabels(), rotation=45)
 ax[5].set_xlabel(f"(d)")
-
 
 ax[2].plot(time_day, data['S']/N, c='r', label='Synthetic S')
 ax[2].plot(time_day, data_pred['pred'][0,:,0], label='S')
