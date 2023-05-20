@@ -91,8 +91,8 @@ def load_result_path(country, start, estimate, prop, length):
 
 ### 'real Mexico', 'real South Africa', 'real Korea', 'est Mexico', 'est South Africa', 'est Korea''simulation
 peak_start = np.zeros(7)#np.array([40,0,40,25,0,40,40])
-peak_st = np.array([71, 41, 134, 62, 31, 120, 39]) ### first peak
-peak_nd = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
+peak_st = np.array([71, 41, 134, 62, 31, 120]) ### first peak
+peak_nd = np.array([247, 187, 283, 240, 177, 273]) ### second peak
 
 peak_st_idx, peak_nd_idx = [], []
 model_st_date, model_nd_date = [], []
@@ -103,6 +103,7 @@ length = 400
 
 weeks = 4
 pred_length = 7*weeks
+pred_1, pred_2 = 2, 7
 xlable = ['a', 'b', 'c', 'd', 'e', 'f']
 fig, ax = plt.subplots(5,6, figsize=[36,32], gridspec_kw={'height_ratios': [2, 1.5, 2, 1, 1]})
 ax = ax.flatten()
@@ -115,15 +116,13 @@ for idx in range(6):
     filename = f'estimate_{country}' if estimate else f'real_{country}'
     
     path, _, data_train, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
-    # pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
     pred_idx, prediction_I, prediction_I_ = [], [], []
     prediction_S, prediction_R = [], []
     mu_list, sigma_list = [], []
     tau_list = []
     
-    t_end = 25
+    # t_end = 25
     # T = np.linspace(0., t_end, 400)[:length][::-1]
-    
     peak_st_idx.append([])
     peak_nd_idx.append([])
     model_st_date.append([])
@@ -140,7 +139,6 @@ for idx in range(6):
         sigma_list.append(data_pred['sigma'].item())
         tau_list.append(data_pred['tau'].item())
         
-        pred_1, pred_2 = 2, 7
         pred_idx.append(list(np.arange(pos, pos+pred_1))[-1])
         prediction_I.append(list(pred[0,pos:pos+pred_1,1])[-1])    
         prediction_I_.append(list(pred[0,pos:pos+pred_2,1])[-1])    
@@ -148,9 +146,13 @@ for idx in range(6):
         # prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
         
-        ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)], \
-                    pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
-        
+        if pos+pred_length<400 and pos<347:
+            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)], \
+                                pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
+        else:
+            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, 400)], \
+                                pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=20)
+                
         # if pos<peak_st[idx]-pred_length:
         if pos<peak_st[idx] and pos>=peak_st[idx]-pred_length:
             peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
@@ -211,8 +213,8 @@ for idx in range(6):
     ax[idx+6].set_xlabel(f"({xlable[idx]}2)")
     
     
-    ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, idx_end-start+53)], \
-                    pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=20)
+    # ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, idx_end-start+53)], \
+    #                 pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=20)
     if estimate:
         ax[idx+6*2].plot(time_day, data_train/N, c='r', label='Estimated I')
     else:
@@ -233,8 +235,8 @@ for idx in range(6):
     ax[idx+6*3].axvline(x=time_day[peak_nd[idx]+start], color='r', linestyle='dashed', label='axvline')
     ax[idx+6*3].axhline(y=time_day[peak_st[idx]+start], color='r', linestyle='dashed', label='axvline')
     ax[idx+6*3].axhline(y=time_day[peak_nd[idx]+start], color='r', linestyle='dashed', label='axvline')
-    ax[idx+6*3].axhspan(ymin=time_day[peak_st[idx]+start-28], ymax=time_day[peak_st[idx]+start], alpha=0.3, color='gray')
-    ax[idx+6*3].axhspan(ymin=time_day[peak_nd[idx]+start-28], ymax=time_day[peak_nd[idx]+start], alpha=0.3, color='gray')
+    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_st[idx]+start-pred_length,start,start+400)], ymax=time_day[peak_st[idx]+start], alpha=0.3, color='gray')
+    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_nd[idx]+start-pred_length,start,start+400)], ymax=time_day[peak_nd[idx]+start], alpha=0.3, color='gray')
 
     plt.setp(ax[idx+6*3].get_xticklabels(), rotation=45)
     ax[idx+6*3].set_xlabel(f"({xlable[idx]}4)")
@@ -258,16 +260,12 @@ for idx in range(6):
 
 ax = ax.reshape(5,6)
 pad = 5
-# rows = ['Mexico', 'South Africa', 'Republic of Korea']
 rows = ['Infected percentage', '$\mu$', 'Infected percentage', 'Model date', '$R_0(t)$']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
                 fontsize=30, ha='right', va='center', rotation=90)
-
-# cols = [f'{pred_length}-day prediction\n(average daily cases)', 
-#         '$R_0(t)$\n(average daily cases)', f'{pred_length}-day prediction\n(estimated datasets)', 
-#         '$R_0(t)$\n(estimated datasets)']
+    
 cols = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)',\
         'Mexico\n(estimated cases)', 'South Africa\n(estimated cases)', 'Republic of Korea\n(estimated cases)']
 for ax_, col in zip(ax[0], cols):
@@ -331,67 +329,108 @@ print(f'Estimated SK: {error_SK_E}')
 
 
 
-def load_results(path, pred_length=2, pred_length_=7):
-    pred_idx, prediction_I, prediction_I_ = [], [], []
-    prediction_S, prediction_R = [], []
-    mu_list, sigma_list = [], []
-    tau_list = []
-    
-    for pp in path:
-        
-        idx_end = int(pp.split('/')[-2].split('_')[-1])
-        pos = idx_end-start
-    
-        data_pred = np.load(pp)
-        pred = data_pred['pred'][:,:length,:]
-            
-        mu_list.append(data_pred['mu'].item())
-        sigma_list.append(data_pred['sigma'].item())
-        tau_list.append(data_pred['tau'].item())
-        # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
-        # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
-        
-        pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-        prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
-        prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
-        
-        prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-        prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
-        
-        # ax[3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-        #             pred[0,idx_end-start:idx_end-start+pred_length,1], s=1)
-    
-    mu_list = np.array(mu_list)
-    sigma_list = np.array(sigma_list)
-    
-    prediction_I = np.array(prediction_I)
-    prediction_I_ = np.array(prediction_I_)
-    prediction_S = np.array(prediction_S)
-    prediction_R = np.array(prediction_R)
 
-    return pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R
 
 
 country = 'simulation'
 length = 400
 start = 0
-
 estimate, prop = True, True
 
 path, data, _, time_day, N, file_name = load_result_path(country, start, estimate, prop, length)
 data_train = data['I']
-pred_length, pred_length_ = 2, 7
-pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R = load_results(path, pred_length, pred_length_)
 
+pred_length = 7*4
+pred_1, pred_2 = 2, 7
+peaks = [39, 178, 291] ### three peaks of the synthetic data
 
 fig, ax = plt.subplots(2,4,figsize=(30,15))
 ax = ax.flatten()
-
 ax[3].axis('off')
 
+pred_idx, prediction_I, prediction_I_ = [], [], []
+prediction_S, prediction_R = [], []
+mu_list, sigma_list, tau_list = [], [], []
+
+# t_end = 25
+# T = np.linspace(0., t_end, 400)[:length][::-1]
+peak_st_sim_idx, peak_nd_sim_idx, peak_rd_sim_idx = [], [], []
+model_st_date, model_nd_date, model_rd_date = [], [], []
+for pp in path:
+    
+    idx_end = int(pp.split('/')[-2].split('_')[-1])
+    pos = idx_end-start
+
+    data_pred = np.load(pp)
+    pred = data_pred['pred'][:,:length,:]
+        
+    mu_list.append(data_pred['mu'].item())
+    sigma_list.append(data_pred['sigma'].item())
+    tau_list.append(data_pred['tau'].item())
+    
+    pred_idx.append(list(np.arange(pos, pos+pred_1))[-1])
+    prediction_I.append(list(pred[0,pos:pos+pred_1,1])[-1])    
+    prediction_I_.append(list(pred[0,pos:pos+pred_2,1])[-1])       
+    prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
+    prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
+    
+    if pos+pred_length<400 and pos<347:
+        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)], \
+                      pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
+    else:
+        ax[1].scatter(time_day.iloc[np.arange(pos, 400)], \
+                      pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=30)
+
+    # if pos<peak_st[idx]-pred_length:
+    if pos<peaks[0] and pos>=peaks[0]-pred_length:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_st_sim_idx.append(peak_idx+pos)
+        model_st_date.append(pos)
+        
+    if pos<peaks[1] and pos>=peaks[1]-pred_length:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_nd_sim_idx.append(peak_idx+pos)
+        model_nd_date.append(pos)
+
+    if pos<peaks[2] and pos>=peaks[2]-pred_length:
+        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
+        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
+                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
+    
+        peak_rd_sim_idx.append(peak_idx+pos)
+        model_rd_date.append(pos)
+
+mu_list = np.array(mu_list)
+sigma_list = np.array(sigma_list)
+
+prediction_I = np.array(prediction_I)
+prediction_I_ = np.array(prediction_I_)
+prediction_S = np.array(prediction_S)
+prediction_R = np.array(prediction_R)
+
+endind = int(pp.split('/')[-2].split('_')[-1])    
+
+ax[1].plot(time_day, data_train/N, c='r', label='Synthetic I')
+ax[1].legend()
+ax[1].set_ylim(0, .4)
+ax[1].axvline(x=time_day[peaks[0]+start], color='r', linestyle='dashed', label='axvline')
+ax[1].axvline(x=time_day[peaks[1]+start], color='r', linestyle='dashed', label='axvline')
+ax[1].axvline(x=time_day[peaks[2]+start], color='r', linestyle='dashed', label='axvline')
+ax[1].axvline(x=time_day[347], color='k', linestyle='dashed', label='axvline')
+plt.setp(ax[1].get_xticklabels(), rotation=45)
+ax[1].set_xlabel(f"(c)")
+
+
+
 ax[0].plot(time_day, data_train/N, c='r', label='Synthetic I')
-ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_length} days predict I')
-ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_length_} days prediction')
+ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_1} days predict I')
+ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
 ax[0].legend()
 ax[0].set_ylim(0, .4)
 plt.setp(ax[0].get_xticklabels(), rotation=45)
@@ -408,88 +447,10 @@ mu_real = 70
 ax[4].axhline(y=mu_real, color='r', linestyle='dashed', label='axvline')
 ax[4].set_yticks([200,400,600] + [mu_real])
 ax[4].set_xlim([0,400])
+# ax[4].set_ylabel('$\mu$')
 plt.setp(ax[4].get_xticklabels(), rotation=45)
 ax[4].set_xlabel(f"(b)")
 
-
-
-pred_length = 7*5
-pred_idx, prediction_I = [], []
-prediction_S, prediction_R = [], []
-mu_list, sigma_list = [], []
-tau_list = []
-
-t_end = 25
-# T = np.linspace(0., t_end, 400)[:length][::-1]
-peak_st_sim_idx, peak_nd_sim_idx, peak_rd_sim_idx = [], [], []
-model_st_date, model_nd_date, model_rd_date = [], [], []
-for pp in path:
-    
-    idx_end = int(pp.split('/')[-2].split('_')[-1])
-    pos = idx_end-start
-
-    data_pred = np.load(pp)
-    pred = data_pred['pred'][:,:length,:]
-        
-    mu_list.append(data_pred['mu'].item())
-    sigma_list.append(data_pred['sigma'].item())
-    tau_list.append(data_pred['tau'].item())
-    
-    pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-    prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])    
-    prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-    prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
-    
-    ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)], \
-                pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
-
-    # if pos<peak_st[idx]-pred_length:
-    if pos<39 and pos>=39-pred_length:
-        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
-        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
-                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
-    
-        peak_st_sim_idx.append(peak_idx+pos)
-        model_st_date.append(pos)
-        
-    if pos<178 and pos>=178-pred_length:
-        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
-        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
-                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
-    
-        peak_nd_sim_idx.append(peak_idx+pos)
-        model_nd_date.append(pos)
-
-    if pos<291 and pos>=291-pred_length:
-        peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
-        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
-                    pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
-    
-        peak_rd_sim_idx.append(peak_idx+pos)
-        model_rd_date.append(pos)
-
-                
-ax[1].scatter(time_day.iloc[np.arange(pos, pos+53)], \
-            pred[0,pos:pos+53,1]/N, c='tab:blue',alpha=.1,s=30)
-
-mu_list = np.array(mu_list)
-sigma_list = np.array(sigma_list)
-
-prediction_I = np.array(prediction_I)
-prediction_S = np.array(prediction_S)
-prediction_R = np.array(prediction_R)
-
-endind = int(pp.split('/')[-2].split('_')[-1])    
-
-ax[1].plot(time_day, data_train/N, c='r', label='Synthetic I')
-ax[1].legend()
-ax[1].set_ylim(0, .4)
-ax[1].axvline(x=time_day[39+start], color='r', linestyle='dashed', label='axvline')
-ax[1].axvline(x=time_day[178+start], color='r', linestyle='dashed', label='axvline')
-ax[1].axvline(x=time_day[291+start], color='r', linestyle='dashed', label='axvline')
-ax[1].axvline(x=time_day[357], color='k', linestyle='dashed', label='axvline')
-plt.setp(ax[1].get_xticklabels(), rotation=45)
-ax[1].set_xlabel(f"(c)")
 
 
 ax[5].scatter(time_day.iloc[peak_st_sim_idx], time_day.iloc[model_st_date], c='b')
@@ -497,16 +458,16 @@ ax[5].scatter(time_day.iloc[peak_nd_sim_idx], time_day.iloc[model_nd_date], c='b
 ax[5].scatter(time_day.iloc[peak_rd_sim_idx], time_day.iloc[model_rd_date], c='b')
 ax[5].set_xlim(time_day.iloc[0], time_day.iloc[399])
 ax[5].set_ylim(time_day.iloc[0], time_day.iloc[330])
-ax[5].axvline(x=time_day[39+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axvline(x=time_day[178+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axvline(x=time_day[291+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axhline(y=time_day[39+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axhline(y=time_day[178+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axhline(y=time_day[291+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axhspan(ymin=time_day[39+start-pred_length], ymax=time_day[39+start], alpha=0.3, color='gray')
-ax[5].axhspan(ymin=time_day[178+start-pred_length], ymax=time_day[178+start], alpha=0.3, color='gray')
-ax[5].axhspan(ymin=time_day[291+start-pred_length], ymax=time_day[291+start], alpha=0.3, color='gray')
-
+ax[5].axvline(x=time_day[peaks[0]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axvline(x=time_day[peaks[1]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axvline(x=time_day[peaks[2]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axhline(y=time_day[peaks[0]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axhline(y=time_day[peaks[1]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axhline(y=time_day[peaks[2]+start], color='r', linestyle='dashed', label='axvline')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[0]+start-pred_length,0,400)], ymax=time_day[peaks[0]+start], alpha=0.3, color='gray')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[1]+start-pred_length,0,400)], ymax=time_day[peaks[1]+start], alpha=0.3, color='gray')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[2]+start-pred_length,0,400)], ymax=time_day[peaks[2]+start], alpha=0.3, color='gray')
+ax[5].set_ylabel('Model date')
 plt.setp(ax[5].get_xticklabels(), rotation=45)
 ax[5].set_xlabel(f"(d)")
 
@@ -545,15 +506,15 @@ fig.savefig(f'./prediction_trend_synthetic__.png', \
 
 
 print('Second peak:')
-error_S_st = np.median(abs(np.array(peak_st_sim_idx)-39))
+error_S_st = np.median(abs(np.array(peak_st_sim_idx)-peaks[0]))
 print(f'Simulation: {error_S_st}')
 
 print('Second peak:')
-error_S_nd = np.median(abs(np.array(peak_nd_sim_idx)-178))
+error_S_nd = np.median(abs(np.array(peak_nd_sim_idx)-peaks[1]))
 print(f'Simulation: {error_S_nd}')
 
 print('Third peak:')
-error_S_rd = np.median(abs(np.array(peak_rd_sim_idx)-291))
+error_S_rd = np.median(abs(np.array(peak_rd_sim_idx)-peaks[2]))
 print(f'Simulation: {error_S_rd}')
 
 
