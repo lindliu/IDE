@@ -36,7 +36,7 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
 ### boundary of R0
-boundary = 1.75#1.75 #
+boundary = 5#1.75 #
 
 class Memory(nn.Module):    
     def __init__(self):
@@ -433,9 +433,9 @@ def main(country, estimate, prop, array):
                     
                     # if loss<3e-4: ## simulation
                     # if loss<1e-4: ## estimated mexico and south korea
-                    if loss<2.5e-4:
+                    # if loss<2.5e-4:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    # if loss<1e+6: ###real south africa
+                    if loss<1e+6: ###real south africa
                     # if loss<5e+7: ###real south korea
                         flag = True
                         break
@@ -467,8 +467,8 @@ if __name__ == '__main__':
     country = countries[3]
     
     ### set estimate=false if using real cases to train
-    estimate, prop = True, True 
-    # estimate, prop = False, False 
+    # estimate, prop = True, True 
+    estimate, prop = False, False 
 
     # array_all = [[220, 222, 223, 225, 226, 228, 229, 231,
     #               232, 234, 235, 237, 238, 240, 241, 243, 244,
@@ -483,7 +483,7 @@ if __name__ == '__main__':
     #     main(country, estimate, prop, array)
     
     
-    array_all = [[347]]
-    for country, array in zip(['simulation'],array_all):
+    array_all = [[70]]
+    for country, array in zip(['Mexico'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array)
