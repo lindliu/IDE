@@ -152,18 +152,18 @@ for idx in range(6):
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, 400)], \
                                 pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=20)
                 
-        # if pos<peak_st[idx]-pred_length:
+        eps = 1  ### to control from where to select peak point
         if pos<peak_st[idx] and pos>=peak_st[idx]-pred_length:
-            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
-            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)[peak_idx]], \
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
+            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)[peak_idx]], \
                         pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
             
             peak_st_idx[-1].append(peak_idx+pos)
             model_st_date[-1].append(pos)
             
         if pos<peak_nd[idx] and pos>=peak_nd[idx]-pred_length:
-            peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
-            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)[peak_idx]], \
+            peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
+            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)[peak_idx]], \
                         pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
             
             peak_nd_idx[-1].append(peak_idx+pos)
@@ -282,9 +282,9 @@ fig.savefig(f'./prediction_trend_peak.png', \
 # peak_nd = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
 
 print('First peak:')
-error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]))
+error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]).reshape(weeks,7), axis=1)
 print(f'Real Mexico: {error_M_R}')
-error_SA_R = np.median(abs(np.array(peak_st_idx[1])-peak_st[1]))
+error_SA_R = np.median(abs(np.array(peak_st_idx[1])-peak_st[1]).reshape(weeks,7), axis=1)
 print(f'Real SA: {error_SA_R}')
 error_SK_R = np.median(abs(np.array(peak_st_idx[2])-peak_st[2]))
 print(f'Real SK: {error_SK_R}')
@@ -299,9 +299,9 @@ print(f'Estimated SK: {error_SK_E}')
 
 
 print('Second peak:')
-error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]))
+error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]).reshape(weeks,7), axis=1)
 print(f'Real Mexico: {error_M_R}')
-error_SA_R = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[1]))
+error_SA_R = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[1]).reshape(weeks,7), axis=1)
 print(f'Real SA: {error_SA_R}')
 error_SK_R = np.median(abs(np.array(peak_nd_idx[2])-peak_nd[2]))
 print(f'Real SK: {error_SK_R}')

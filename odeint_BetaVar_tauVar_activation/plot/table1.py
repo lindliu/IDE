@@ -67,9 +67,16 @@ def load_result_path(country, start, estimate, prop, length):
                 
         
     path_u = glob.glob(f'../figures__/{file_name}_{start}_*')
+    end_idx_ = np.array([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
     
-    idx_sorted = np.argsort([int(os.path.split(path_u[i])[-1].split('_')[-1]) for i in range(len(path_u))])
-    path_ = np.array(path_u)[idx_sorted]
+    ### data np.arange(20,350,3) 
+    mask = np.array([i in start+np.arange(20,350,3) for i in end_idx_])
+    idx_sorted = np.argsort(end_idx_[mask])
+    path_ = np.array(path_u)[mask][idx_sorted]
+    
+    ### whole data
+    # idx_sorted = np.argsort(end_idx_)
+    # path_ = np.array(path_u)[idx_sorted]
     
     path = []
     for p in path_:
@@ -86,49 +93,6 @@ def load_result_path(country, start, estimate, prop, length):
     time_day = data['date'][start:start+length]
     return path, data_train, time_day, N, file_name
     
-def load_results(path, pred_length=2, pred_length_=7):
-    pred_idx, prediction_I, prediction_I_ = [], [], []
-    prediction_S, prediction_R = [], []
-    mu_list, sigma_list = [], []
-    tau_list = []
-    
-    t_end = 25
-    # T = np.linspace(0., t_end, 400)[:length][::-1]
-                       
-    for pp in path:
-        
-        idx_end = int(pp.split('/')[-2].split('_')[-1])
-        pos = idx_end-start
-    
-        data_pred = np.load(pp)
-        pred = data_pred['pred'][:,:length,:]
-            
-        mu_list.append(data_pred['mu'].item())
-        sigma_list.append(data_pred['sigma'].item())
-        tau_list.append(data_pred['tau'].item())
-        # pred_idx.extend(list(np.arange(idx_end-start, idx_end-start+pred_length)))
-        # prediction_I.extend(list(pred[0,idx_end-start:idx_end-start+pred_length,1]))
-        
-        pred_idx.append(list(np.arange(pos, pos+pred_length))[-1])
-        prediction_I.append(list(pred[0,pos:pos+pred_length,1])[-1])
-        prediction_I_.append(list(pred[0,pos:pos+pred_length_,1])[-1])
-        
-        prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
-        prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
-        
-        # ax[3].scatter(time_day.iloc[np.arange(idx_end-start, idx_end-start+pred_length)], \
-        #             pred[0,idx_end-start:idx_end-start+pred_length,1], s=1)
-    
-    mu_list = np.array(mu_list)
-    sigma_list = np.array(sigma_list)
-    
-    prediction_I = np.array(prediction_I)
-    prediction_I_ = np.array(prediction_I_)
-    prediction_S = np.array(prediction_S)
-    prediction_R = np.array(prediction_R)
-
-    return pred_idx, mu_list, sigma_list, prediction_I, prediction_I_, prediction_S, prediction_R
-
 
 countries = ['Mexico', 'South Africa', 'Republic of Korea', \
              'Mexico', 'South Africa', 'Republic of Korea', 'simulation']  #
@@ -172,11 +136,7 @@ for idx in range(len(countries)):
     
     t_end = 25
     
-    # aa = np.array([75, 45, 140, 65, 35, 125, 45])+40
-    # print(f'{filename} first peak:', np.argmax(data_train[:aa[idx]]))
-    # aa = np.array([250, 190, 290, 245, 180, 280, 185])+40
-    # print(f'{filename} second peak:', np.argmax(data_train[aa[idx]-80:aa[idx]])+aa[idx]-80)
-
+    ### all data result
     for pp in path:
         
         idx_end = int(pp.split('/')[-2].split('_')[-1])
@@ -197,6 +157,9 @@ for idx in range(len(countries)):
         prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
+    
+    
+    ### part data result
     # for pp in path:
         
     #     idx_end = int(pp.split('/')[-2].split('_')[-1])
