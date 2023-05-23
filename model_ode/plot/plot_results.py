@@ -144,15 +144,14 @@ for idx in range(6):
         # prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         # prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
-        
+        eps = 2  ### to control from where to select peak point
         if pos+pred_length<400 and pos<347:
-            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length)], \
-                                pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=20)
+            ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)], \
+                                pred[0,pos:pos+pred_length*eps,1]/N, c='tab:blue',alpha=.1,s=20)
         else:
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, 400)], \
                                 pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=20)
                 
-        eps = 1  ### to control from where to select peak point
         if pos<peak_st[idx] and pos>=peak_st[idx]-pred_length:
             peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)[peak_idx]], \
@@ -374,15 +373,15 @@ for pp in path:
     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
+    eps = 2  ### to control from where to select peak point
     if pos+pred_length<400 and pos<347:
-        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)], \
-                      pred[0,pos:pos+pred_length,1]/N, c='tab:blue',alpha=.1,s=30)
+        ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length*eps)], \
+                      pred[0,pos:pos+pred_length*eps,1]/N, c='tab:blue',alpha=.1,s=30)
     else:
         ax[1].scatter(time_day.iloc[np.arange(pos, 400)], \
                       pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=30)
 
 
-    eps = 1  ### to control from where to select peak point
     # if pos<peak_st[idx]-pred_length:
     if pos<peaks[0] and pos>=peaks[0]-pred_length:
         peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)

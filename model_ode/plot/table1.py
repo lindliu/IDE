@@ -191,8 +191,8 @@ for idx in range(len(countries)):
     prediction_R = np.array(prediction_R)
     
     
-    # error = abs(data_true-prediction_I)/data_train.max()  ### relative error
-    error = abs(data_true-prediction_I)/data_true  ### error
+    error = abs(data_true-prediction_I)/data_train.max()  ### relative error
+    # error = abs(data_true-prediction_I)/data_true  ### error
     error_m = np.median(error,axis=0)
     error_m_week = error_m.reshape([-1,7]).mean(1)
     

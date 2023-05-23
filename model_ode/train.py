@@ -483,7 +483,7 @@ if __name__ == '__main__':
     #     main(country, estimate, prop, array)
     
     
-    array_all = [[70]]
-    for country, array in zip(['Mexico'],array_all):
+    array_all = [[280,282,283]]
+    for country, array in zip(['Republic of Korea'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array)
