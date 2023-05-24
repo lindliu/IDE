@@ -381,7 +381,7 @@ def main(country, estimate, prop, array):
         target = torch.ones(length,1).to(device) * beta_init
         func = train_beta(func, T, target)
 
-        for kk in range(40):
+        for kk in range(35):
             flag = False
 
             ### initialize mu, sigma and S0 
@@ -483,7 +483,7 @@ if __name__ == '__main__':
     #     main(country, estimate, prop, array)
     
     
-    array_all = [[280,282,283]]
+    array_all = [[282,283]]
     for country, array in zip(['Republic of Korea'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array)

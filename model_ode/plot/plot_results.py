@@ -285,7 +285,7 @@ error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]).reshape(weeks,7),
 print(f'Real Mexico: {error_M_R}')
 error_SA_R = np.median(abs(np.array(peak_st_idx[1])-peak_st[1]).reshape(weeks,7), axis=1)
 print(f'Real SA: {error_SA_R}')
-error_SK_R = np.median(abs(np.array(peak_st_idx[2])-peak_st[2]))
+error_SK_R = np.median(abs(np.array(peak_st_idx[2])-peak_st[2]).reshape(weeks,7), axis=1)
 print(f'Real SK: {error_SK_R}')
 
 error_M_E = np.median(abs(np.array(peak_st_idx[3])-peak_st[3]).reshape(weeks,7), axis=1)
@@ -302,7 +302,7 @@ error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]).reshape(weeks,7),
 print(f'Real Mexico: {error_M_R}')
 error_SA_R = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[1]).reshape(weeks,7), axis=1)
 print(f'Real SA: {error_SA_R}')
-error_SK_R = np.median(abs(np.array(peak_nd_idx[2])-peak_nd[2]))
+error_SK_R = np.median(abs(np.array(peak_nd_idx[2])-peak_nd[2]).reshape(weeks,7), axis=1)
 print(f'Real SK: {error_SK_R}')
 
 error_M_E = np.median(abs(np.array(peak_nd_idx[3])-peak_nd[3]).reshape(weeks,7), axis=1)
