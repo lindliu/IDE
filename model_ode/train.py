@@ -468,10 +468,10 @@ if __name__ == '__main__':
     
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
-    array_all = [[145],
+    array_all = [
                   [240, 238],
                   [4,5,6,7,8,9,10,148,147,145,144]]
-    for country, array in zip(['South Africa', 'Republic of Korea', 'simulation'],array_all):
+    for country, array in zip(['Republic of Korea', 'simulation'],array_all):
         main(country, estimate, prop, array, tol=1e-5)
     
     
