@@ -300,7 +300,7 @@ def test():
     ax[0].legend()
     ax[1].legend()
 
-def main(country, estimate, prop, array):
+def main(country, estimate, prop, array, tol=1e-4):
     ### load data
     if country not in ['numerical', 'simulation']:
         data = pd.read_csv(f'../data/covid_{country}.csv', sep='\t')
@@ -435,7 +435,7 @@ def main(country, estimate, prop, array):
                     # if loss<1e-4: ## estimated mexico and south korea
                     # if loss<2.5e-4:
                     # if loss<2e-4: ## 2e-5 # estimated south africa 
-                    if loss<1e+6: ###real south africa
+                    if loss<tol: ###real south africa
                     # if loss<5e+7: ###real south korea
                         flag = True
                         break
@@ -467,23 +467,16 @@ if __name__ == '__main__':
     country = countries[3]
     
     ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
+    estimate, prop = True, True 
+    array_all = [[144, 142],
+                  [91,  90,  88,  87,  85, 244, 243, 241, 240, 238],
+                  [4,5,6,7,8,9,10,148,147,145,144]]
+    for country, array in zip(['South Africa', 'Republic of Korea', 'simulation'],array_all):
+        main(country, estimate, prop, array, tol=4e-5)
+    
+    
     estimate, prop = False, False 
-
-    # array_all = [[220, 222, 223, 225, 226, 228, 229, 231,
-    #               232, 234, 235, 237, 238, 240, 241, 243, 244,
-    #               246],
-    #               [13, 14, 15, 16, 17, 18, 19, 21, 22, 24, 25, 27, 28,
-    #                       30, 31, 33, 34, 36, 37, 39, 40,159, 160, 162, 163, 165, 166, 168, 169, 171,
-    #                             172, 174, 175, 177, 178, 180, 181, 183, 184, 186],
-    #               [106, 108, 109, 111, 112, 114, 115, 117, 118, 120, 121, 123, 124, 126, 127, 129, 130,132, 133,
-    #               255, 256, 258, 259, 261, 262, 264, 265, 267,
-    #                     268, 270, 271, 273, 274, 276, 277, 279, 280,282]]
-    # for country, array in zip(['Mexico', 'South Africa', 'Republic of Korea'],array_all):
-    #     main(country, estimate, prop, array)
-    
-    
-    array_all = [[282,283]]
+    array_all = [[105,103,102,100,99,253,252,250,249]]
     for country, array in zip(['Republic of Korea'],array_all):
         # array = np.arange(20,350,3)
-        main(country, estimate, prop, array)
+        main(country, estimate, prop, array, tol=1e+6)
