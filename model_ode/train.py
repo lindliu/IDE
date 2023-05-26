@@ -476,7 +476,7 @@ if __name__ == '__main__':
     
     
     estimate, prop = False, False 
-    array_all = [[100,99,253,252,250,249]]
+    array_all = [[249]]
     for country, array in zip(['Republic of Korea'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array, tol=1e+6)
