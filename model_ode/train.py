@@ -466,17 +466,17 @@ if __name__ == '__main__':
     
     country = countries[3]
     
-    ### set estimate=false if using real cases to train
-    estimate, prop = True, True 
-    array_all = [
-                  [240, 238],
-                  [4,5,6,7,8,9,10,148,147,145,144]]
-    for country, array in zip(['Republic of Korea', 'simulation'],array_all):
-        main(country, estimate, prop, array, tol=1e-5)
+    # ### set estimate=false if using real cases to train
+    # estimate, prop = True, True 
+    # array_all = [
+    #               [240, 238],
+    #               [4,5,6,7,8,9,10,148,147,145,144]]
+    # for country, array in zip(['Republic of Korea', 'simulation'],array_all):
+    #     main(country, estimate, prop, array, tol=1e-5)
     
     
     estimate, prop = False, False 
-    array_all = [[105,103,102,100,99,253,252,250,249]]
+    array_all = [[100,99,253,252,250,249]]
     for country, array in zip(['Republic of Korea'],array_all):
         # array = np.arange(20,350,3)
         main(country, estimate, prop, array, tol=1e+6)
