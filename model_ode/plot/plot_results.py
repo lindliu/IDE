@@ -144,15 +144,15 @@ for idx in range(6):
         # prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
         # prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
         
-        eps = 2  ### to control from where to select peak point
-        if pos+pred_length<400 and pos<347:
+        eps = 3  ### to control from where to select peak point
+        if pos+pred_length*eps<400 and pos<347:
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)], \
                                 pred[0,pos:pos+pred_length*eps,1]/N, c='tab:blue',alpha=.1,s=20)
         else:
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, 400)], \
                                 pred[0,pos:400,1]/N, c='tab:blue',alpha=.1,s=20)
                 
-        if pos<peak_st[idx] and pos>=peak_st[idx]-pred_length:
+        if pos<peak_st[idx]-6 and pos>=peak_st[idx]-6-pred_length:
             peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)[peak_idx]], \
                         pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
@@ -160,7 +160,7 @@ for idx in range(6):
             peak_st_idx[-1].append(peak_idx+pos)
             model_st_date[-1].append(pos)
             
-        if pos<peak_nd[idx] and pos>=peak_nd[idx]-pred_length:
+        if pos<peak_nd[idx]-6 and pos>=peak_nd[idx]-6-pred_length:
             peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
             ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, pos+pred_length*eps)[peak_idx]], \
                         pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
@@ -281,16 +281,16 @@ fig.savefig(f'./prediction_actual.png', \
 # peak_nd = np.array([247, 187, 283, 240, 177, 273, 178]) ### second peak
 
 print('First peak:')
-error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]).reshape(weeks,7), axis=1)
-print(f'Real Mexico: {error_M_R}')
-error_SA_R = np.median(abs(np.array(peak_st_idx[1])-peak_st[1]).reshape(weeks,7), axis=1)
-print(f'Real SA: {error_SA_R}')
+# error_M_R = np.median(abs(np.array(peak_st_idx[0])-peak_st[0]).reshape(weeks,7), axis=1)
+# print(f'Real Mexico: {error_M_R}')
+# error_SA_R = np.median(abs(np.array(peak_st_idx[1])-peak_st[1]).reshape(weeks,7), axis=1)
+# print(f'Real SA: {error_SA_R}')
 error_SK_R = np.median(abs(np.array(peak_st_idx[2])-peak_st[2]).reshape(weeks,7), axis=1)
 print(f'Real SK: {error_SK_R}')
 
 error_M_E = np.median(abs(np.array(peak_st_idx[3])-peak_st[3]).reshape(weeks,7), axis=1)
 print(f'Estimated Mexico: {error_M_E}')
-error_SA_E = np.median(abs(np.array(peak_st_idx[4])-peak_st[4]).reshape(weeks,7), axis=1)
+error_SA_E = np.median(abs(np.array(peak_st_idx[4])-peak_st[4])[-21:].reshape(3,7), axis=1)
 print(f'Estimated SA: {error_SA_E}')
 error_SK_E = np.median(abs(np.array(peak_st_idx[5])-peak_st[5]).reshape(weeks,7), axis=1)
 print(f'Estimated SK: {error_SK_E}')
@@ -298,10 +298,10 @@ print(f'Estimated SK: {error_SK_E}')
 
 
 print('Second peak:')
-error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]).reshape(weeks,7), axis=1)
-print(f'Real Mexico: {error_M_R}')
-error_SA_R = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[1]).reshape(weeks,7), axis=1)
-print(f'Real SA: {error_SA_R}')
+# error_M_R = np.median(abs(np.array(peak_nd_idx[0])-peak_nd[0]).reshape(weeks,7), axis=1)
+# print(f'Real Mexico: {error_M_R}')
+# error_SA_R = np.median(abs(np.array(peak_nd_idx[1])-peak_nd[1]).reshape(weeks,7), axis=1)
+# print(f'Real SA: {error_SA_R}')
 error_SK_R = np.median(abs(np.array(peak_nd_idx[2])-peak_nd[2]).reshape(weeks,7), axis=1)
 print(f'Real SK: {error_SK_R}')
 
@@ -373,8 +373,8 @@ for pp in path:
     prediction_S.append(list(pred[0,pos:pos+pred_length,0])[-1])
     prediction_R.append(list(pred[0,pos:pos+pred_length,2])[-1])
     
-    eps = 2  ### to control from where to select peak point
-    if pos+pred_length<400 and pos<347:
+    eps = 3  ### to control from where to select peak point
+    if pos+pred_length*eps<400 and pos<347:
         ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length*eps)], \
                       pred[0,pos:pos+pred_length*eps,1]/N, c='tab:blue',alpha=.1,s=30)
     else:
@@ -383,7 +383,7 @@ for pp in path:
 
 
     # if pos<peak_st[idx]-pred_length:
-    if pos<peaks[0] and pos>=peaks[0]-pred_length:
+    if pos<peaks[0]-6 and pos>=peaks[0]-6-pred_length:
         peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
         ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length*eps)[peak_idx]], \
                     pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
@@ -391,7 +391,7 @@ for pp in path:
         peak_st_sim_idx.append(peak_idx+pos)
         model_st_date.append(pos)
         
-    if pos<peaks[1] and pos>=peaks[1]-pred_length:
+    if pos<peaks[1]-6 and pos>=peaks[1]-6-pred_length:
         peak_idx = np.argmax(pred[0,pos:pos+pred_length*eps,1]/N)
         ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length*eps)[peak_idx]], \
                     pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
@@ -399,7 +399,7 @@ for pp in path:
         peak_nd_sim_idx.append(peak_idx+pos)
         model_nd_date.append(pos)
 
-    if pos<peaks[2] and pos>=peaks[2]-pred_length:
+    if pos<peaks[2]-6 and pos>=peaks[2]-6-pred_length:
         peak_idx = np.argmax(pred[0,pos:pos+pred_length,1]/N)
         ax[1].scatter(time_day.iloc[np.arange(pos,pos+pred_length)[peak_idx]], \
                     pred[0,pos+peak_idx,1]/N, c='b',alpha=.9,s=60)
@@ -500,7 +500,7 @@ fig.savefig(f'./prediction_synthetic.png', \
     
 
 
-print('Second peak:')
+print('first peak:')
 error_S_st = np.median(abs(np.array(peak_st_sim_idx)-peaks[0]).reshape(weeks,7), axis=1)
 print(f'Simulation: {error_S_st}')
 
