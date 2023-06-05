@@ -35,9 +35,6 @@ method = 'euler'##'dopri5' ##
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 # device = 'cpu'
 
-### boundary of R0
-boundary = 5#1.75 #
-
 class Memory(nn.Module):    
     def __init__(self):
         super(Memory, self).__init__()
@@ -462,21 +459,23 @@ def main(country, estimate, prop, array, tol=1e-4):
     
 if __name__ == '__main__':
 
+    ### boundary of R0
+    boundary = 5#1.75 #
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     
     country = countries[3]
-    
-    # ### set estimate=false if using real cases to train
-    # estimate, prop = True, True 
-    # array_all = [
-    #               [240, 238],
-    #               [4,5,6,7,8,9,10,148,147,145,144]]
+
+    ### set estimate=false if using real cases to train
+    estimate, prop = True, True 
     # for country, array in zip(['Republic of Korea', 'simulation'],array_all):
-    #     main(country, estimate, prop, array, tol=1e-5)
+    for country in countries[1:]:
+        array = np.arange(20,350,3)
+        main(country, estimate, prop, array, tol=1e-5)
     
     
     estimate, prop = False, False 
-    array_all = [[249]]
-    for country, array in zip(['Republic of Korea'],array_all):
-        # array = np.arange(20,350,3)
+    # array_all = [[249]]
+    # for country, array in zip(['Republic of Korea'],array_all):
+    for country in countries[2:]:
+        array = np.arange(20,350,3)
         main(country, estimate, prop, array, tol=1e+6)

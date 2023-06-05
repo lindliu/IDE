@@ -233,8 +233,8 @@ for idx in range(6):
     ax[idx+6*3].axvline(x=time_day[peak_nd[idx]+start], color='r', linestyle='dashed', label='axvline')
     ax[idx+6*3].axhline(y=time_day[peak_st[idx]+start], color='r', linestyle='dashed', label='axvline')
     ax[idx+6*3].axhline(y=time_day[peak_nd[idx]+start], color='r', linestyle='dashed', label='axvline')
-    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_st[idx]+start-pred_length,start,start+400)], ymax=time_day[peak_st[idx]+start], alpha=0.3, color='gray')
-    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_nd[idx]+start-pred_length,start,start+400)], ymax=time_day[peak_nd[idx]+start], alpha=0.3, color='gray')
+    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_st[idx]+start-6-pred_length,start,start+400)], ymax=time_day[peak_st[idx]+start], alpha=0.3, color='gray')
+    ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_nd[idx]+start-6-pred_length,start,start+400)], ymax=time_day[peak_nd[idx]+start], alpha=0.3, color='gray')
 
     plt.setp(ax[idx+6*3].get_xticklabels(), rotation=45)
     ax[idx+6*3].set_xlabel(f"({xlable[idx]}4)")
@@ -264,8 +264,8 @@ for ax_, row in zip(ax[:,0], rows):
                 xycoords=ax_.yaxis.label, textcoords='offset points',
                 fontsize=30, ha='right', va='center', rotation=90)
     
-cols = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'Republic of Korea\n(average daily cases)',\
-        'Mexico\n(estimated cases)', 'South Africa\n(estimated cases)', 'Republic of Korea\n(estimated cases)']
+cols = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'South Korea\n(average daily cases)',\
+        'Mexico\n(estimated cases)', 'South Africa\n(estimated cases)', 'South Korea\n(estimated cases)']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
@@ -428,7 +428,7 @@ plt.setp(ax[1].get_xticklabels(), rotation=45)
 ax[1].set_xlabel(f"(c)")
 
 ax[0].plot(time_day, data_train/N, c='r', label='Synthetic I')
-ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_1} days predict I')
+ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_1} days prediction')
 ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
 ax[0].legend()
 ax[0].set_ylim(0, .4)
@@ -460,22 +460,22 @@ ax[5].axvline(x=time_day[peaks[2]+start], color='r', linestyle='dashed', label='
 ax[5].axhline(y=time_day[peaks[0]+start], color='r', linestyle='dashed', label='axvline')
 ax[5].axhline(y=time_day[peaks[1]+start], color='r', linestyle='dashed', label='axvline')
 ax[5].axhline(y=time_day[peaks[2]+start], color='r', linestyle='dashed', label='axvline')
-ax[5].axhspan(ymin=time_day[np.clip(peaks[0]+start-pred_length,0,400)], ymax=time_day[peaks[0]+start], alpha=0.3, color='gray')
-ax[5].axhspan(ymin=time_day[np.clip(peaks[1]+start-pred_length,0,400)], ymax=time_day[peaks[1]+start], alpha=0.3, color='gray')
-ax[5].axhspan(ymin=time_day[np.clip(peaks[2]+start-pred_length,0,400)], ymax=time_day[peaks[2]+start], alpha=0.3, color='gray')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[0]+start-6-pred_length,0,400)], ymax=time_day[peaks[0]+start], alpha=0.3, color='gray')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[1]+start-6-pred_length,0,400)], ymax=time_day[peaks[1]+start], alpha=0.3, color='gray')
+ax[5].axhspan(ymin=time_day[np.clip(peaks[2]+start-6-pred_length,0,400)], ymax=time_day[peaks[2]+start], alpha=0.3, color='gray')
 # ax[5].set_ylabel('Model date')
 plt.setp(ax[5].get_xticklabels(), rotation=45)
 ax[5].set_xlabel(f"(d)")
 
 ax[2].plot(time_day, data['S']/N, c='r', label='Synthetic S')
-ax[2].plot(time_day, data_pred['pred'][0,:,0], label='S')
+ax[2].plot(time_day, data_pred['pred'][0,:,0], label='Predicted S')
 ax[2].legend()
 ax[2].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[2].get_xticklabels(), rotation=45)
 ax[2].set_xlabel(f"(e)")
 
 ax[6].plot(time_day, data['R']/N, c='r', label='Synthetic R')
-ax[6].plot(time_day, data_pred['pred'][0,:,2], label='R')
+ax[6].plot(time_day, data_pred['pred'][0,:,2], label='Predicted R')
 ax[6].legend()
 ax[6].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[6].get_xticklabels(), rotation=45)
