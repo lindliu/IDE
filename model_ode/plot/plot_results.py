@@ -105,6 +105,7 @@ weeks = 4
 pred_length = 7*weeks
 pred_1, pred_2 = 2, 7
 xlable = ['a', 'b', 'c', 'd', 'e', 'f']
+fontsize = 25
 fig, ax = plt.subplots(5,6, figsize=[36,32], gridspec_kw={'height_ratios': [2, 1.5, 2, 1, 1]})
 ax = ax.flatten()
 for idx in range(6):
@@ -185,7 +186,7 @@ for idx in range(6):
     ax[idx].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
     ax[idx].legend()
     plt.setp(ax[idx].get_xticklabels(), rotation=45)
-    ax[idx].set_xlabel(f"({xlable[idx]}1)")
+    ax[idx].set_xlabel(f"({xlable[idx]}1)",fontsize=fontsize)
     
     
     ax[idx+6].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
@@ -208,7 +209,7 @@ for idx in range(6):
     ax[idx+6].set_yticks([200,400,600] + extraticks)
     ax[idx+6].set_xlim([time_day.iloc[0], time_day.iloc[-1]])
     plt.setp(ax[idx+6].get_xticklabels(), rotation=45)
-    ax[idx+6].set_xlabel(f"({xlable[idx]}2)")
+    ax[idx+6].set_xlabel(f"({xlable[idx]}2)", fontsize=fontsize)
     
     
     # ax[idx+6*2].scatter(time_day.iloc[np.arange(pos, idx_end-start+53)], \
@@ -222,7 +223,7 @@ for idx in range(6):
     ax[idx+6*2].axvline(x=time_day[peak_nd[idx]+start], color='r', linestyle='dashed', label='axvline')
     ax[idx+6*2].set_ylim(0,data_train.max()/N*2)
     plt.setp(ax[idx+6*2].get_xticklabels(), rotation=45)
-    ax[idx+6*2].set_xlabel(f"({xlable[idx]}3)")
+    ax[idx+6*2].set_xlabel(f"({xlable[idx]}3)", fontsize=fontsize)
     
 
     ax[idx+6*3].scatter(time_day.iloc[peak_st_idx[-1]], time_day.iloc[model_st_date[-1]], c='b')
@@ -237,7 +238,7 @@ for idx in range(6):
     ax[idx+6*3].axhspan(ymin=time_day[np.clip(peak_nd[idx]+start-6-pred_length,start,start+400)], ymax=time_day[peak_nd[idx]+start], alpha=0.3, color='gray')
 
     plt.setp(ax[idx+6*3].get_xticklabels(), rotation=45)
-    ax[idx+6*3].set_xlabel(f"({xlable[idx]}4)")
+    ax[idx+6*3].set_xlabel(f"({xlable[idx]}4)",fontsize=fontsize)
     # ax[idx+6*3].axis_x('off')
         
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
@@ -252,7 +253,7 @@ for idx in range(6):
     ax[idx+6*4].plot(time_day, data_beta[:, 0], label='$R_0(t)$')
     ax[idx+6*4].legend()
     plt.setp(ax[idx+6*4].get_xticklabels(), rotation=45)
-    ax[idx+6*4].set_xlabel(f"({xlable[idx]}5)")
+    ax[idx+6*4].set_xlabel(f"({xlable[idx]}5)",fontsize=fontsize)
 
 
 
@@ -343,6 +344,7 @@ pred_length = 7*weeks
 pred_1, pred_2 = 2, 7
 peaks = [39, 178, 291] ### three peaks of the synthetic data
 
+fontsize=25
 fig, ax = plt.subplots(2,4,figsize=(30,15))
 ax = ax.flatten()
 ax[3].axis('off')
@@ -425,7 +427,7 @@ ax[1].axvline(x=time_day[peaks[1]+start], color='r', linestyle='dashed', label='
 ax[1].axvline(x=time_day[peaks[2]+start], color='r', linestyle='dashed', label='axvline')
 ax[1].axvline(x=time_day[347], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[1].get_xticklabels(), rotation=45)
-ax[1].set_xlabel(f"(c)")
+ax[1].set_xlabel(f"(c)",fontsize=fontsize)
 
 ax[0].plot(time_day, data_train/N, c='r', label='Synthetic I')
 ax[0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=20, c='tab:blue', label=f'{pred_1} days prediction')
@@ -433,7 +435,7 @@ ax[0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=20, facecolors='none',
 ax[0].legend()
 ax[0].set_ylim(0, .4)
 plt.setp(ax[0].get_xticklabels(), rotation=45)
-ax[0].set_xlabel(f"(a)")
+ax[0].set_xlabel(f"(a)",fontsize=fontsize)
 
 ax[4].plot(time_day.iloc[pred_idx], mu_list, linestyle='dashed', marker='o', label='$\mu$')
 n = 3 ## how many sigmas
@@ -447,7 +449,7 @@ ax[4].set_yticks([200,400,600] + [mu_real])
 ax[4].set_xlim([0,400])
 # ax[4].set_ylabel('$\mu$')
 plt.setp(ax[4].get_xticklabels(), rotation=45)
-ax[4].set_xlabel(f"(b)")
+ax[4].set_xlabel(f"(b)",fontsize=fontsize)
 
 ax[5].scatter(time_day.iloc[peak_st_sim_idx], time_day.iloc[model_st_date], c='b')
 ax[5].scatter(time_day.iloc[peak_nd_sim_idx], time_day.iloc[model_nd_date], c='b')
@@ -465,21 +467,21 @@ ax[5].axhspan(ymin=time_day[np.clip(peaks[1]+start-6-pred_length,0,400)], ymax=t
 ax[5].axhspan(ymin=time_day[np.clip(peaks[2]+start-6-pred_length,0,400)], ymax=time_day[peaks[2]+start], alpha=0.3, color='gray')
 # ax[5].set_ylabel('Model date')
 plt.setp(ax[5].get_xticklabels(), rotation=45)
-ax[5].set_xlabel(f"(d)")
+ax[5].set_xlabel(f"(d)",fontsize=fontsize)
 
 ax[2].plot(time_day, data['S']/N, c='r', label='Synthetic S')
 ax[2].plot(time_day, data_pred['pred'][0,:,0], label='Predicted S')
 ax[2].legend()
 ax[2].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[2].get_xticklabels(), rotation=45)
-ax[2].set_xlabel(f"(e)")
+ax[2].set_xlabel(f"(e)",fontsize=fontsize)
 
 ax[6].plot(time_day, data['R']/N, c='r', label='Synthetic R')
 ax[6].plot(time_day, data_pred['pred'][0,:,2], label='Predicted R')
 ax[6].legend()
 ax[6].axvline(x=time_day[endind], color='k', linestyle='dashed', label='axvline')
 plt.setp(ax[6].get_xticklabels(), rotation=45)
-ax[6].set_xlabel(f"(f)")
+ax[6].set_xlabel(f"(f)",fontsize=fontsize)
 
 
 ax[7].plot(time_day, data_pred['beta'], label='$R_0(t)$')
@@ -490,7 +492,7 @@ beta_real = 2.3
 ax[7].axhline(y=beta_real, color='r', linestyle='dashed', label='axvline')
 ax[7].set_yticks(list(np.arange(1,4.5,.5)) + [beta_real])
 plt.setp(ax[7].get_xticklabels(), rotation=45)
-ax[7].set_xlabel(f"(g)")
+ax[7].set_xlabel(f"(g)",fontsize=fontsize)
 
 
 fig.tight_layout()
