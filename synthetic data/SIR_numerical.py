@@ -17,7 +17,26 @@ import scipy.stats as stats
 import numpy as np 
 import matplotlib.pyplot as plt
 
+# import numpy as np
+# from scipy.integrate import solve_ivp
+# import matplotlib.pyplot as plt
 
+# def f_SIR(t, y, beta, gamma):
+#     S, I, R = y[0], y[1], y[2]
+#     # beta, gamma = 2.5, 1.25
+    
+#     dSdt = -beta * S * I
+#     dIdt = beta * S * I - gamma * I
+#     dRdt = gamma * I
+    
+#     return [dSdt, dIdt, dRdt]
+
+# t = np.linspace(0,10)
+# sol = solve_ivp(f_SIR, [0,10], [.99, .01, 0], args=(2.3, 1), dense_output=True)
+
+# z = sol.sol(t)
+# plt.plot(t, z.T, label=['s', 'i', 'r'])
+# plt.legend()
 
 
 def integrate_real(pre, t, K):
@@ -66,7 +85,7 @@ dt = t[1]-t[0]
 ##### parameters
 beta = np.ones([length]) * 2.3
 # beta = 1.5 * (1+0.45*np.cos(np.pi*(t+11)/45))
-beta[100:] = 1.5
+# beta[100:] = 1.5
 gamma = np.ones([length]) * 1
 
 ##### Gaussian distribution #####
@@ -103,4 +122,4 @@ plt.plot(SIR_f[:,0], SIR_f[:,1:], label=['s','i','r'])
 plt.legend()
 
 
-np.savez('../data/numerical.npz', SIR=SIR_batch, beta=beta, dist=dist, mu=mu, sigma=sigma)
+# np.savez('../data/numerical.npz', SIR=SIR_batch, beta=beta, dist=dist, mu=mu, sigma=sigma)
