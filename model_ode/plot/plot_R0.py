@@ -6,7 +6,7 @@
 # @author: dliu
 # """
 
-                
+
 import matplotlib.pyplot as plt
 import numpy as np
 import glob
@@ -41,17 +41,15 @@ def get_train_data(data, start, length, recovery_time, estimate=True, prop=True,
     return data_
 
 
-countries = ['real_Mexico', 'real_South Africa', 'real_Republic of Korea', \
-             'estimate_Mexico', 'estimate_South Africa', 'estimate_Republic of Korea']
-
 directory = 'samples_'
     
     
 
-
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-fig, ax = plt.subplots(3,6, figsize=[24,12], gridspec_kw={'height_ratios': [1, 1, 1]})
+fig, ax = plt.subplots(3, 3, figsize=[18,12], gridspec_kw={'height_ratios': [1, 1, 1]})
 fontsize = 15
+
+countries = ['real_Mexico', 'real_South Africa', 'real_Republic of Korea']
 
 
 idx = 0
@@ -94,16 +92,16 @@ distribution=np.array(distribution).T
 # plt.plot(t, distribution)
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([347-mu_median,347], [mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(a1)",fontsize=fontsize)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([347-mu_median,347], [mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(a1)",fontsize=fontsize)
 
-ax_inset1 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper right',\
-                       bbox_to_anchor=(-.33, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper right',\
+                       bbox_to_anchor=(-.33, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -119,8 +117,8 @@ ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 # from matplotlib import cm
 # ax_inset1.scatter(x,mu_10, c=cm.prism(3), alpha=0.2, s=20)
 
-ax_inset2 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper right',\
-                       bbox_to_anchor=(.0, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper right',\
+                       bbox_to_anchor=(.0, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -133,18 +131,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(a2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12.3)
-ax[1,idx].legend(fontsize=fontsize, loc='upper left')
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(a2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12.3)
+ax[idx,1].legend(fontsize=fontsize, loc='upper left')
 
 
 
@@ -153,27 +151,27 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=False, prop=False)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Daily average j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Daily average j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(a3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
-ax[2,idx].legend(fontsize=fontsize)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(a3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
+ax[idx,2].legend(fontsize=fontsize)
 
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
@@ -224,16 +222,16 @@ distribution=np.array(distribution).T
 
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([347-mu_median,347], [mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(b1)",fontsize=fontsize)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([347-mu_median,347], [mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(b1)",fontsize=fontsize)
 
-ax_inset1 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.39, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.39, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -243,8 +241,8 @@ ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 
 
-ax_inset2 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.72, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.72, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -256,18 +254,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(b2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12)
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(b2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12)
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
@@ -277,26 +275,26 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=False, prop=False)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Daily average j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Daily average j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(b3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
-ax[2,idx].legend(fontsize=fontsize)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(b3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
+ax[idx,2].legend(fontsize=fontsize)
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
@@ -346,17 +344,17 @@ distribution=np.array(distribution).T
 
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([0,347-mu_median,347], [347,mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(c1)",fontsize=fontsize)
-ax[0,idx].set_ylim(0,0.1)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(c1)",fontsize=fontsize)
+ax[idx,0].set_ylim(0,0.1)
 
-ax_inset1 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.23, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.23, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -366,8 +364,8 @@ ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 
 
-ax_inset2 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.73, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.73, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -379,18 +377,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(c2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12)
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(c2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12)
+ax[idx,1].legend(fontsize=fontsize)
 
 
 data = pd.read_csv(f'../../data/covid_Republic of Korea.csv', sep='\t')
@@ -398,33 +396,70 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=False, prop=False)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Daily average j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Daily average j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(c3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
-ax[2,idx].legend(fontsize=fontsize)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(c3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
+ax[idx,2].legend(fontsize=fontsize)
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
+
+
+
+
+pad = 5
+# rows = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'South Korea\n(average daily cases)']
+rows = ['Mexico', 'South Africa', 'South Korea']
+for ax_, row in zip(ax[:,0], rows):
+    ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
+                xycoords=ax_.yaxis.label, textcoords='offset points',
+                fontsize=18, ha='center', va='center', rotation=90)
+    
+cols = ['$K(\cdot)$', '$R_0(t)$', 'j']
+for ax_, col in zip(ax[0], cols):
+    ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
+                xycoords='axes fraction', textcoords='offset points',
+                fontsize=18, ha='center', va='baseline')
+
+# fig.tight_layout()
+fig.savefig('./figures/samples_actual_real.png', bbox_inches='tight', dpi=300)
 
 
 
 
 
 
-idx = 3
+
+
+
+
+
+
+
+
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+fig, ax = plt.subplots(3, 3, figsize=[18,12], gridspec_kw={'height_ratios': [1, 1, 1]})
+fontsize = 15
+
+countries = ['estimate_Mexico', 'estimate_South Africa', 'estimate_Republic of Korea']
+
+
+
+
+idx = 0
 country = countries[idx]
 path = glob.glob(f'{directory}/{country}*')
 path = sorted(path, key=lambda x: int(x.split('_')[-1]))
@@ -466,16 +501,16 @@ distribution=np.array(distribution).T
 
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([0,347-mu_median,347], [347,mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(d1)",fontsize=fontsize)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(d1)",fontsize=fontsize)
 
-ax_inset1 = inset_axes(ax[0,idx], width="18%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.12, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.12, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -485,8 +520,8 @@ ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 
 
-ax_inset2 = inset_axes(ax[0,idx], width="18%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.43, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.43, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -498,18 +533,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(d2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12)
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(d2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12)
+ax[idx,1].legend(fontsize=fontsize)
 
 
 data = pd.read_csv(f'../../data/covid_Mexico.csv', sep='\t')
@@ -517,26 +552,26 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = 1#data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=True, prop=True)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Estimated j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Estimated j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(d3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
-ax[2,idx].legend(fontsize=fontsize)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(d3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
+ax[idx,2].legend(fontsize=fontsize)
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
@@ -544,7 +579,7 @@ ax[1,idx].legend(fontsize=fontsize)
 
 
 
-idx = 4
+idx = 1
 country = countries[idx]
 path = glob.glob(f'{directory}/{country}*')
 path = sorted(path, key=lambda x: int(x.split('_')[-1]))
@@ -586,16 +621,16 @@ distribution=np.array(distribution).T
 
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([0,347-mu_median,347], [347,mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(e1)",fontsize=fontsize)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(e1)",fontsize=fontsize)
 
-ax_inset1 = inset_axes(ax[0,idx], width="18%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.1, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.1, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -605,8 +640,8 @@ ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 
 
-ax_inset2 = inset_axes(ax[0,idx], width="18%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.4, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.4, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -618,18 +653,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(e2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12)
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(e2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12)
+ax[idx,1].legend(fontsize=fontsize)
 
 
 data = pd.read_csv(f'../../data/covid_South Africa.csv', sep='\t')
@@ -637,33 +672,33 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = 1#data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=True, prop=True)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Estimated j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Estimated j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(e3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
-ax[2,idx].legend(fontsize=fontsize)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(e3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
+ax[idx,2].legend(fontsize=fontsize)
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
 
 
 
-idx = 5
+idx = 2
 country = countries[idx]
 path = glob.glob(f'{directory}/{country}*')
 path = sorted(path, key=lambda x: int(x.split('_')[-1]))
@@ -705,16 +740,16 @@ distribution=np.array(distribution).T
 
 
 
-ax[0,idx].plot(t,distribution, alpha=.5)
+ax[idx,0].plot(t,distribution, alpha=.5)
 mu_median = round(np.median(mu))
-ax[0,idx].axvline(347-mu_median, color='purple', label='axvline')
-ax[0,idx].set_xticks([0,347-mu_median,347], [347,mu_median,0])
-# ax[0,idx].set_yticks([])
-ax[0,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[0,idx].set_xlabel("(f1)",fontsize=fontsize)
+ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
+ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
+# ax[idx,0].set_yticks([])
+ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].set_xlabel("(f1)",fontsize=fontsize)
 
-ax_inset1 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.11, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.11, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset1.violinplot(mu, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -724,8 +759,8 @@ ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 ax_inset1.tick_params(axis='both', which='major', labelsize=11)
 
 
-ax_inset2 = inset_axes(ax[0,idx], width="20%", height="70%", loc='upper left',\
-                       bbox_to_anchor=(.43, -.07, 1, 1), bbox_transform=ax[0,idx].transAxes)
+ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
+                       bbox_to_anchor=(.43, -.07, 1, 1), bbox_transform=ax[idx,0].transAxes)
 
 violin_parts = ax_inset2.violinplot(sigma, showmeans=False, showmedians=True, widths=.1)
 violin_parts['cmedians'].set_color('purple')
@@ -737,18 +772,18 @@ ax_inset2.tick_params(axis='both', which='major', labelsize=11)
 
 
 
-ax[1,idx].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(beta, axis=1), np.max(beta, axis=1),
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
-ax[1,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[1,idx].axhline(y=1, color='gray', linestyle='dashed')
-ax[1,idx].set_xticks([0,200,347,400])
-ax[1,idx].set_yticks([1,3,5,7,9])
-ax[1,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[1,idx].set_xlabel("(f2)",fontsize=fontsize)
-ax[1,idx].set_ylim(0,12)
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(beta,axis=1), label=r'Median $R_0(t)$')
+ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
+ax[idx,1].set_xticks([0,200,347,400])
+ax[idx,1].set_yticks([1,3,5,7,9])
+ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].set_xlabel("(f2)",fontsize=fontsize)
+ax[idx,1].set_ylim(0,12)
+ax[idx,1].legend(fontsize=fontsize)
 
 
 data = pd.read_csv(f'../../data/covid_Republic of Korea.csv', sep='\t')
@@ -756,45 +791,45 @@ data['date'] = pd.to_datetime(data['date'])#['I'][640:640+400].to_numpy().reshap
 population = 1#data['population'][0]
 data_ = get_train_data(data, start=640, length=400, recovery_time=14, estimate=True, prop=True)
 
-ax[2,idx].plot(data_[0,:,0]/population, c='r', label='Estimated j')
-ax[2,idx].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
+ax[idx,2].plot(data_[0,:,0]/population, c='r', label='Estimated j')
+ax[idx,2].fill_between(np.arange(0, 400), np.min(pred[:,:,1], axis=0)/population, np.max(pred[:,:,1], axis=0)/population,
         alpha=0.2, facecolor='#089FFF', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[2,idx].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
-ax[2,idx].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
-ax[2,idx].set_xticks([0,200,347,400])
-# ax[2,idx].set_yticks([2,4,6,8])
-ax[2,idx].tick_params(axis='both', which='major', labelsize=11)
-ax[2,idx].set_xlabel("(f3)",fontsize=fontsize)
-ax[2,idx].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.)
-ax[2,idx].legend(fontsize=fontsize)
-# ax[2,idx].legend(loc='upper right', fontsize=13)
+ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
+ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
+ax[idx,2].set_xticks([0,200,347,400])
+# ax[idx,2].set_yticks([2,4,6,8])
+ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].set_xlabel("(f3)",fontsize=fontsize)
+ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.)
+ax[idx,2].legend(fontsize=fontsize)
+# ax[idx,2].legend(loc='upper right', fontsize=13)
 
 
 R_e = pred[:,:,0].T*beta/population
-ax[1,idx].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
+ax[idx,1].fill_between(np.arange(0, 400), np.min(R_e, axis=1), np.max(R_e, axis=1),
         alpha=0.2, facecolor='#F39C12', #edgecolor='#F39C12', linewidth=1, 
         linestyle='dashdot', antialiased=True)#, label=r'samples of $R_0(t)$')
-ax[1,idx].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
-ax[1,idx].legend(fontsize=fontsize)
+ax[idx,1].plot(np.median(R_e, axis=1), label=r'Median $R_e$')
+ax[idx,1].legend(fontsize=fontsize)
 
 
 
 
 pad = 5
-rows = ['$K(\cdot)$', '$R_0(t)$', 'j']
+# rows = ['Mexico\n(estimated cases)', 'South Africa\n(estimated cases)', 'South Korea\n(estimated cases)']
+rows = ['Mexico', 'South Africa', 'South Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=18, ha='right', va='center', rotation=90)
+                fontsize=18, ha='center', va='center', rotation=90)
     
 
-cols = ['Mexico\n(average daily cases)', 'South Africa\n(average daily cases)', 'South Korea\n(average daily cases)',\
-         'Mexico\n(estimated cases)', 'South Africa\n(estimated cases)', 'South Korea\n(estimated cases)']
+cols = ['$K(\cdot)$', '$R_0(t)$', 'j']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
                 fontsize=18, ha='center', va='baseline')
 
 # fig.tight_layout()
-fig.savefig('./figures/samples_data.png', bbox_inches='tight', dpi=300)
+fig.savefig('./figures/samples_actual_estimate.png', bbox_inches='tight', dpi=300)

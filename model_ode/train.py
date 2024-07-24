@@ -30,7 +30,7 @@ font = {#'family' : 'normal',
 matplotlib.rc('font', **font)
 
 from hyper import hyper_min_2, hyper_min_3
-method = 'midpoint' ## 'euler'##
+method = 'euler'##'midpoint' ## 
 
 t_embedding = True#False#
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -332,7 +332,7 @@ def main(country, estimate, prop, array, experiments=None, tol=1e-4):
         data['date'] = pd.to_datetime(data['date'])
     
     elif country=='simulation': 
-        data = pd.DataFrame(np.load('../data/simulation_2_3.npy'), columns=['S','I','R'])            
+        data = pd.DataFrame(np.load('../data/simulation_2_7.npy'), columns=['S','I','R'])
     
     elif country=='numerical':
         data = np.load('../data/numerical.npz')['SIR']
@@ -514,24 +514,27 @@ if __name__ == '__main__':
         if country=='simulation':
             boundary = 3
             # ### generate results every 6 days and all days 4 weeks before peaks(not include the week that the peak happens)
-            array = np.unique([*np.arange(20,350,6),*np.arange(39-7*4-6,39-6),*np.arange(178-7*4-6,178-6),*np.arange(291-7*4-6,291-6)])
+            # array = np.unique([*np.arange(20,350,6),*np.arange(39-7*4-6,39-6),*np.arange(178-7*4-6,178-6),*np.arange(291-7*4-6,291-6)])
+            # array = np.arange(8,350,6)
+            array = np.array([290, 296, 302, 308, 314,
+            320, 326, 332, 338, 344])
             main(country, estimate, prop, array, tol=tol_)
         
-        if country=='Mexico':
-            boundary = 5
-            array = np.unique([*np.arange(20,350,6),*np.arange(peak_st[3]-7*4-6,peak_st[3]-6),*np.arange(peak_nd[3]-7*4-6,peak_nd[3]-6)])
-            main(country, estimate, prop, array, tol=tol_)
+        # if country=='Mexico':
+        #     boundary = 5
+        #     array = np.unique([*np.arange(20,350,6),*np.arange(peak_st[3]-7*4-6,peak_st[3]-6),*np.arange(peak_nd[3]-7*4-6,peak_nd[3]-6)])
+        #     main(country, estimate, prop, array, tol=tol_)
             
-        if country=='South Africa':
-            boundary = 5
-            array = np.unique([*np.arange(20,350,6),*np.arange(3,               peak_st[4]-6),*np.arange(peak_nd[4]-7*4-6,peak_nd[4]-6)])
-            main(country, estimate, prop, array, tol=tol_)
+        # if country=='South Africa':
+        #     boundary = 5
+        #     array = np.unique([*np.arange(20,350,6),*np.arange(3,               peak_st[4]-6),*np.arange(peak_nd[4]-7*4-6,peak_nd[4]-6)])
+        #     main(country, estimate, prop, array, tol=tol_)
             
-        if country=='Republic of Korea':
-            boundary = 5
-            array = np.unique([*np.arange(20,350,6),*np.arange(peak_st[5]-7*4-6,peak_st[5]-6),*np.arange(peak_nd[5]-7*4-6,peak_nd[5]-6)])
-            main(country, estimate, prop, array, tol=tol_)
-            
+        # if country=='Republic of Korea':
+        #     boundary = 5
+        #     array = np.unique([*np.arange(20,350,6),*np.arange(peak_st[5]-7*4-6,peak_st[5]-6),*np.arange(peak_nd[5]-7*4-6,peak_nd[5]-6)])
+        #     main(country, estimate, prop, array, tol=tol_)
+        
         
     
     # ####################

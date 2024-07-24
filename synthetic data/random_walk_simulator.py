@@ -71,7 +71,7 @@ mean, var = 70, 1
 from scipy.stats import norm
 def p_update(p, h, env, prob=2.3/14, t1=14, mean=mean, var=var):
     ### gamma=1/t1 in SIR
-    ### beta = prob in SIR
+    ### beta = prob*t1 in SIR
     ### R0 = beta/gamma
     
     direct = np.zeros([2], dtype=np.int32)
@@ -154,8 +154,12 @@ if at_least_one_I!=True:
 position_dict = ((f'{i},{j}', i*boundary[0]+j) for i in range(boundary[0]) for j in range(boundary[1]))
 position_dict = dict(position_dict)
 
+mean, var = 80, 1
+recover_time = 14
+beta = 2.9
 
-length = 500
+
+length = 400
 mapp = np.zeros([length, *boundary])
 results = np.zeros([length, 3])
 for tt in range(length):
@@ -188,16 +192,16 @@ for tt in range(length):
         else:
             env = 'S'
             
-        p_update(p, h, env, prob=2.3/14, t1=14, mean=mean, var=var)
+        p_update(p, h, env, prob=beta/recover_time, t1=recover_time, mean=mean, var=var)
         
         if i%1000==0:
             print(i)
     
     print(f'##### {tt} #####')
     
-
-np.save('./data/mapp.npy', mapp)
-mapp = np.load('../data/mapp.npy')
+suffix = str(beta).replace('.', '_')
+np.save(f'../data/mapp_{suffix}.npy', mapp)
+mapp = np.load(f'../data/mapp_{suffix}.npy')
 
 # plt.figure(1)
 # plt.imshow(mapp[0])
@@ -210,8 +214,8 @@ mapp = np.load('../data/mapp.npy')
 # plt.plot(III)
 
 
-np.save('../data/simulation.npy', results)
-results = np.load('../data/simulation_2_3.npy')
+np.save(f'../data/simulation_{suffix}.npy', results)
+results = np.load(f'../data/simulation_{suffix}.npy')
 
 plt.figure(3)
 plt.plot(results, label=['S', 'I', 'R'])
