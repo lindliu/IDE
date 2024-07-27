@@ -332,7 +332,7 @@ def main(country, estimate, prop, array, experiments=None, tol=1e-4):
         data['date'] = pd.to_datetime(data['date'])
     
     elif country=='simulation': 
-        data = pd.DataFrame(np.load('../data/simulation_2_7.npy'), columns=['S','I','R'])
+        data = pd.DataFrame(np.load('../data/simulation_2_0.npy'), columns=['S','I','R'])
     
     elif country=='numerical':
         data = np.load('../data/numerical.npz')['SIR']
@@ -506,7 +506,7 @@ if __name__ == '__main__':
     boundary = 5
     countries = ['numerical', 'simulation', 'Mexico', 'South Africa', 'Republic of Korea']
     # tol = [1e-4, 1e-4, 1e-5, 1e-5, 5e-6]
-    tol = [1e-4, 1e-4, 5e-6, 1e-5, 2e-6]
+    tol = [1e-4, 1e-5, 5e-6, 1e-5, 2e-6]
 
     ### set estimate=false if using real cases to train
     estimate, prop = True, True 
@@ -516,8 +516,9 @@ if __name__ == '__main__':
             # ### generate results every 6 days and all days 4 weeks before peaks(not include the week that the peak happens)
             # array = np.unique([*np.arange(20,350,6),*np.arange(39-7*4-6,39-6),*np.arange(178-7*4-6,178-6),*np.arange(291-7*4-6,291-6)])
             # array = np.arange(8,350,6)
-            array = np.array([290, 296, 302, 308, 314,
-            320, 326, 332, 338, 344])
+            array = np.array([206, 212, 218, 224, 230, 236,
+           242, 248, 254, 260, 266, 272, 278, 284, 290, 296, 302, 308, 314,
+           320, 326, 332, 338, 344])
             main(country, estimate, prop, array, tol=tol_)
         
         # if country=='Mexico':

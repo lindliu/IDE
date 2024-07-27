@@ -154,9 +154,9 @@ if at_least_one_I!=True:
 position_dict = ((f'{i},{j}', i*boundary[0]+j) for i in range(boundary[0]) for j in range(boundary[1]))
 position_dict = dict(position_dict)
 
-mean, var = 80, 1
+mean, var = 70, 1
 recover_time = 14
-beta = 2.9
+beta = 2.3
 
 
 length = 400
