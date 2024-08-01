@@ -249,9 +249,9 @@ for idx in range(3):
     # ax[idx+6*3].axis_x('off')
         
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
-    data_path = pp
-    endind = int(data_path.split('/')[-2].split('_')[-1])    
-    ax[idx,2].axvline(x=time_day[endind], color='k', linestyle='dashed')
+    # data_path = pp
+    # endind = int(data_path.split('/')[-2].split('_')[-1])    
+    # ax[idx,2].axvline(x=time_day[endind], color='k', linestyle='dashed')
     
     # ax[idx+6*4].axvline(x=time_day[endind], color='k', linestyle='dashed')
 
@@ -468,9 +468,9 @@ for idx in range(3):
     # ax[idx+6*3].axis_x('off')
         
     # data_path = glob.glob(f'../figures_trend__/{filename}_{start}_*/*.npz')[0]
-    data_path = pp
-    endind = int(data_path.split('/')[-2].split('_')[-1])    
-    ax[idx,2].axvline(x=time_day[endind], color='k', linestyle='dashed')
+    # data_path = pp
+    # endind = int(data_path.split('/')[-2].split('_')[-1])    
+    # ax[idx,2].axvline(x=time_day[endind], color='k', linestyle='dashed')
     
     # ax[idx+6*4].axvline(x=time_day[endind], color='k', linestyle='dashed')
 
