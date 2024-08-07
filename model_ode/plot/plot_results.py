@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib
 font = {#'family' : 'normal',
         # 'weight' : 'normal', #'bold'
-        'size'   : 8}
+        'size'   : 10}
 matplotlib.rc('font', **font)
 
 def get_train_data(data, start, length, recovery_time, estimate=True, prop=True, scale=1, data_type='cases_mean'):
@@ -109,8 +109,8 @@ weeks = 4
 pred_length = 7*weeks
 pred_1, pred_2 = 2, 7
 xlable = ['a', 'b', 'c', 'd', 'e', 'f']
-fontsize = 12
-fig, ax = plt.subplots(3,4, figsize=[15,10])#, gridspec_kw={'height_ratios': [1.5, 1., 1.5, 1]})
+fontsize = 13
+fig, ax = plt.subplots(3,4, figsize=[15,10], gridspec_kw = {'wspace':.25, 'hspace':.45})#, gridspec_kw={'height_ratios': [1.5, 1., 1.5, 1]})
 # ax = ax.flatten()
 for idx in range(3):
     country = countries[idx]
@@ -189,6 +189,7 @@ for idx in range(3):
     ax[idx,0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=10, c='tab:blue', label=f'{pred_1} days prediction')
     ax[idx,0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=10, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
     ax[idx,0].legend(fontsize=fontsize)
+    ax[idx,0].set_ylim(0,data_train.max()/N*2)
     plt.setp(ax[idx,0].get_xticklabels(), rotation=45)
     ax[idx,0].set_ylim(0, ax[idx,0].axes.get_ylim()[1]*1.3)
     ax[idx,0].set_xlabel(f"({xlable[idx]}1)",fontsize=fontsize)
@@ -272,7 +273,7 @@ rows = ['Mexico', 'South Africa', 'South Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=15, ha='center', va='center', rotation=90)
+                fontsize=25, ha='center', va='center', rotation=90)
     
 # cols = ['Infected percentage', '$\mu$', 'Infected percentage', 'Model date']
 # for ax_, col in zip(ax[0], cols):
@@ -280,7 +281,7 @@ for ax_, row in zip(ax[:,0], rows):
 #                 xycoords='axes fraction', textcoords='offset points',
 #                 fontsize=15, ha='center', va='baseline')
 
-fig.tight_layout()
+# fig.tight_layout()
 fig.savefig(f'./figures/prediction_actual_real.png', \
             bbox_inches='tight', dpi=300)
 
@@ -328,8 +329,8 @@ weeks = 4
 pred_length = 7*weeks
 pred_1, pred_2 = 2, 7
 xlable = ['d', 'e', 'f']
-fontsize = 12
-fig, ax = plt.subplots(3,4, figsize=[15,10])#, gridspec_kw={'height_ratios': [1.5, 1., 1.5, 1]})
+fontsize = 13
+fig, ax = plt.subplots(3,4, figsize=[15,10], gridspec_kw = {'wspace':.25, 'hspace':.45})#, gridspec_kw={'height_ratios': [1.5, 1., 1.5, 1]})
 # ax = ax.flatten()
 for idx in range(3):
     country = countries[idx]
@@ -408,6 +409,7 @@ for idx in range(3):
     ax[idx,0].scatter(time_day.iloc[pred_idx], prediction_I/N, s=10, c='tab:blue', label=f'{pred_1} days prediction')
     ax[idx,0].scatter(time_day.iloc[pred_idx], prediction_I_/N, s=10, facecolors='none', edgecolors='tab:green', label=f'{pred_2} days prediction')
     ax[idx,0].legend(fontsize=fontsize)
+    ax[idx,0].set_ylim(0,data_train.max()/N*2)
     plt.setp(ax[idx,0].get_xticklabels(), rotation=45)
     ax[idx,0].set_ylim(0, ax[idx,0].axes.get_ylim()[1]*1.3)
     ax[idx,0].set_xlabel(f"({xlable[idx]}1)",fontsize=fontsize)
@@ -491,7 +493,7 @@ rows = ['Mexico', 'South Africa', 'South Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=15, ha='center', va='center', rotation=90)
+                fontsize=25, ha='center', va='center', rotation=90)
     
 # cols = ['Infected percentage', '$\mu$', 'Infected percentage', 'Model date']
 # for ax_, col in zip(ax[0], cols):
@@ -542,6 +544,10 @@ print(f'Estimated SK: {error_SK_E}')
 
 
 
+font = {#'family' : 'normal',
+        # 'weight' : 'normal', #'bold'
+        'size'   : 12}
+matplotlib.rc('font', **font)
 
 
 country = 'simulation'
@@ -559,8 +565,8 @@ peaks = [39, 178, 291] ### three peaks of the synthetic data
 
 point_show = np.arange(20,350,6)
 
-fontsize=12
-fig, ax = plt.subplots(1,4,figsize=(15,3))
+fontsize=13
+fig, ax = plt.subplots(1,4,figsize=(15,3), gridspec_kw = {'wspace':.25, 'hspace':.45})
 ax = ax.flatten()
 # ax[3].axis('off')
 

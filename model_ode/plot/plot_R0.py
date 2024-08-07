@@ -47,7 +47,8 @@ directory = 'samples_'
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 fig, ax = plt.subplots(3, 3, figsize=[18,12], gridspec_kw={'height_ratios': [1, 1, 1]})
-fontsize = 15
+fontsize = 18
+fontsize_label = 13
 
 countries = ['real_Mexico', 'real_South Africa', 'real_Republic of Korea']
 
@@ -97,7 +98,7 @@ mu_median = round(np.median(mu))
 ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
 ax[idx,0].set_xticks([347-mu_median,347], [mu_median,0])
 # ax[idx,0].set_yticks([])
-ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,0].set_xlabel("(a1)",fontsize=fontsize)
 
 ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper right',\
@@ -108,7 +109,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # for pc in violin_parts['bodies']:
 #     pc.set_facecolor('red')
 #     pc.set_edgecolor('black')
@@ -125,7 +126,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 # ax_inset2.set_yticks([1,10,20,30])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -139,7 +140,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(a2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12.3)
 ax[idx,1].legend(fontsize=fontsize, loc='upper left')
@@ -159,7 +160,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(a3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
 ax[idx,2].legend(fontsize=fontsize)
@@ -227,7 +228,7 @@ mu_median = round(np.median(mu))
 ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
 ax[idx,0].set_xticks([347-mu_median,347], [mu_median,0])
 # ax[idx,0].set_yticks([])
-ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,0].set_xlabel("(b1)",fontsize=fontsize)
 
 ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
@@ -238,7 +239,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 
 
 ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
@@ -249,7 +250,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 # ax_inset2.set_yticks([1,10,20,30])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -262,7 +263,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(b2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12)
 ax[idx,1].legend(fontsize=fontsize)
@@ -283,7 +284,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(b3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
 ax[idx,2].legend(fontsize=fontsize)
@@ -361,7 +362,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 
 
 ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
@@ -372,7 +373,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 # ax_inset2.set_yticks([1,10,20,30])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -385,7 +386,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(c2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12)
 ax[idx,1].legend(fontsize=fontsize)
@@ -404,7 +405,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(c3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[2,idx].axes.get_ylim()[1]*1.3)
 ax[idx,2].legend(fontsize=fontsize)
@@ -426,13 +427,13 @@ rows = ['Mexico', 'South Africa', 'South Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=18, ha='center', va='center', rotation=90)
+                fontsize=25, ha='center', va='center', rotation=90)
     
 cols = ['$K(\cdot)$', '$R_0(t)$', 'j']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
-                fontsize=18, ha='center', va='baseline')
+                fontsize=25, ha='center', va='baseline')
 
 # fig.tight_layout()
 fig.savefig('./figures/samples_actual_real.png', bbox_inches='tight', dpi=300)
@@ -452,7 +453,7 @@ fig.savefig('./figures/samples_actual_real.png', bbox_inches='tight', dpi=300)
 
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 fig, ax = plt.subplots(3, 3, figsize=[18,12], gridspec_kw={'height_ratios': [1, 1, 1]})
-fontsize = 15
+fontsize = 18
 
 countries = ['estimate_Mexico', 'estimate_South Africa', 'estimate_Republic of Korea']
 
@@ -506,7 +507,7 @@ mu_median = round(np.median(mu))
 ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
 ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
 # ax[idx,0].set_yticks([])
-ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,0].set_xlabel("(d1)",fontsize=fontsize)
 
 ax_inset1 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
@@ -517,7 +518,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 
 
 ax_inset2 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
@@ -528,7 +529,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 # ax_inset2.set_yticks([1,10,20,30])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -541,7 +542,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(d2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12)
 ax[idx,1].legend(fontsize=fontsize)
@@ -560,7 +561,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(d3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
 ax[idx,2].legend(fontsize=fontsize)
@@ -626,7 +627,7 @@ mu_median = round(np.median(mu))
 ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
 ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
 # ax[idx,0].set_yticks([])
-ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,0].set_xlabel("(e1)",fontsize=fontsize)
 
 ax_inset1 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
@@ -637,7 +638,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 
 
 ax_inset2 = inset_axes(ax[idx,0], width="18%", height="70%", loc='upper left',\
@@ -648,7 +649,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 ax_inset2.set_yticks([25,30,35])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -661,7 +662,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(e2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12)
 ax[idx,1].legend(fontsize=fontsize)
@@ -680,7 +681,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(e3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.3)
 ax[idx,2].legend(fontsize=fontsize)
@@ -745,7 +746,7 @@ mu_median = round(np.median(mu))
 ax[idx,0].axvline(347-mu_median, color='purple', label='axvline')
 ax[idx,0].set_xticks([0,347-mu_median,347], [347,mu_median,0])
 # ax[idx,0].set_yticks([])
-ax[idx,0].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,0].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,0].set_xlabel("(f1)",fontsize=fontsize)
 
 ax_inset1 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
@@ -756,7 +757,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset1.set_xticks([])#[1], [r'$\mu$'])
 ax_inset1.set_title(r'$\mu$', fontsize=fontsize)
 # ax_inset1.set_yticks([50,60,70,74,80])
-ax_inset1.tick_params(axis='both', which='major', labelsize=11)
+ax_inset1.tick_params(axis='both', which='major', labelsize=fontsize_label)
 
 
 ax_inset2 = inset_axes(ax[idx,0], width="20%", height="70%", loc='upper left',\
@@ -767,7 +768,7 @@ violin_parts['cmedians'].set_color('purple')
 ax_inset2.set_xticks([])#[1], [r'$\sigma$'])
 ax_inset2.set_title(r'$\sigma$', fontsize=fontsize)
 # ax_inset2.set_yticks([1,10,20,30])
-ax_inset2.tick_params(axis='both', which='major', labelsize=11)
+ax_inset2.tick_params(axis='both', which='major', labelsize=fontsize_label)
 # ax_inset2.legend(fontsize=5)
 
 
@@ -780,7 +781,7 @@ ax[idx,1].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,1].axhline(y=1, color='gray', linestyle='dashed')
 ax[idx,1].set_xticks([0,200,347,400])
 ax[idx,1].set_yticks([1,3,5,7,9])
-ax[idx,1].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,1].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,1].set_xlabel("(f2)",fontsize=fontsize)
 ax[idx,1].set_ylim(0,12)
 ax[idx,1].legend(fontsize=fontsize)
@@ -799,7 +800,7 @@ ax[idx,2].plot(np.median(pred[:,:,1],axis=0)/population, label=r'Median j')
 ax[idx,2].axvline(347, color='gray', linestyle='dashed')#, label='axvline')
 ax[idx,2].set_xticks([0,200,347,400])
 # ax[idx,2].set_yticks([2,4,6,8])
-ax[idx,2].tick_params(axis='both', which='major', labelsize=11)
+ax[idx,2].tick_params(axis='both', which='major', labelsize=fontsize_label)
 ax[idx,2].set_xlabel("(f3)",fontsize=fontsize)
 ax[idx,2].set_ylim(0, ax[idx,2].axes.get_ylim()[1]*1.)
 ax[idx,2].legend(fontsize=fontsize)
@@ -822,14 +823,14 @@ rows = ['Mexico', 'South Africa', 'South Korea']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=18, ha='center', va='center', rotation=90)
+                fontsize=25, ha='center', va='center', rotation=90)
     
 
 cols = ['$K(\cdot)$', '$R_0(t)$', 'j']
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
-                fontsize=18, ha='center', va='baseline')
+                fontsize=25, ha='center', va='baseline')
 
 # fig.tight_layout()
 fig.savefig('./figures/samples_actual_estimate.png', bbox_inches='tight', dpi=300)

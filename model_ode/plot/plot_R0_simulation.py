@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib
 font = {#'family' : 'normal',
         # 'weight' : 'normal', #'bold'
-        'size'   : 10}
+        'size'   : 14}
 matplotlib.rc('font', **font)
 
 simulation = np.load('../../data/simulation_2_3.npy')[:400]
@@ -98,7 +98,7 @@ beta_simulation = 2.3*8/9
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 fig, ax = plt.subplots(3,3, figsize=[18,12])#, gridspec_kw={'width_ratios': [1,1,1], 'height_ratios': [1.5,1.5,1,1,1]})
-fontsize = 15
+fontsize = 16
 
 ax_K3 = ax[0,0]
 ax_K3.plot(t,distribution_3, alpha=.5)
@@ -403,13 +403,13 @@ rows = ['$K(\cdot)$', '$R_0(t)$', 'j', 's', 'r']
 for ax_, row in zip(ax[:,0], rows):
     ax_.annotate(row, xy=(0, 0.5), xytext=(-ax_.yaxis.labelpad - pad, 0),
                 xycoords=ax_.yaxis.label, textcoords='offset points',
-                fontsize=15, ha='right', va='center', rotation=90)
+                fontsize=25, ha='right', va='center', rotation=90)
     
 cols = ['$R_0(t)\in(0,3.5)$', '$R_0(t)\in(0,6)$','$R_0(t)\in(0,10)$'] 
 for ax_, col in zip(ax[0], cols):
     ax_.annotate(col, xy=(0.5, 1), xytext=(0, pad),
                 xycoords='axes fraction', textcoords='offset points',
-                fontsize=15, ha='center', va='baseline')
+                fontsize=25, ha='center', va='baseline')
 
-# fig.tight_layout()
+# fig.tight_layout(pad=0, w_pad=0, h_pad=0)
 fig.savefig('./figures/samples_simulation.png', bbox_inches='tight', dpi=300)
